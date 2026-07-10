@@ -1,0 +1,31 @@
+{
+  "evidence": {
+    "decisions": [
+      "D98: project and blueprint preserve an artifact-general isolated review core; V0 formally ships only the code_diff audit profile; non-diff types remain ReviewResult-only until adapter, trusted anchor, eval baseline, and renderer profile gates pass.",
+      "D99: finalize generates and validates candidate audit.json and audit.html in a hidden sibling staging workspace, then publishes them with a same-filesystem no-clobber directory rename.",
+      "D99 failure semantics: a newly accepted target stays absent on pre-commit hard failure; a pre-existing, symlink, or race-created target stays unchanged and cannot count as this run's success.",
+      "prepare returns a machine-readable locator with run_id, final_dir, and staging_dir; the Skill does not reproduce path naming rules.",
+      "independent render --out atomically replaces only the requested HTML; failures preserve the old HTML and never modify audit.json."
+    ],
+    "scope": "documentation, blueprint, plan, ADR, and design assets only; no implementation migration",
+    "validation": [
+      "git diff --check and trailing-whitespace scan",
+      "all JSON files parsed; two audit fixtures passed unique-ID and edge-endpoint checks",
+      "local Markdown links resolved",
+      "inline JavaScript in both HTML reference artifacts passed node --check",
+      "two SVGs passed latest Fireworks validate-svg.sh plus xmllint",
+      "PNG exports verified at 2400x1560 and 2400x1720"
+    ],
+    "visual_review": "passed"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "fireworks_commit": "9a64e5a",
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_008",
+    "user_confirmation": "D98 and D99 explicit"
+  },
+  "timestamp": "2026-07-10T10:38:41+00:00",
+  "verdict": "documentation_closure_ready_for_user_audit"
+}

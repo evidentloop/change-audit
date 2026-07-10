@@ -1,0 +1,19 @@
+{
+  "evidence": {
+    "decisions": [
+      "D98: V0 publicly commits only to Git diff -> audit.json + audit.html; change_audit.review keeps an artifact-general long-term direction; non-diff types begin as ReviewResult-only and become formal audit profiles only after adapter, anchor, eval baseline, and renderer profile exist.",
+      "D98 blueprint clarification: repository-level project blueprint must describe the long-term artifact-general product direction rather than treating Git diff as the permanent product boundary.",
+      "D99: finalize stages audit.json and audit.html, completes all validation, then publishes the formal artifact pair; hard failures must not leave a half-published report."
+    ],
+    "scope": "documentation, plan, blueprint, and design assets only; no implementation migration"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_007",
+    "user_confirmation": "explicit"
+  },
+  "timestamp": "2026-07-10T10:11:57+00:00",
+  "verdict": "confirmed"
+}

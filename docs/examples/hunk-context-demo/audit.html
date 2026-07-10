@@ -503,7 +503,7 @@
         <div>
           <div class="kicker">Audit Report</div>
           <h1>auth token refresh 修复审计</h1>
-          <div class="muted">run-001 · source: HEAD~1 · schema: 0.2-alpha</div>
+          <div class="muted">run-001 · source: HEAD~1 · schema: 0.2-alpha · review_status: complete</div>
         </div>
         <div class="verdict">
           <span class="muted">当前结论</span>
@@ -557,21 +557,20 @@
       <div class="feedback-panel">
         <div>
           <strong>用户审计决策</strong>
-          <div class="ref">点击按钮记录你对每个问题的判断。可复制给下一轮 LLM，也可导出 JSONL 交给后续工具链使用。</div>
+          <div class="ref">点击按钮记录你对每个问题的判断，并导出 JSONL 交给后续工具链使用。</div>
         </div>
         <div class="feedback-row">
-          <button class="export-feedback" type="button" id="copy-feedback">复制给 LLM</button>
           <button class="export-feedback" type="button" id="export-feedback">导出反馈 JSONL</button>
-          <span class="feedback-status" id="copy-feedback-status"></span>
         </div>
       </div>
 
-      <article class="finding-card high" data-node-id="finding-001" data-node-type="finding" data-severity="high" data-fingerprint="sha256:auth-service-cache-token-return">
+      <article class="finding-card high" data-node-id="finding-001" data-node-type="finding" data-category="bug" data-severity="high" data-fingerprint="sha256:8dff2181ef31abd0da2e48485f1809dbaf5379d69f89335c89ae1a09465ae681">
         <div class="finding-header">
           <span class="badge risk">HIGH</span>
+          <span class="badge soft">bug</span>
           <div>
             <span class="finding-title">旧 token 仍可能被缓存层返回</span>
-            <span class="loc"><a href="vscode://file/src/auth_service.py:38">src/auth_service.py:38-52</a></span>
+            <span class="loc"><a href="vscode://file/src/auth_service.py:39">src/auth_service.py:39-41</a></span>
           </div>
           <span class="badge risk">open</span>
         </div>
@@ -581,7 +580,7 @@
               <div class="finding-note">
                 <strong>为什么是问题：</strong><code>refresh_token</code> 已改为抛异常，但 <code>get_token</code> 会先查 Redis 缓存。缓存未过期时，旧 token 仍可能直接返回给调用方。
               </div>
-              <div class="hunk">
+              <div class="hunk" data-hunk-id="hunk:src/auth_service.py:38:1">
                 <div class="hunk-caption">
                   <span>diff hunk · highlight_lines: 39-41</span>
                   <span>line_side: new</span>
@@ -590,22 +589,22 @@
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">38</td><td class="hunk-code">    def get_token(self, user_id: str) -> Token:</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">39</td><td class="hunk-code">        cached = self.cache.get(f"token:{user_id}")</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">40</td><td class="hunk-code">        if cached and not cached.expired:</td></tr>
-                  <tr class="hunk-ctx"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">41</td><td class="hunk-code">            return cached  # old token may still return here</td></tr>
+                  <tr class="hunk-ctx"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">41</td><td class="hunk-code">            return cached</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">42</td><td class="hunk-code"></td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">43</td><td class="hunk-code">        token = self.fetch_token(user_id)</td></tr>
-                  <tr class="hunk-del"><td class="hunk-stripe"></td><td class="hunk-num">44</td><td class="hunk-code">-       if token.expired:</td></tr>
-                  <tr class="hunk-del"><td class="hunk-stripe"></td><td class="hunk-num">45</td><td class="hunk-code">-           return token</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">44</td><td class="hunk-code">+       if token.expired:</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">45</td><td class="hunk-code">+           raise TokenExpiredError(</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">46</td><td class="hunk-code">+               f"Token for {user_id} expired at {token.expires_at}"</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">47</td><td class="hunk-code">+           )</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">48</td><td class="hunk-code">+       self.cache.set(f"token:{user_id}", token, ttl=token.ttl)</td></tr>
+                  <tr class="hunk-del"><td class="hunk-stripe"></td><td class="hunk-num">44</td><td class="hunk-code">-        if token.expired:</td></tr>
+                  <tr class="hunk-del"><td class="hunk-stripe"></td><td class="hunk-num">45</td><td class="hunk-code">-            return token</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">44</td><td class="hunk-code">+        if token.expired:</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">45</td><td class="hunk-code">+            raise TokenExpiredError(</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">46</td><td class="hunk-code">+                f"Token for {user_id} expired at {token.expires_at}"</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">47</td><td class="hunk-code">+            )</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">48</td><td class="hunk-code">+        self.cache.set(f"token:{user_id}", token, ttl=token.ttl)</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">49</td><td class="hunk-code">        return token</td></tr>
                 </table>
               </div>
             </div>
             <aside class="chain">
-              <div class="chain-row"><span class="chain-label">Evidence</span><span data-node-id="evidence-002" data-node-type="evidence" data-edge-id="edge-008">CrossReview 标记缓存路径绕过修复</span></div>
+              <div class="chain-row"><span class="chain-label">Evidence</span><span data-node-id="evidence-002" data-node-type="evidence" data-edge-id="edge-008">隔离宿主审查标记缓存路径绕过修复</span></div>
               <div class="chain-row"><span class="chain-label">Fix</span><span data-node-id="fix-001" data-node-type="fix" data-edge-id="edge-006">fix-001 · refresh 成功后更新缓存</span></div>
               <div class="chain-row"><span class="chain-label">Decision</span><span>等待用户确认或标记非问题</span></div>
             </aside>
@@ -628,12 +627,12 @@
         </div>
       </article>
 
-      <article class="finding-card medium" data-node-id="finding-002" data-node-type="finding" data-severity="medium" data-fingerprint="sha256:test-auth-boundary-expiry-missing">
+      <article class="finding-card medium" data-node-id="finding-002" data-node-type="finding" data-category="quality" data-severity="medium" data-fingerprint="sha256:8eb3f0b05ecd189b40e9ea87341cf6342f122ace30645f1e0802a5972687faff">
         <div class="finding-header">
           <span class="badge warn">MED</span>
           <div>
             <span class="finding-title">缺少 token 过期边界时间的测试</span>
-            <span class="loc"><a href="vscode://file/tests/test_auth.py:67">tests/test_auth.py:67-84</a></span>
+            <span class="loc"><a href="vscode://file/tests/test_auth.py:78">tests/test_auth.py:78-82</a></span>
           </div>
           <span class="badge warn">open</span>
         </div>
@@ -643,9 +642,9 @@
               <div class="finding-note">
                 <strong>为什么是问题：</strong>新增测试覆盖了已过期和未过期两种情况，但没有覆盖 <code>expires_at == now</code>。时钟漂移场景下可能导致不确定行为。
               </div>
-              <div class="hunk">
+              <div class="hunk" data-hunk-id="hunk:tests/test_auth.py:67:1">
                 <div class="hunk-caption">
-                  <span>diff hunk · highlight_lines: 78-80</span>
+                  <span>diff hunk · highlight_lines: 78-82</span>
                   <span>line_side: new</span>
                 </div>
                 <table class="hunk-table">
@@ -654,22 +653,24 @@
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">69</td><td class="hunk-code">        with pytest.raises(TokenExpiredError):</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">70</td><td class="hunk-code">            service.get_token("user-expired")</td></tr>
                   <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">71</td><td class="hunk-code"></td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">72</td><td class="hunk-code">+   def test_valid_token_returned():</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">73</td><td class="hunk-code">+       service = AuthService(cache=FakeCache())</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">74</td><td class="hunk-code">+       token = service.get_token("user-valid")</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">75</td><td class="hunk-code">+       assert token.value == "valid-token-123"</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">76</td><td class="hunk-code">+       assert not token.expired</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">72</td><td class="hunk-code">+    def test_valid_token_returned():</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">73</td><td class="hunk-code">+        service = AuthService(cache=FakeCache())</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">74</td><td class="hunk-code">+        token = service.get_token("user-valid")</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">75</td><td class="hunk-code">+        assert token.value == "valid-token-123"</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">76</td><td class="hunk-code">+        assert not token.expired</td></tr>
                   <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">77</td><td class="hunk-code">+</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">78</td><td class="hunk-code">+   # TODO: missing expires_at == now boundary test</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">79</td><td class="hunk-code">+   # def test_boundary_expiry():</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">80</td><td class="hunk-code">+   #     ???</td></tr>
-                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">81</td><td class="hunk-code">+</td></tr>
-                  <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">82</td><td class="hunk-code">    def test_cache_miss_fetches_new():</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">78</td><td class="hunk-code">+    # TODO: 缺少 expires_at == now 的边界测试</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">79</td><td class="hunk-code">+    # def test_boundary_expiry():</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">80</td><td class="hunk-code">+    #     service = AuthService(cache=FakeCache())</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">81</td><td class="hunk-code">+    #     token = service.get_token("user-boundary")</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe hunk-stripe-active"></td><td class="hunk-num">82</td><td class="hunk-code">+    #     ???</td></tr>
+                  <tr class="hunk-add"><td class="hunk-stripe"></td><td class="hunk-num">83</td><td class="hunk-code">+</td></tr>
+                  <tr class="hunk-ctx"><td class="hunk-stripe"></td><td class="hunk-num">84</td><td class="hunk-code">    def test_cache_miss_fetches_new():</td></tr>
                 </table>
               </div>
             </div>
             <aside class="chain">
-              <div class="chain-row"><span class="chain-label">Evidence</span><span data-node-id="evidence-002" data-node-type="evidence" data-edge-id="edge-009">CrossReview 标记边界测试缺口</span></div>
+              <div class="chain-row"><span class="chain-label">Evidence</span><span data-node-id="evidence-002" data-node-type="evidence" data-edge-id="edge-009">隔离宿主审查标记边界测试缺口</span></div>
               <div class="chain-row"><span class="chain-label">Fix</span><span data-node-id="fix-002" data-node-type="fix" data-edge-id="edge-007">fix-002 · 补边界时间测试</span></div>
               <div class="chain-row"><span class="chain-label">Decision</span><span>等待用户确认或降级</span></div>
             </aside>
@@ -724,7 +725,7 @@
         <h2>4. 多轮对比</h2>
         <span class="badge soft">single run</span>
       </div>
-      <p class="muted">当前为 run-001（初次审计），暂无历史对比。修复后重跑 <code>change-audit build</code> 将生成 run-002，并用于展示风险下降、finding 关闭和摘要审计状态变化。</p>
+      <p class="muted">当前为 run-001（初次审计），暂无历史对比。后续可再次让 AI host 使用 change-audit Skill 审计新的 diff，生成新快照并展示风险下降、finding 关闭和摘要审计状态变化。</p>
     </section>
 
     <section>
@@ -744,8 +745,8 @@
             <td class="ref">说明现有测试通过，但未覆盖 finding-002 的边界</td>
           </tr>
           <tr data-node-id="evidence-002" data-node-type="evidence" data-status="fail">
-            <td>CrossReview 标记 get_token 缓存路径可能绕过 refresh_token 修复</td>
-            <td>cross_review</td>
+            <td>隔离宿主审查标记 get_token 缓存路径可能绕过 refresh_token 修复</td>
+            <td>host_llm</td>
             <td><span class="badge risk">fail</span></td>
             <td class="ref">挑战 claim-001 · 支持 finding-001, finding-002</td>
           </tr>
@@ -814,56 +815,6 @@
         const extra = action === "severity_override" ? { severity: button.dataset.severity } : {};
         upsertFeedback(createRecord(panel, action, extra));
       });
-    });
-
-    function createLLMSummary() {
-      const records = loadFeedback();
-      const verdict = document.querySelector(".verdict strong")?.textContent.trim() || "unknown";
-      const lines = [
-        "# change-audit human decisions",
-        "",
-        "Run: run-001",
-        "Source: HEAD~1",
-        `Verdict: ${verdict}`,
-        "",
-        "Findings:"
-      ];
-
-      document.querySelectorAll(".finding-card").forEach((card) => {
-        const title = card.querySelector(".finding-title")?.textContent.trim() || card.dataset.nodeId;
-        const severity = (card.dataset.severity || "unknown").toUpperCase();
-        const findingRecords = records.filter((item) => item.target_id === card.dataset.nodeId);
-
-        const strongDecisions = findingRecords.filter((r) => r.action === "accept" || r.action === "false_positive");
-        const decision = strongDecisions.length > 0 ? strongDecisions[strongDecisions.length - 1] : null;
-
-        const overrides = findingRecords.filter((r) => r.action === "severity_override");
-        const override = overrides.length > 0 ? overrides[overrides.length - 1] : null;
-
-        const comments = findingRecords.filter((r) => r.action === "comment");
-
-        lines.push(`- ${card.dataset.nodeId} ${severity}: ${title}`);
-        lines.push(`  fingerprint: ${card.dataset.fingerprint}`);
-        lines.push(`  decision: ${decision ? decision.action : "pending"}`);
-        if (override?.severity) lines.push(`  severity_override: ${override.severity}`);
-        comments.forEach((c) => {
-          if (c.reason) lines.push(`  comment: ${c.reason}`);
-        });
-      });
-
-      lines.push("");
-      lines.push("Use these human decisions as context for the next repair pass. Do not treat pending findings as resolved.");
-      return lines.join("\n");
-    }
-
-    document.getElementById("copy-feedback").addEventListener("click", async () => {
-      const status = document.getElementById("copy-feedback-status");
-      try {
-        await navigator.clipboard.writeText(createLLMSummary());
-        status.textContent = "已复制，可粘贴给 LLM";
-      } catch {
-        status.textContent = "复制失败，请改用导出 JSONL";
-      }
     });
 
     document.getElementById("export-feedback").addEventListener("click", () => {

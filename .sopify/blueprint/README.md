@@ -2,26 +2,25 @@
 
 ## 状态
 
-已完成项目初始化与 `change-audit` 正式改名。长期蓝图已创建，尚未开始实现代码。
-
-## 维护方式
-
-本文件只作为索引。产品背景写入 `background.md`，架构契约写入 `design.md`，延后任务写入 `tasks.md`。
+产品边界和一期方案已经确认，当前仓库仍处于实现前阶段。CrossReview 尚未迁移，`change-audit` 也尚未提供可安装运行能力。
 
 ## 当前目标
 
-将 `change-audit` 定义为独立的 AI 代码变更审计工具，可消费 CrossReview 结果，后续也可集成到 Sopify；Audit Graph 只作为内部数据模型。
+交付一个产品、一个 Python 包和一个 AI host Skill：`change_audit.review` 是 artifact-general 隔离审查内核，正式 audit 能力按 artifact profile 成熟度放行；Python 负责可信上下文、结构化审计、校验和确定性呈现。
 
 ## 当前焦点
 
-冻结 `audit.json` v0 schema，并通过 renderer-first spike 验证首张 finding card。
+按当前方案先交付 Git diff 首个正式 profile，再实现宿主审查与反馈闭环；`audit.json` / `audit.html` 通过同父目录 staging 完成校验后成对提交。Codex 是首个 dogfood 宿主，Qoder 是第二宿主。
 
-## 深入阅读
+## 维护方式
+
+本目录只保留长期真相：`background.md` 说明产品问题，`design.md` 说明稳定架构，`tasks.md` 只列未完成长期项。实现任务、验收门禁和已确认决策以当前方案包为准。
+
+## 阅读入口
 
 - [项目技术约定](../project.md)
-- [蓝图背景](./background.md)
-- [蓝图设计](./design.md)
+- [产品背景](./background.md)
+- [长期设计](./design.md)
 - [长期任务](./tasks.md)
-- [初始化方案归档](../history/2026-07/20260707_audit_graph_init/background.md)
-- [正式改名方案归档](../history/2026-07/20260710_change_audit_rename/background.md)
+- [当前方案](../plan/20260710_audit_json_v0_schema_renderer_spike/plan.md)
 - [变更历史](../history/index.md)

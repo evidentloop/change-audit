@@ -1,78 +1,139 @@
 # change-audit
 
-Audit trail for AI-generated code changes.
+Traceable review and audit artifacts for AI-generated work.
 
 [简体中文](README.zh-CN.md)
 
-AI coding tools generate code fast. AI review tools catch issues fast. But the audit trail — what changed, what was reviewed, what was accepted, what is still open — lives in scattered chat logs and terminal output. When a human finally reads the report, the context is gone.
+`change-audit` combines an artifact-general isolated review core with profile-specific audit outputs. V0's first formal profile turns a local Git diff, semantic review from the host LLM, and human decisions into two core artifacts:
 
-`change-audit` collects review evidence into two auditable artifacts: a machine-readable Audit Graph (`audit.json`) and a self-contained HTML audit page (`audit.html`) with code context, evidence links, and user decision controls.
+- `audit.json`: the validated machine-readable source of truth.
+- `audit.html`: a self-contained report with code context, evidence links, and decision controls.
 
 ```text
-AI coding diff + review signals → audit.json → audit.html → human decision JSONL
+natural-language request
+  -> AI host Skill
+  -> prepare -> host LLM -> finalize
+  -> stage + validate audit.json and audit.html
+  -> publish the formal artifact pair
+  -> optional audit-feedback.jsonl
 ```
 
 ![change-audit architecture](docs/assets/change-audit-architecture.png)
 
 ## Status
 
-Design and data model are defined. Implementation has not started.
+The target design, data model, and HTML reference are defined. Implementation has not started. The active plan closes documentation only and does not migrate CrossReview code yet.
 
-## Who Is This For
+## V0 Delivery Shape
 
-- **AI coding teams** who need to verify AI-generated code before merging, not just trust the review summary.
-- **Workflow builders** embedding audit checkpoints into AI coding pipelines like Sopify.
-- **Solo developers** who want a structured audit view after AI generates and reviews their code.
+V0 is one Python package plus one Agent Skill:
 
-## What It Does Not Do
+- The Python package owns Git diff parsing, the internal CrossReview subsystem, the Audit Graph adapter, validation, and rendering.
+- The Skill owns natural-language discovery, installation consent, host-LLM invocation, failure handling, and report presentation.
+- The default Python path does not call a model SDK or manage API keys.
+- Audited projects do not need a copied integration file.
 
-`change-audit` does not generate findings, run tests, or decide whether code is correct. It visualizes review signals from other tools and makes them traceable.
+The user says:
 
-## Target Output
+```text
+Use change-audit to review my recent local changes.
+```
 
-v0 target HTML shape — design reference, not yet implemented.
+The package exposes three module entries. The normal Skill path calls `prepare` and `finalize`; `finalize` renders automatically, while `render` is the independent re-render entry:
+
+```bash
+python -m change_audit prepare --diff HEAD~1
+python -m change_audit finalize --out audit/20260710_example/
+python -m change_audit render audit/20260710_example/audit.json --out audit/20260710_example/audit.html
+```
+
+`review` is a Skill action, not a Python command.
+
+For independent re-rendering, an explicit `--out` authorizes atomic replacement of that HTML file only. Validation failure preserves the previous HTML and never modifies `audit.json`.
+
+## Artifacts
+
+Default directory:
+
+```text
+audit/YYYYMMDD_<slug>/
+  audit.json
+  audit.html
+  .run/                    # only when review artifacts were explicitly retained
+```
+
+During execution, prepare uses a hidden sibling workspace such as `audit/.<slug>.change-audit-staging/`. After both JSON and HTML pass validation, finalize rechecks that the final target leaf is absent and commits the staging directory with one same-filesystem rename. If the target already exists when checked or the rename fails, finalize stops and keeps staging diagnostics; it does not intentionally delete or overwrite an existing target. V0 assumes a local single-writer, non-adversarial workflow and does not promise native race-proof no-replace semantics. On POSIX, 0700/0600 modes are best-effort privacy settings, not a cross-platform gate.
+
+The user may export `audit-feedback.jsonl` from the HTML. A browser does not guarantee that the download lands back in the audit directory.
+
+| Artifact | Shown by default | Purpose |
+|---|---|---|
+| `audit.json` | yes | canonical Audit Graph |
+| `audit.html` | yes | human review and decision UI |
+| `audit-feedback.jsonl` | only after export | human decisions on findings |
+| `.run/` | no | internal ReviewPack, prompt, raw analysis, and diagnostics; present in the final directory only when explicitly retained |
+
+Users do not need to understand ReviewPack, ReviewResult, or CrossReview to use the product.
+
+## Artifact Profiles
+
+The internal `change_audit.review` subsystem can evolve toward reviewable artifacts such as plans, designs, analyses, review results, and agent outputs. A type becomes a formal audit profile only after it has an adapter, trusted anchors, an evaluation baseline, and a renderer profile.
+
+Before those gates are met, experimental non-diff types may produce an internal ReviewResult or host summary, but do not claim `audit.json` / `audit.html` support. The `0.2` schema is the code-diff audit profile, not a universal artifact schema.
+
+## Review Capability
+
+The host LLM is the primary semantic finding producer in V0. It can identify logic bugs, security risks, missing edge cases, test gaps, and quality concerns.
+
+Python keeps the result auditable:
+
+- File paths, lines, and hunks must resolve to the real diff parsed during prepare.
+- The LLM does not generate node IDs, edges, fingerprints, or risk scores.
+- An unanchored semantic bug is retained as an unscored risk instead of being silently dropped.
+- Not reviewed, complete, partial, and failed are separate execution states.
+
+## Target HTML
+
+Target v0 HTML shape — a design reference, not generated by an implementation yet.
 
 ![v0 target HTML shape](docs/assets/audit-html-preview.png)
 
-## Inputs and Outputs
+The page answers:
 
-| Direction | File | Description |
-|-----------|------|-------------|
-| IN | Git diff / staged / unstaged | Change source |
-| IN | CrossReview `ReviewResult` JSON | Review findings |
-| IN | Test / lint / typecheck / scan results | Deterministic evidence |
-| OUT | `audit.json` | Machine-readable audit graph (source of truth) |
-| OUT | `audit.html` | Self-contained human audit view |
-| OUT | `audit-feedback.jsonl` | User decision records (v0 capture only) |
-| OUT | `audit-graph.svg` | Optional risk overview graph |
-| OUT | Markdown | Non-default export for PR or chat |
+1. Was the review completed, and what is the verdict?
+2. What changed, and is the summary supported?
+3. Which bug, risk, quality, or scope findings exist?
+4. Which trusted hunk, evidence, and fix belongs to each finding?
+5. How can the user accept, reject, comment on, or re-severity a finding?
 
-## What It Audits
+A complete review with no unresolved finding omits empty finding sections; fixed history may still be shown. A failed or partial review never looks like a clean result.
 
-Three review questions:
+## Non-goals
 
-- **Change understanding**: what changed, which files were affected, whether the implementation matches the original intent.
-- **Issue review**: bugs, risks, missing edge cases, failed evidence, which findings require fixes.
-- **User decisions**: accept, false positive, severity override, or add context.
+V0 does not include:
 
-An AI coding task may go through multiple rounds of generation, review, fix, and re-review. `change-audit` records that convergence process.
+- model SDK calls or API-key management in the default Python path;
+- automatic code edits or command execution from review text;
+- folder diff, file-only review, or remote PR URLs;
+- feedback consumption, a hosted dashboard, or policy enforcement;
+- a product SVG renderer or Markdown renderer;
+- a PyPI release or the final `change-audit` console script.
 
-## V0 Shape
+These are V0 boundaries, not permanent exclusions from the project blueprint. The SVG and PNG files in this repository are design-document assets, not V0 report formats.
 
-Two CLI commands:
+## Documentation
 
-```text
-change-audit build    # produce audit.json from diff + review inputs
-change-audit render   # produce audit.html from audit.json
-```
+- [V0 scope](docs/v0-scope.md)
+- [Data model](docs/data-model.md)
+- [AI host integration](docs/ai-host-integration.md)
+- [Hunk-context reference](docs/examples/hunk-context-demo/)
+- [Active plan](.sopify/plan/20260710_audit_json_v0_schema_renderer_spike/plan.md)
 
-Each finding is rendered as a card with title, source location, hunk snippet with highlight lines, evidence chain, fix suggestions, and user decision controls. The static HTML uses localStorage to persist feedback and export `audit-feedback.jsonl`.
+## Project Relationships
 
-## Related Projects
-
-- [cross-review](https://github.com/evidentloop/cross-review): independent second-pass review.
-- [tech-report](https://github.com/sateful-ai/tech-report): narrative technical report generation.
-- [sopify](https://github.com/evidentloop/sopify): workflow orchestration and checkpoints.
+- CrossReview: its review core is planned to move into `change_audit.review`; the old repository remains temporarily as the migration baseline.
+- [sopify](https://github.com/evidentloop/sopify): optional workflow and checkpoint orchestration.
+- [tech-report](https://github.com/sateful-ai/tech-report): narrative reports that may consume `audit.json`.
 
 ## License
 

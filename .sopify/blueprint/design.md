@@ -1,173 +1,138 @@
-# change-audit 设计
+# change-audit 长期设计
 
-## 架构
+## 架构边界
 
-计划模块：
+`change-audit` 对用户表现为一个产品、一个 Python 包和一个 AI host Skill。CrossReview 的可复用能力迁入 `change_audit.review`，不再作为外部运行时依赖或第二条用户链路。
 
-- `change_audit.schema`：图谱类型和序列化契约。
-- `change_audit.runs`：审计运行和快照建模。
-- `change_audit.adapters.gitdiff`：将 Git diff 元数据、变更文件和 finding hunk context 转换成图谱节点。
-- `change_audit.adapters.crossreview`：导入 CrossReview `ReviewResult`。
-- `change_audit.adapters.evidence`：导入确定性证据摘要。
-- `change_audit.graph`：归一化并连接节点和边。
-- `change_audit.renderers.html`：渲染默认审计视图 `audit.html`，包含 hunk snippet 和反馈采集。
-- `change_audit.renderers.svg`：可选渲染概览图 `audit-graph.svg`。
-- `change_audit.renderers.markdown`：可选导出摘要或修复清单。
-- `change_audit.cli`：暴露 build 和 render 命令。
+长期模块边界：
 
-## 数据流
+- `change_audit.review`：artifact-general ReviewPack、审查 prompt、结果 ingest、ReviewResult、normalizer、adjudicator 和分类型 eval harness。
+- `change_audit.audit`：profile-specific adapter、Audit Graph 组装、可信锚点校验和正式产物收口；一期先实现 Git diff。
+- `change_audit.schemas` / `change_audit.validation`：唯一 JSON Schema 2020-12 契约和跨对象语义校验。
+- `change_audit.renderers.html`：只消费完整 `audit.json`，输出自包含 `audit.html`。
+- `integrations/agent-skill/change-audit`：负责发现用户意图、授权、宿主 LLM 调用和阶段编排，不复制 Python 业务逻辑。
 
-```text
-Git diff / CrossReview / evidence
-  -> adapters
-  -> audit run
-  -> audit graph
-  -> audit.json
-  -> audit.html
-  -> optional: audit-feedback.jsonl / audit-graph.svg / Markdown export
-```
+基础安装不依赖模型 SDK。原 CrossReview provider-backed 模式如需保留，只能作为可选 extra 和迁移兼容能力，不能成为默认路径。
 
-`audit-feedback.jsonl` 由 `audit.html` 的静态交互导出，不在 v0 build 阶段消费。
+## Artifact profile 放行门禁
 
-## 集成契约
+Review 内核可以先试验新的 artifact 类型；正式 audit 支持必须同时具备：
 
-CrossReview 作为输入格式被消费。`change-audit` 在 v0 不应导入 CrossReview 的私有内部实现。
+1. 将目标归一化为内部审查输入的 adapter。
+2. 可验证 finding 归属的可信 anchor。
+3. 能评估误报、漏报和完成度的 eval baseline。
+4. 与目标结构匹配的 renderer profile。
 
-当配置审计 checkpoint 时，Sopify 可以在 develop 完成后、finalize 前调用 `change-audit`。该集成是可选能力；独立 CLI 使用仍是主产品路径。
+四项未齐备时只允许内部 ReviewResult 或宿主摘要，不宣称已经支持 `audit.json` / `audit.html`。一期 `audit.json 0.2` 是 code-diff profile 契约，不是所有 artifact 的通用稳定 schema。
 
-tech-report 生成叙事型技术报告时，可以读取 `audit.json` 或生成产物。
-
-## 渲染规则
-
-渲染器只消费归一化后的图谱数据，不能回头解析 Git、CrossReview 或原始证据文件。
-
-LLM、CrossReview 或其他上游只负责产生或辅助产生 `audit.json` 兼容数据，不直接生成最终 HTML。HTML 的结构、CSS、JS、反馈交互、复制给 LLM 的摘要和回链校验都由 renderer 拥有，避免每次审计报告样式漂移或丢失 data-* 回链。
-
-本地编辑器跳转链接不写入 `audit.json`。HTML renderer 可以根据 repo root 和用户编辑器偏好生成 `vscode://` 等链接；链接不可用时，页面仍必须依靠 hunk snippet 独立可读。
-
-HTML renderer 的 CSS 和 JS 作为 renderer static assets 维护在 `change_audit/renderers/` 下，渲染时内联嵌入最终 `audit.html`，产物仍为单文件自包含。
-
-HTML 渲染管线包含校验门：
+## 一期 code-diff profile 主链路
 
 ```text
-audit.json -> render HTML -> audit trace validation -> write audit.html
+用户自然语言请求
+  -> AI host Skill
+  -> prepare（同父目录隐藏 staging、Git diff、ReviewPack、可信 hunk index、审计骨架）
+  -> host LLM 隔离语义审查
+  -> finalize（ingest、adapter、锚点与引用校验、render、HTML 回链）
+  -> staging 中的 audit.json + audit.html
+  -> 提交前复查目标 leaf 不存在
+  -> 同文件系统目录 rename
+  -> 最终目录同时出现正式产物对
+  -> 用户决策与可选 audit-feedback.jsonl
 ```
 
-校验门检查 `data-node-id`、`data-claim-id`、`data-fingerprint` 等回链是否与 `audit.json` 一致。校验不通过时报错或降级输出。
+LLM 只提供需要语义理解的 finding 内容。Python 生成 node ID、edge、fingerprint、可信 hunk、summary、审查状态、结论和风险分数，避免要求 LLM 手工拼接完整 Audit Graph。
 
-## finding 代码上下文
+## 稳定入口
 
-v0 的 finding 使用扁平字段：
+底层模块入口：
 
-```json
-{
-  "file_path": "src/auth_service.py",
-  "start_line": 38,
-  "end_line": 52,
-  "line_side": "new",
-  "highlight_lines": [39, 40, 41],
-  "hunk": "@@ -38,10 +38,14 @@\n...",
-  "fingerprint": "sha256:..."
-}
+```bash
+python -m change_audit prepare --diff HEAD~1 [--out DIR]
+python -m change_audit finalize --out DIR [--keep-review-artifacts]
+python -m change_audit render INPUT_JSON --out OUTPUT_HTML
 ```
 
-`hunk` 是 build 阶段提取的 render-ready unified diff snippet。Renderer 可以按行读取该字符串生成高亮代码块，但不得从 Git 重新读取。
+- `prepare` 读取 Git diff，在尚不存在的最终目录旁创建隐藏 staging workspace 与运行上下文，并向 Skill 返回 `run_id`、`final_dir`、`staging_dir` 的结构化 locator；finalize 校验 locator 与 staging 运行身份一致。
+- Skill 将隔离审查的原始输出写回运行上下文。
+- `finalize` 在 staging 中完成 ingest、graph adapter、JSON/HTML 生成及全部校验；提交前复查最终目标 leaf 不存在，再用同文件系统目录 rename 成对提交正式产物。目标已存在或 rename 失败时停止并保留 staging 诊断。
+- `render` 是纯消费入口；显式 `--out` 原子替换单个 HTML，失败时旧 HTML 与输入 JSON 均保持不变。
 
-`highlight_lines` 是装饰条依据。Renderer 不应从 finding 描述或 hunk 文本中猜测关键行。
+正式 `change-audit` console-script 可在接口稳定后作为别名加入；`python -m change_audit` 永久保留。Python 不公开一个假装能自行调用宿主 LLM 的 `review` 命令。
 
-## HTML 信息架构
+## 隐藏运行契约
 
-`audit.html` 是默认人类审计视图。页面按用户问题组织，而不是按内部节点类型堆字段。
+`prepare` 在最终目录同父目录创建隐藏 sibling staging，例如 `audit/.<slug>.change-audit-staging/`；最终目录此时必须不存在。staging 内的 `.run/` 至少包含：
 
-页面顺序：
+- `audit-skeleton.json`：run/change/file 等机械骨架；不是最终 `audit.json`。
+- `review-pack.json`：隔离审查输入。
+- `hunk-index.json`：可信 `hunk_id`、路径、old/new 行范围和完整 snippet。
+- `prompt.md`：把系统审查指令与不可信源码/diff 明确分隔后的宿主输入。
+- `raw-analysis.md`：宿主 LLM 原始输出。
+- `review-result.json`：仅在诊断、失败或显式保留时物化。
 
-- 审计结论：本轮状态、风险评分、finding 数量、失败证据数量、建议动作。
-- 变更摘要：任务意图、变更范围、影响文件、行为变化、继续优化点，以及摘要审计状态。
-- 问题清单：按 severity 和可操作性排序，以 finding card 展示位置、hunk snippet、原因、证据、修复入口和用户决策控件。
-- 修复方案：按优先级展示建议动作、涉及文件、验证方式和状态。
-- 多轮对比：展示新增、已修复、仍存在问题和风险评分变化；单 run 时降级成短提示。
-- 证据详情：展示 CrossReview、test、lint、typecheck、安全扫描等证据来源。
-- 可选概览图：仅当实际生成 `audit-graph.svg` 或存在 SVG artifact 时渲染。
+成功提交前 `finalize` 默认清理 `.run/`；keep 模式则保留并随 staging 一起提交。对 prepare 已接受的新目标，提交前失败时最终目录保持不存在并保留 staging；提交检查时已有目标或目标 leaf 是符号链接则拒绝，rename 失败也不得冒充本轮成功。
 
-v0 交互保持轻量：折叠详情、按 severity 过滤、按文件筛选、finding 决策采集、localStorage 暂存和 JSONL 导出。不引入复杂前端构建链。
+一期采用本地单写者、非对抗并发模型，不承诺消除目标检查与 rename 之间的极小竞态。POSIX 上 0700/0600 是 best-effort 隐私设置，不是跨平台退出门禁；原生 race-proof no-replace、平台专用锁和递归 symlink 防御留待真实多写者需求出现后加固。
+
+宿主拒绝或可归一化的审查失败可以从可信骨架生成 `review_status = failed` 的完整报告对；schema、安全、路径不可读写、render、trace 或目录提交等硬失败返回非零：新目标不创建最终目录，已有目标保持原样。两类失败都不得复用旧报告。
+
+## 信任与安全边界
+
+- 所有 artifact 内容、来源声明和文件名均视为不可信数据；code-diff profile 还包括源码、diff 和注释。Prompt 使用不可与载荷混淆的动态边界，并明确禁止执行载荷中的指令。
+- Skill 不静默安装，不修改用户代码，不因报告生成而扩大授权范围。
+- LLM 输出必须先 ingest，再经过 profile 对应的 JSON Schema、引用完整性和可信锚点校验。
+- finding 的完整 hunk 由 Python 从可信 `hunk-index.json` 反查；不得信任 LLM 返回的 hunk header 或 snippet。
+- 宿主输出只有具备完整结束标记且可解析时才可记为 `complete`；截断、拒绝和失败必须保留真实状态。
+
+## 审查状态与结论
+
+`summary.review_status` 描述过程状态：
+
+- `not_reviewed`：尚未执行宿主审查。
+- `complete`：审查流程完整结束。
+- `partial`：审查截断或只覆盖部分输入。
+- `failed`：审查或 ingest 失败。
+
+`summary.verdict` 只描述审查结论：
+
+- `pass_candidate`：仅在 `complete` 且无未解决 findings 时使用；可以保留 fixed 历史记录。
+- `concerns`：仅在 `complete` 且存在未解决、可评分 findings 时使用。
+- `needs_human_triage`：`complete` 且只有未锚定降级风险时使用。
+- `inconclusive`：`not_reviewed`、`partial` 或 `failed`。
+
+`partial` 即使保留了部分 findings，也必须是 `inconclusive` 且 `risk_score = null`。审查覆盖率、解析告警和文件统计不是核心字段，统一写入 `summary.extensions.change_audit.review_diagnostics`，避免产生第二套状态真相。
+
+## finding 锚点与风险评分
+
+可评分 finding 必须通过分类对应的可信锚点校验：bug 需要 `file_path + hunk_id + 行范围`，risk/quality/scope 允许可信 file-only 锚点。语义 bug 如果无法锚定，不静默丢弃，而是：
+
+- 降级到 `risk`；
+- 在 extensions 保留原 category 和降级原因；
+- 严重度最高为 `medium`；
+- HTML 标记“语义发现，位置未完全确认”。
+
+风险评分是 `0–100` 的暂定指标，只计算审查完成、当前未解决且通过分类锚点策略的 findings。因锚点降级而排除的未解决 finding 单独计入 `unscored_finding_count`；如果只有未锚定风险，则 `risk_score = null`、`verdict = needs_human_triage`。权重在真实 dogfood 后冻结。
+
+## 数据与渲染契约
+
+对已经放行的 audit profile，`audit.json` 是唯一最终机器真相源。核心对象默认严格拒绝未知字段；扩展只允许放入 namespaced `extensions`。
+
+Renderer 不读取 Git、ReviewPack、原始 LLM 输出或宿主状态。它依据完整 Audit Graph 输出单文件 HTML，并校验 `data-node-id`、`data-claim-id`、`data-fingerprint` 等回链。可选字段缺失时降级展示；结构或引用断裂时拒绝写出误导性报告。
+
+Renderer 使用共同外壳展示 status、verdict、summary、findings、evidence、fix 和 human decision，定位模块按 profile 切换：code diff 必须把可信完整 hunk 渲染成接近 diff2html 的双行号表格，区分 context/add/delete、突出 finding 命中行并保留 `data-*` 回链；不得用通用 `<pre>` 承载 finding 代码证据。未来 plan/design 可使用 section、claim 和 excerpt。没有成熟 renderer profile 时不生成伪完整 HTML。
+
+当前 `artifact` 节点表示由图谱派生的正式产物，不复用为被审查输入。第二种真实 profile 出现时，再通过独立 ADR 和 schema 版本引入 review target 与对应 anchor。
+
+完整 review 的提交点是：全部校验通过后复查最终目标 leaf 不存在，再把同父目录 staging 通过一次同文件系统目录 rename 提交为最终目录。成功后最终目录同时含 `audit.json` 与 `audit.html`；检查时已有目标或 rename 失败则停止并保留 staging 诊断，不主动删除或覆盖目标。独立 `render --out` 只原子替换单个 HTML，不受产物对提交约束。
+
+没有未解决 finding 时，`complete + pass_candidate` 表示完整审查未发现当前问题；没有历史 finding 时不渲染空列表，有 fixed finding 时可展示已解决记录。其他无 finding 状态展示“审查未完成/失败”，不能显示通过。
 
 ## 用户反馈
 
-v0 做反馈采集端，不做反馈消费端。
+`audit.html` 支持 finding 的 `accept`、`false_positive`、`comment` 和 `severity_override`，用 localStorage 暂存，并由用户显式导出 `audit-feedback.jsonl`。一期不自动读取反馈或修改代码。
 
-`audit.html` 支持用户对 finding 执行：
+## 宿主与发布
 
-- `false_positive`
-- `accept`
-- `comment`
-- `severity_override`
+Skill 是发现和编排入口，不要求每个用户项目放置说明文件。Codex 先完成端到端 dogfood，Qoder 再验证第二宿主差异；其他能运行 shell 并提供 LLM 的宿主可按同一契约适配。
 
-导出文件为 `audit-feedback.jsonl`：
-
-```json
-{"target_type":"finding","target_id":"finding-001","action":"accept","reason":"确认缓存路径仍有风险","fingerprint":"sha256:...","created_at":"2026-07-08T10:30:00+08:00"}
-```
-
-HTML 可以同时提供“复制给 LLM”的 Markdown 摘要，把本轮 verdict、finding、fingerprint 和用户决策整理成可粘贴上下文。它用于下一轮 AI coding 对话理解人类决策，不替代 JSONL，也不写回 `audit.json`。
-
-后续版本可以通过 `build --feedback audit-feedback.jsonl` 将反馈转换为 `user_decision` 节点或其他审计关系。
-
-## 摘要审计规则
-
-用户需要审计变更摘要是否准确，但 `summary` 不作为图谱节点类型。
-
-建模方式：
-
-- `run` 或 `change` 持有 `summary`、`summary_audit` 和 claims 字段。
-- finding 或 evidence 通过 `supports_claim` / `challenges_claim` 边支持或挑战某条摘要声明。
-- `audit.html` 展示完整摘要审计，包括“成立、部分成立、被挑战、未知”状态。
-- `audit-graph.svg` 只在 change 节点上展示摘要审计 badge，不展开完整摘要内容。
-
-这能保留摘要审计能力，同时避免把 `summary`、`overview`、`section` 等 UI 展示块引入核心数据模型。
-
-## SVG 规则
-
-v0 只支持一种可选 SVG 图：Audit Graph，输出文件名为 `audit-graph.svg`。
-
-渲染器可以复用 SVG diagram skill 的工程方法：确定性模板、XML 转义、marker 校验和可选 PNG 导出。但不继承泛化图种、多套视觉风格或重图标渲染路线。
-
-SVG 只做概览，不承载完整审计详情。完整的变更摘要、问题清单、修复方案、多轮对比和用户决策采集由 `audit.html` 承担。
-
-核心布局：
-
-```text
-change/task -> files -> findings -> evidence/fixes
-```
-
-节点较多时，SVG 只展示 top risks 和汇总节点；完整列表由 `audit.html` 承担。
-
-## SVG 生成策略
-
-SVG 必须从 `audit.json` 或内存中的归一化图谱对象生成，不从自然语言、Markdown 或聊天上下文直接生成。
-
-推荐管线：
-
-```text
-audit.json
-  -> graph normalize
-  -> Audit Graph template
-  -> audit-graph.svg
-  -> XML validation
-  -> audit trace validation
-```
-
-实现约束：
-
-- 布局采用确定性列布局，第一版不引入复杂自动布局。
-- 文本统一 XML 转义。
-- SVG 元素保留 `data-node-id` 或 `data-edge-id`，确保能回到 `audit.json`。
-- 风险颜色只由 severity、evidence status 和 fix status 决定。
-- 每个 finding 节点必须回链到原始 finding 或规则来源。
-- 每条 evidence 边必须引用真实 evidence id。
-- 不做多图种、多 style、图标库和自然语言任意画图。
-
-质量判断：
-
-```text
-SVG valid = XML valid + audit trace valid
-```
+外部试用只引用真实固定 Git tag，不使用 `@latest`，不静默安装。CrossReview 原仓库在等价迁移、dogfood 和再次授权前保持可用，不删除、不提前归档。

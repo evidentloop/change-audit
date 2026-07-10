@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" width="1200" height="860" role="img" aria-labelledby="title desc">
+  <title id="title">change-audit host review flow</title>
+  <desc id="desc">Sequence diagram showing a developer request, Skill orchestration, prepare in a hidden staging workspace, isolated host LLM review, finalize, validated artifact-pair publication, report delivery, and feedback export.</desc>
+  <style>
+    text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #111827; }
+    .title { font-size: 25px; font-weight: 700; }
+    .subtitle { font-size: 13px; fill: #6b7280; }
+    .participant { font-size: 14px; font-weight: 700; }
+    .participant-sub { font-size: 10.5px; fill: #6b7280; }
+    .message { font-size: 11.5px; font-weight: 600; fill: #374151; }
+    .step { font-size: 10px; font-weight: 700; fill: #6b7280; }
+    .note-title { font-size: 12px; font-weight: 700; }
+    .note { font-size: 11px; fill: #6b7280; }
+    .legend { font-size: 11px; fill: #6b7280; }
+    .lifeline { stroke: #d1d5db; stroke-width: 1.3; stroke-dasharray: 6 5; }
+    .control { fill: none; stroke: #2563eb; stroke-width: 1.8; marker-end: url(#arrow-blue); }
+    .data { fill: none; stroke: #16a34a; stroke-width: 2.1; marker-end: url(#arrow-green); }
+    .semantic { fill: none; stroke: #9333ea; stroke-width: 2.1; marker-end: url(#arrow-purple); }
+    .return { fill: none; stroke: #2563eb; stroke-width: 1.6; stroke-dasharray: 6 4; marker-end: url(#arrow-blue); }
+  </style>
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#16a34a"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#9333ea"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="860" fill="#ffffff"/>
+  <text x="42" y="42" class="title">V0 host-orchestrated code-diff review</text>
+  <text x="42" y="65" class="subtitle">The Skill coordinates isolated semantic review while Python stages, validates, and commits the formal artifact pair.</text>
+
+  <rect x="40" y="92" width="1120" height="650" rx="10" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.2"/>
+
+  <rect x="62" y="112" width="156" height="62" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <circle cx="86" cy="132" r="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.1"/>
+  <path d="M74 158 Q74 142 86 142 Q98 142 98 158" fill="#dbeafe" stroke="#2563eb" stroke-width="1.1"/>
+  <text x="120" y="137" class="participant">Developer</text>
+  <text x="120" y="156" class="participant-sub">human decision owner</text>
+
+  <rect x="272" y="112" width="176" height="62" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="360" y="137" text-anchor="middle" class="participant">Agent Skill</text>
+  <text x="360" y="156" text-anchor="middle" class="participant-sub">discover • authorize • orchestrate</text>
+
+  <rect x="500" y="112" width="180" height="62" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="590" y="137" text-anchor="middle" class="participant">Python package</text>
+  <text x="590" y="156" text-anchor="middle" class="participant-sub">prepare • finalize • render</text>
+
+  <rect x="736" y="112" width="168" height="62" rx="10" fill="#faf5ff" stroke="#ddd6fe" stroke-width="2.2"/>
+  <rect x="740" y="116" width="160" height="54" rx="8" fill="none" stroke="#9333ea" stroke-width="0.8" opacity="0.45"/>
+  <text x="820" y="137" text-anchor="middle" class="participant">Host LLM</text>
+  <text x="820" y="156" text-anchor="middle" class="participant-sub">isolated semantic analysis</text>
+
+  <path d="M964 112 L1102 112 L1118 128 L1118 174 L964 174 Z" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5"/>
+  <path d="M1102 112 V128 H1118" fill="#ccfbf1" stroke="#0f766e" stroke-width="1"/>
+  <text x="1041" y="137" text-anchor="middle" class="participant">Staging → final</text>
+  <text x="1041" y="156" text-anchor="middle" class="participant-sub">.run/ → artifact pair</text>
+
+  <line x1="140" y1="174" x2="140" y2="720" class="lifeline"/>
+  <line x1="360" y1="174" x2="360" y2="720" class="lifeline"/>
+  <line x1="590" y1="174" x2="590" y2="720" class="lifeline"/>
+  <line x1="820" y1="174" x2="820" y2="720" class="lifeline"/>
+  <line x1="1041" y1="174" x2="1041" y2="720" class="lifeline"/>
+
+  <rect x="354" y="206" width="12" height="470" rx="3" fill="#fed7aa" stroke="#f59e0b" stroke-width="1"/>
+  <rect x="584" y="254" width="12" height="340" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <rect x="814" y="350" width="12" height="94" rx="3" fill="#ede9fe" stroke="#9333ea" stroke-width="1"/>
+
+  <text x="54" y="212" class="step">01</text>
+  <path d="M140 220 H357" class="control"/>
+  <text x="166" y="210" class="message">Audit recent local changes</text>
+
+  <text x="54" y="260" class="step">02</text>
+  <path d="M360 268 H587" class="control"/>
+  <text x="394" y="258" class="message">prepare --diff HEAD~1</text>
+
+  <text x="54" y="308" class="step">03</text>
+  <path d="M590 316 H1038" class="data"/>
+  <text x="706" y="306" class="message">write sibling staging/.run/ context</text>
+
+  <text x="54" y="356" class="step">04</text>
+  <path d="M360 364 H817" class="semantic"/>
+  <text x="503" y="354" class="message">review prompt in isolated context</text>
+
+  <text x="54" y="404" class="step">05</text>
+  <path d="M820 412 H1038" class="semantic"/>
+  <text x="849" y="402" class="message">raw-analysis.md</text>
+
+  <text x="54" y="452" class="step">06</text>
+  <path d="M360 460 H587" class="control"/>
+  <text x="408" y="450" class="message">finalize --out DIR</text>
+
+  <text x="54" y="500" class="step">07</text>
+  <path d="M590 508 H1038" class="data"/>
+  <text x="702" y="498" class="message">write candidate audit.json + audit.html</text>
+
+  <text x="54" y="548" class="step">08</text>
+  <path d="M590 556 H1038" class="data"/>
+  <text x="711" y="546" class="message">all gates pass → target check → directory rename</text>
+
+  <text x="54" y="596" class="step">09</text>
+  <path d="M590 604 H363" class="return"/>
+  <text x="405" y="594" class="message">status + artifact paths</text>
+
+  <text x="54" y="644" class="step">10</text>
+  <path d="M360 652 H143" class="return"/>
+  <text x="174" y="642" class="message">summary + report path</text>
+
+  <text x="54" y="692" class="step">11</text>
+  <path d="M140 700 H1038" class="semantic"/>
+  <text x="468" y="690" class="message">open HTML • decide findings • export optional feedback JSONL</text>
+
+  <rect x="58" y="758" width="1084" height="48" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.3"/>
+  <text x="78" y="780" class="note-title">Failure boundary</text>
+  <text x="190" y="780" class="note">Normalized review failures may publish a failed pair; hard failures leave fresh targets absent and detected targets unchanged.</text>
+  <text x="190" y="797" class="note">Single-writer V0: the Skill accepts only a committed JSON/HTML pair with matching run and graph identity.</text>
+
+  <line x1="42" y1="834" x2="72" y2="834" class="control"/>
+  <text x="80" y="838" class="legend">orchestration</text>
+  <line x1="190" y1="834" x2="220" y2="834" class="data"/>
+  <text x="228" y="838" class="legend">trusted file / artifact</text>
+  <line x1="382" y1="834" x2="412" y2="834" class="semantic"/>
+  <text x="420" y="838" class="legend">semantic review / human action</text>
+</svg>

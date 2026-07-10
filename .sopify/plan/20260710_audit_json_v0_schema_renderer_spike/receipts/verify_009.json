@@ -1,0 +1,21 @@
+{
+  "evidence": {
+    "decisions": [
+      "D100: V0 uses a local non-adversarial concurrency model.",
+      "Keep sibling staging, complete JSON/HTML validation, run_id identity, existing-target refusal, no silent overwrite, and staging diagnostics.",
+      "POSIX 0700/0600 is best-effort privacy behavior, not a cross-platform Wave 2 exit gate.",
+      "Defer native race-proof no-replace primitives, recursive symlink hardening, platform-specific locking, and their adversarial fault-injection tests."
+    ],
+    "implementation_boundary": "D100 refines D99 without weakening the artifact-pair invariant",
+    "scope": "documentation and plan refinement only; no implementation migration"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_009",
+    "user_confirmation": "explicit"
+  },
+  "timestamp": "2026-07-10T12:17:45+00:00",
+  "verdict": "confirmed"
+}

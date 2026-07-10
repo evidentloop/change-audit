@@ -1,0 +1,23 @@
+{
+  "evidence": {
+    "added_decision": "D37 --out is optional; default audit/YYYYMMDD_<slug>/ uses commit-summary when available, local-changes fallback, normalized slug, collision fingerprint suffix, and no silent overwrite",
+    "confirmed_decisions": [
+      "D24-D29 Python core + self-contained thin Skill, repository-side host integration contract, pinned-tag and explicit-install-authorization policy, optional npx, Skill validation",
+      "D30 Codex is the first v0 dogfood host; Qoder is the second host",
+      "D31-D32 minimal installable Python package with stable python -m change_audit entry; no standalone business script",
+      "D33 public action is review rather than build",
+      "D34-D35 future console-script is additive; module entry remains and Skill keeps calling it",
+      "D36 wheel package-resource smoke test remains"
+    ],
+    "scope_closure": "One full plan with four gated waves: Schema+Renderer, Local Git Review, Human Decision, AI Host Discovery",
+    "user_authorization": "Close the documentation and plan package; do not start development"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_004",
+    "source": "user_confirmation_and_scope_closure"
+  },
+  "timestamp": "2026-07-10T07:48:09+00:00",
+  "verdict": "accepted"
+}

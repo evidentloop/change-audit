@@ -52,32 +52,36 @@
     {
       "id": "finding-001",
       "type": "finding",
+      "category": "bug",
       "severity": "high",
       "status": "open",
       "title": "旧 token 仍可能被缓存层返回",
       "detail": "refresh_token 已修复直接抛出异常，但 get_token 函数在调用 refresh 前会先查 Redis 缓存。如果缓存未过期，旧 token 仍会被返回给调用方。",
       "file_path": "src/auth_service.py",
-      "start_line": 38,
-      "end_line": 52,
+      "hunk_id": "hunk:src/auth_service.py:38:1",
+      "start_line": 39,
+      "end_line": 41,
       "line_side": "new",
       "highlight_lines": [39, 40, 41],
-      "hunk": "@@ -38,10 +38,14 @@\n     def get_token(self, user_id: str) -> Token:\n         cached = self.cache.get(f\"token:{user_id}\")\n         if cached and not cached.expired:\n             return cached\n \n         token = self.fetch_token(user_id)\n-        if token.expired:\n-            return token\n+        if token.expired:\n+            raise TokenExpiredError(\n+                f\"Token for {user_id} expired at {token.expires_at}\"\n+            )\n+        self.cache.set(f\"token:{user_id}\", token, ttl=token.ttl)\n         return token",
-      "fingerprint": "sha256:auth-service-cache-token-return"
+      "hunk": "@@ -38,9 +38,12 @@\n     def get_token(self, user_id: str) -> Token:\n         cached = self.cache.get(f\"token:{user_id}\")\n         if cached and not cached.expired:\n             return cached\n \n         token = self.fetch_token(user_id)\n-        if token.expired:\n-            return token\n+        if token.expired:\n+            raise TokenExpiredError(\n+                f\"Token for {user_id} expired at {token.expires_at}\"\n+            )\n+        self.cache.set(f\"token:{user_id}\", token, ttl=token.ttl)\n         return token",
+      "fingerprint": "sha256:8dff2181ef31abd0da2e48485f1809dbaf5379d69f89335c89ae1a09465ae681"
     },
     {
       "id": "finding-002",
       "type": "finding",
+      "category": "quality",
       "severity": "medium",
       "status": "open",
       "title": "缺少 token 过期边界时间的测试",
       "detail": "新增的测试覆盖了 token 已过期和未过期两种情况，但没有覆盖恰好处于过期边界（expires_at == now）的情况。这在时钟漂移场景下可能导致不确定行为。",
       "file_path": "tests/test_auth.py",
-      "start_line": 67,
-      "end_line": 84,
+      "hunk_id": "hunk:tests/test_auth.py:67:1",
+      "start_line": 78,
+      "end_line": 82,
       "line_side": "new",
-      "highlight_lines": [78, 79, 80],
-      "hunk": "@@ -67,6 +67,18 @@\n     def test_expired_token_raises():\n         service = AuthService(cache=FakeCache())\n         with pytest.raises(TokenExpiredError):\n             service.get_token(\"user-expired\")\n \n+    def test_valid_token_returned():\n+        service = AuthService(cache=FakeCache())\n+        token = service.get_token(\"user-valid\")\n+        assert token.value == \"valid-token-123\"\n+        assert not token.expired\n+\n+    # TODO: 缺少 expires_at == now 的边界测试\n+    # def test_boundary_expiry():\n+    #     service = AuthService(cache=FakeCache())\n+    #     token = service.get_token(\"user-boundary\")\n+    #     ???\n+\n     def test_cache_miss_fetches_new():\n         cache = FakeCache()\n         service = AuthService(cache=cache)",
-      "fingerprint": "sha256:test-auth-boundary-expiry-missing"
+      "highlight_lines": [78, 79, 80, 81, 82],
+      "hunk": "@@ -67,6 +67,18 @@\n     def test_expired_token_raises():\n         service = AuthService(cache=FakeCache())\n         with pytest.raises(TokenExpiredError):\n             service.get_token(\"user-expired\")\n \n+    def test_valid_token_returned():\n+        service = AuthService(cache=FakeCache())\n+        token = service.get_token(\"user-valid\")\n+        assert token.value == \"valid-token-123\"\n+        assert not token.expired\n+\n+    # TODO: 缺少 expires_at == now 的边界测试\n+    # def test_boundary_expiry():\n+    #     service = AuthService(cache=FakeCache())\n+    #     token = service.get_token(\"user-boundary\")\n+    #     ???\n+\n     def test_cache_miss_fetches_new():",
+      "fingerprint": "sha256:8eb3f0b05ecd189b40e9ea87341cf6342f122ace30645f1e0802a5972687faff"
     },
     {
       "id": "evidence-001",
@@ -89,9 +93,9 @@
     {
       "id": "evidence-002",
       "type": "evidence",
-      "source": "cross_review",
+      "source": "host_llm",
       "status": "fail",
-      "summary": "CrossReview 标记 get_token 缓存路径可能绕过 refresh_token 修复"
+      "summary": "隔离宿主审查标记 get_token 缓存路径可能绕过 refresh_token 修复"
     },
     {
       "id": "fix-001",
@@ -169,13 +173,15 @@
       "id": "edge-010",
       "type": "challenges_claim",
       "from": "finding-001",
-      "to": "change-001",
+      "to": "run-001",
       "claim_id": "claim-001"
     }
   ],
   "summary": {
+    "review_status": "complete",
     "risk_score": 58,
     "finding_count": 2,
+    "unscored_finding_count": 0,
     "open_finding_count": 2,
     "fix_count": 2,
     "fix_done_count": 0,

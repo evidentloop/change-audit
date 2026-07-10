@@ -2,37 +2,61 @@
 
 ## 产品
 
-`change-audit` 是一个独立开源工具，用于把 AI 代码变更、审查证据和用户决策整理为可回链审计产物。
-
-核心定位：
-
-```text
-面向 AI 代码变更的可回链审计工具。
-```
+`change-audit` 是面向 AI 变更与可审查产物的可回链审计工具。它把审查目标、宿主 LLM 的语义判断、可信锚点和用户决策整理为稳定产物；一期首个正式 profile 是本地 Git diff。
 
 中文是主要产品文档语言。英文只保留在项目名、包元数据、命令、字段名和通用技术术语中。
 
-## 技术方向
-
-- 语言：第一版计划使用 Python，与 `cross-review` 保持一致。
-- 运行形态：独立 CLI 优先，可导入 core 其次。
-- 渲染方式：默认生成本地 HTML，静态 SVG 作为可选概览图，v0 不引入前端构建链。
-- 集成方式：通过 adapter 消费 CrossReview `ReviewResult`，不依赖 CrossReview 内部实现。
-- 产品形态：独立优先、可嵌入工作流，工作流集成必须保持可选。
-- 审计范围：同时覆盖变更理解和问题审查。
-- 默认产物：`audit.json` 和 `audit.html`。
-- 可选产物：`audit-graph.svg` 和 Markdown 导出。
-
 ## 命名契约
 
-- 产品、GitHub 仓库、PyPI distribution、CLI：`change-audit`
+- 产品、GitHub 仓库、未来 distribution 和 CLI：`change-audit`
 - Python import package、源码目录：`change_audit`
+- 内部隔离审查子系统：`change_audit.review`（能力源自 CrossReview）
 - 内部数据模型：Audit Graph / `AuditGraph`
-- 机器真相源：`audit.json`
-- 人类审计界面：`audit.html`
-- 用户反馈产物：`audit-feedback.jsonl`
-- 未来 renderer 概览产物：`audit-graph.svg`
+- 最终机器真相源：`audit.json`
+- 默认人类界面：`audit.html`
+- 用户反馈：`audit-feedback.jsonl`
 
-## 当前约束
+CrossReview 是内部能力来源和迁移历史，不是一期第二个用户产品名。
 
-当前仓库尚未添加实现代码。源码目录仅作为后续实现占位；下一阶段从冻结 `audit.json` v0 schema 和 renderer-first spike 开始。
+## 产品分层
+
+- `change_audit.review`：artifact-general 隔离审查内核，可按真实需求扩展 plan、design、analysis、review-result、agent output 等 ReviewPack/prompt/eval profile。
+- `change_audit.audit` + renderer：正式审计产品层。artifact 类型只有具备 adapter、可信 anchor、eval baseline 和 renderer profile 后，才承诺 `audit.json` / `audit.html`。
+- `code_diff`：一期首个正式 audit profile，不代表长期产品只支持 Git diff。
+
+非 diff 类型在四项门禁前可以停在内部 ReviewResult 或宿主摘要，不能宣传为已经支持完整审计报告。
+
+## 技术约定
+
+- Python 版本：`>=3.10`。
+- 结构契约：JSON Schema 2020-12 是唯一 schema 真相源；Python 只实现校验和语义约束，不建立第二套模型定义。
+- 模板：Jinja2；CSS 和 JS 作为 package resources 维护并内联到自包含 HTML。
+- 入口：一期保留 `python -m change_audit prepare/finalize/render`；正式 console-script 后续只做别名。
+- 宿主边界：AI host LLM 负责语义审查，Python 基础安装不集成模型 SDK；可选 provider 只能进入 extra。
+- 集成形态：一个 Python 包承载业务，一个用户级/宿主级 Skill 负责发现和编排，用户项目不复制集成文档。
+- 一期默认输入：本地 Git diff；长期输入按 artifact profile 管理。
+- 默认产物：`audit.json` 和 `audit.html`；`audit-feedback.jsonl` 由用户显式导出。
+- 中间产物：prepare 在最终目录同父目录创建隐藏 staging workspace，`.run/` 位于其中；成功时目录整体提交，失败时 staging 留作诊断。
+- 并发边界：一期按本地单写者、非对抗并发设计；提交前复查最终目标 leaf 不存在，再执行同文件系统目录 rename。目标已存在或 rename 失败时停止，不主动删除或覆盖目标。
+- 隐私权限：POSIX 上尽力将 staging / `.run/` 设为 0700、中间文件设为 0600；精确 mode 不是跨平台退出门禁。
+
+## 一期 code-diff 职责
+
+- `prepare` 选择尚不存在的最终目录，在同父目录 staging 中生成可信 diff 上下文、hunk index 和隐藏审计骨架，并返回 `run_id`、final/staging 路径的结构化 locator。
+- Skill 在隔离上下文中调用宿主 LLM，并写入原始审查输出。
+- `finalize` ingest 审查结果、生成机械字段、执行锚点/引用校验，在 staging 中生成并验证 JSON/HTML；提交前复查目标 leaf 不存在，再用同文件系统目录 rename 成对提交正式产物。目标已存在或 rename 失败时保留 staging 诊断并停止。
+- `render` 只消费完整 `audit.json`，不读取 Git 或宿主状态；显式输出路径只授权原子替换该 HTML。
+
+## 状态约定
+
+`review_status` 只描述审查过程，`verdict` 只描述结论。`partial` 和 `failed` 均为 `inconclusive` 且不输出数字风险分。覆盖率和解析诊断写入 `summary.extensions.change_audit.review_diagnostics`，不新增核心 `review_coverage`。
+
+数字风险分只计算完成审查且锚点有效的 findings。无法锚定的语义 bug 降级为未计分 risk，保留原分类和原因；只有此类风险时 `risk_score = null` 并要求人工分诊。
+
+## 当前边界
+
+当前仓库尚未迁移 CrossReview 或添加实现代码。实现按当前方案分层推进；CrossReview 原仓库在等价迁移、dogfood 和用户再次授权前保持不变。
+
+`audit.json 0.2` 冻结时只代表 code-diff audit profile；第二种真实 artifact profile 通过独立 ADR 和 schema 版本扩展，不在一期 schema 中预塞未验证字段。
+
+一期不实现原生 race-proof no-replace、平台专用锁或递归 symlink 防御，也不承诺消除目标检查与 rename 之间的极小竞态；这些在真实多写者需求出现后单独加固。

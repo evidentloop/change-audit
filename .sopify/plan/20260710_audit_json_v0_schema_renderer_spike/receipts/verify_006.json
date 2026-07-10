@@ -1,0 +1,29 @@
+{
+  "evidence": {
+    "decisions": [
+      "D95 review_status/verdict separation",
+      "D96 unanchored bug downgrade",
+      "D97 anchored unresolved findings only in numeric score"
+    ],
+    "pending": "user audit and confirmation before Wave 0A",
+    "scope": "documentation and design assets only; no implementation migration",
+    "validation": [
+      "git diff --check",
+      "2 audit fixtures parsed and hunk counts validated",
+      "20 Markdown files local links validated",
+      "HTML parser and inline JavaScript syntax validated",
+      "2 SVG files passed latest Fireworks validate-svg.sh",
+      "2 PNG exports visually reviewed"
+    ],
+    "visual_review": "passed"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "fireworks_commit": "9a64e5a",
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_006"
+  },
+  "timestamp": "2026-07-10T09:52:18+00:00",
+  "verdict": "documentation_closure_ready_for_user_audit"
+}

@@ -1,0 +1,24 @@
+{
+  "evidence": {
+    "confirmed_decisions": [
+      "D7 public render_audit_file API + python -m change_audit render",
+      "D8 lightweight wheel package-resource smoke test",
+      "D9 responsive checks at 375px and 1280px; reduced-motion deterministic CSS assertion",
+      "D10 strict core + extensions positive/negative tests",
+      "D11 current spike first, then separate Git diff build plan"
+    ],
+    "roadmap_boundary": {
+      "later_candidate": "folder diff after binary/encoding/symlink/ignore/rename/large-file boundary design",
+      "next_plan": "Git diff -> audit.json -> audit.html minimal user loop",
+      "not_committed_to_v0": "specified files without diff because it may drift into general code review"
+    }
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_003",
+    "source": "user_confirmation_and_layering"
+  },
+  "timestamp": "2026-07-10T06:16:09+00:00",
+  "verdict": "accepted"
+}

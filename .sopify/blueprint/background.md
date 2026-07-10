@@ -1,41 +1,46 @@
 # change-audit 背景
 
-## 问题
+## 产品问题
 
-AI coding 用户可以很快生成大规模代码变更。一次任务也可能经历多轮生成、审查、修复和再审查。
+AI coding 会生成代码变更，也会生成 plan、design、analysis、review-result、final answer 和 agent trace 等产物。审查过程通常散落在聊天、终端和临时 Markdown 中，用户难以确认目标是否可靠、结论依据是什么，也难以把自己的接受、误报或严重度调整带到下一轮。
 
-审查输出常散落在终端文本、聊天记录、Markdown 报告和 CI 日志里。用户真实需要的是变更摘要、结构化问题清单、修复方案和多轮风险变化。HTML 更适合作为默认审计视图；SVG 更适合作为概览图，而不是完整报告。
+用户真正需要的是一条可审计链路：把有明确边界的审查目标交给隔离上下文，经 AI 语义审查得到可回链 findings，再由成熟的 artifact profile 形成机器记录、人类报告和可导出的用户决策。
 
-缺失的一层是审计证据图谱：用稳定结构把任务运行、变更文件、审查发现、确定性证据、修复项和渲染产物连接起来，再生成用户可读的审计页面。
+## 产品定位
 
-## 产品假设
+`change-audit` 是面向 AI 变更与可审查产物的可回链审计工具。
 
-`change-audit` 应让技术审查证据可见、可追踪、可度量。
+- `change_audit.review` 是 artifact-general 隔离审查内核；AI host 的 LLM 负责目标相关的语义判断。
+- `change_audit.audit` 与 renderer 是 profile-specific 正式产品层；只有具备 adapter、可信 anchor、eval baseline 和 renderer profile 的类型，才承诺完整审计产物。
+- Python 不内置默认 LLM SDK；它负责构造可信上下文、约束审查输出、生成机械字段、校验引用并确定性呈现。
+- CrossReview 不再作为用户可见的第二个产品，而是等价迁入 `change_audit.review` 的内部隔离审查能力。
+- 用户只需要安装一个包、发现一个 Skill，并看到最终审计产物。
 
-它应独立优先、可嵌入工作流。它可以单独针对 Git diff 运行，也可以作为审计 checkpoint 嵌入 Sopify 这类工作流。
+## 用户入口
 
-它不替代 CrossReview 或 tech-report，而是在可用时消费它们的输出，并生成基于图谱的审计产物。
+一期以 AI host 为主要入口，首个正式 profile 是本地 Git diff。用户在自己的仓库中说“用 change-audit 审计本地改动”，Skill 负责选择 diff 范围、编排宿主 LLM、运行 Python 阶段并展示报告路径。用户项目无需复制集成说明或中间契约。
 
-默认人类入口是 `audit.html`。`audit-graph.svg` 是可选概览图，Markdown 是可选文本导出。
-
-## 审计范围
-
-`change-audit` 覆盖两类审计问题：
-
-- 变更理解：改了什么，影响哪些文件或模块，实现是否符合原始意图，还有什么可以继续优化。
-- 问题审查：是否存在 bug、风险、失败证据或遗漏边界，多轮修复是否让风险下降。
+模块命令仍保留为稳定、可调试的底层入口，但 `review` 是 Skill 表达的用户动作，不是 Python 单命令。
 
 ## 目标用户
 
-- 使用 AI coding 工具、需要审计变更证据的开发者。
-- 希望快速查看风险和修复状态的维护者。
-- 需要开发后审计 checkpoint 的 Sopify 等工作流工具。
-- 需要结构化审计输入的 tech-report 等报告生成工具。
+- 在 Codex、Qoder 等 AI coding 宿主中审计本地改动的开发者。
+- 需要查看变更摘要、问题证据和修复建议的维护者。
+- 需要结构化审计 checkpoint 的自动化工作流。
+- 后续需要消费 `audit.json` 或用户反馈的报告与评估工具。
+
+## 核心产物
+
+- `audit.json`：成熟 artifact profile 的最终机器真相源，包含审查目标、状态、findings、evidence 和 fixes。
+- `audit.html`：具备 renderer profile 时的默认人类审计界面；共同外壳保持一致，定位内容按 hunk、section、claim 或其他可信 anchor 呈现。
+- `audit-feedback.jsonl`：用户显式导出的决策记录；一期只采集，不自动消费。
+
+实验性非 diff 类型可以先停在内部 ReviewResult 或宿主摘要，不因此宣称完整 audit 支持。正式产物在同父目录隐藏 staging 中完成校验后成对提交；成功时中间物默认清理。
 
 ## 非目标
 
-- 直接调用 LLM 做 review。
-- 自动修改代码。
-- 成为完整静态分析平台。
-- v0 提供 hosted dashboard。
-- v0 提供 policy enforcement engine。
+- 一期不提供默认 provider SDK 或要求用户配置模型 API key。
+- 不由 Python 的文本规则替代 LLM 语义审查；确定性规则未来只能作为增强。
+- 不自动修改代码，不把审计结论当作发布阻断策略。
+- 一期不做 folder diff、无 diff artifact 正式审计或远程 PR URL；这些是后续 profile 候选，不是永久排除。
+- 一期不做 hosted dashboard、反馈消费、SVG 产品 renderer 或 Markdown renderer。

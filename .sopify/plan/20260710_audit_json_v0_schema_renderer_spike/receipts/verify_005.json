@@ -1,0 +1,27 @@
+{
+  "evidence": {
+    "authorization": "Rewrite and close documentation and plan assets only; do not migrate implementation code; use Fireworks Tech Graph for consistent architecture diagrams; stop for user audit after completion",
+    "confirmed_decisions": [
+      "D38-D48: AI host LLM is the primary semantic finding producer; Python prepares mechanical structure, validates anchors, and renders; deterministic rules are deferred",
+      "D49-D59: ReviewPack and ReviewResult are internal versioned transports; finalize owns ingest and graph assembly; render remains a pure audit.json consumer; intermediate artifacts are diagnosable but not user-facing",
+      "D60-D70: merge CrossReview into change_audit.review; one product, one package, one Skill; preserve review tests and eval behavior",
+      "D71-D90: baseline-first migration, isolated eval data, prompt-lab harness migration, no PyPI publish in v0, change-audit remains the product name, old crossreview CLI is not shipped in the new distribution",
+      "D91: review is a Skill user action, not a Python command; Python exposes prepare/finalize/render",
+      "D92: hidden .run transport directory; clean on success, retain on failure or explicit keep flag",
+      "D93 revised: review_status describes execution; verdict describes review conclusion; no no_findings verdict",
+      "D94: exact anchor required for bug; file-only allowed for risk/quality/scope; adapter maps categories and computes risk independently of CrossReview quality_metrics",
+      "D95: summary.review_status is independent with not_reviewed/complete/partial/failed",
+      "D96: an unanchored semantic bug is retained as a downgraded risk with original category and downgrade reason",
+      "D97: only validated anchored findings enter the provisional 0-100 score; downgraded unanchored risks are counted separately; if they are the only risks, risk_score is null and verdict is needs_human_triage; weights freeze after Wave 2 dogfood"
+    ]
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "note": "Consolidates previously discussed decisions that were not yet represented in machine receipts",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_005",
+    "source": "user_confirmation_after_critical_review"
+  },
+  "timestamp": "2026-07-10T09:17:34+00:00",
+  "verdict": "accepted"
+}

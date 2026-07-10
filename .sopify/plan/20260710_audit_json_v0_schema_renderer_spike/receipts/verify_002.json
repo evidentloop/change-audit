@@ -1,0 +1,28 @@
+{
+  "evidence": {
+    "decision": "用户允许扩大 renderer spike 范围",
+    "expanded_scope": [
+      "完整审计页面信息架构",
+      "全量 hunk-context-demo 对象驱动渲染",
+      "section 顺序与 data-* 回链对齐",
+      "页面内反馈按钮状态"
+    ],
+    "still_out_of_scope": [
+      "逐像素复刻",
+      "localStorage",
+      "audit-feedback.jsonl 导出",
+      "复制给 LLM",
+      "CLI",
+      "Git/CrossReview adapters",
+      "SVG renderer"
+    ]
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_002",
+    "source": "user_scope_expansion"
+  },
+  "timestamp": "2026-07-10T05:54:49+00:00",
+  "verdict": "accepted"
+}

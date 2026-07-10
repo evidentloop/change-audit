@@ -1,0 +1,32 @@
+{
+  "evidence": {
+    "decisions": [
+      "D100 is synchronized across plan, ADR, public docs, project knowledge, blueprint, and diagrams.",
+      "D99 artifact-pair publication and run_id identity remain mandatory.",
+      "V0 uses a local single-writer, non-adversarial concurrency model with final/staging leaf checks and same-filesystem directory rename.",
+      "POSIX 0700/0600 is best-effort rather than a cross-platform exit gate.",
+      "Native race-proof no-replace, platform locking, recursive symlink hardening, and adversarial concurrency tests are deferred."
+    ],
+    "scope": "documentation, plan, blueprint, ADR, and design assets only; no implementation migration",
+    "validation": [
+      "git diff --check and trailing-whitespace scan",
+      "current prose has no no-clobber hard guarantee outside historical verify_008 receipt",
+      "local Markdown links resolved",
+      "all JSON parsed; two audit fixtures passed unique-ID and edge-endpoint checks",
+      "inline JavaScript in both HTML artifacts passed node --check",
+      "two SVGs passed latest Fireworks validate-svg.sh and xmllint",
+      "PNG exports verified at 2400x1560 and 2400x1720"
+    ],
+    "visual_review": "passed"
+  },
+  "provenance": {
+    "date": "2026-07-10",
+    "fireworks_commit": "9a64e5a",
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_010",
+    "user_confirmation": "D100 explicit"
+  },
+  "timestamp": "2026-07-10T12:27:32+00:00",
+  "verdict": "documentation_closure_ready_for_user_audit"
+}
