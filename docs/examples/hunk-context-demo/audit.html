@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>audit-graph hunk context demo</title>
+  <title>change-audit hunk context demo</title>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -724,7 +724,7 @@
         <h2>4. 多轮对比</h2>
         <span class="badge soft">single run</span>
       </div>
-      <p class="muted">当前为 run-001（初次审计），暂无历史对比。修复后重跑 <code>audit-graph build</code> 将生成 run-002，并用于展示风险下降、finding 关闭和摘要审计状态变化。</p>
+      <p class="muted">当前为 run-001（初次审计），暂无历史对比。修复后重跑 <code>change-audit build</code> 将生成 run-002，并用于展示风险下降、finding 关闭和摘要审计状态变化。</p>
     </section>
 
     <section>
@@ -755,7 +755,7 @@
   </main>
 
   <script>
-    const feedbackKey = "audit-graph:hunk-context-demo:feedback";
+    const feedbackKey = "change-audit:hunk-context-demo:feedback";
 
     function loadFeedback() {
       try {
@@ -820,7 +820,7 @@
       const records = loadFeedback();
       const verdict = document.querySelector(".verdict strong")?.textContent.trim() || "unknown";
       const lines = [
-        "# audit-graph human decisions",
+        "# change-audit human decisions",
         "",
         "Run: run-001",
         "Source: HEAD~1",

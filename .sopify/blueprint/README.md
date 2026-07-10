@@ -1,4 +1,4 @@
-# audit-graph Blueprint
+# change-audit Blueprint
 
 ## 状态
 
@@ -10,7 +10,7 @@
 
 ## 当前目标
 
-将 `audit-graph` 定义为独立的可视化审计证据图谱产品，可消费 CrossReview 结果，后续也可集成到 Sopify。
+将 `change-audit` 定义为独立的 AI 代码变更审计工具，可消费 CrossReview 结果，后续也可集成到 Sopify；Audit Graph 只作为内部数据模型。
 
 ## 当前焦点
 
@@ -24,3 +24,6 @@ v0 范围、图谱数据模型、CLI 边界和渲染器职责。
 - `../plan/20260707_audit_graph_init/background.md`
 - `../plan/20260707_audit_graph_init/design.md`
 - `../plan/20260707_audit_graph_init/tasks.md`
+- `../plan/20260710_change_audit_rename/background.md`
+- `../plan/20260710_change_audit_rename/design.md`
+- `../plan/20260710_change_audit_rename/tasks.md`

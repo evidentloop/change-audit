@@ -1,19 +1,19 @@
-# audit-graph 设计
+# change-audit 设计
 
 ## 架构
 
 计划模块：
 
-- `auditgraph.schema`：图谱类型和序列化契约。
-- `auditgraph.runs`：审计运行和快照建模。
-- `auditgraph.adapters.gitdiff`：将 Git diff 元数据、变更文件和 finding hunk context 转换成图谱节点。
-- `auditgraph.adapters.crossreview`：导入 CrossReview `ReviewResult`。
-- `auditgraph.adapters.evidence`：导入确定性证据摘要。
-- `auditgraph.graph`：归一化并连接节点和边。
-- `auditgraph.renderers.html`：渲染默认审计视图 `audit.html`，包含 hunk snippet 和反馈采集。
-- `auditgraph.renderers.svg`：可选渲染概览图 `audit-graph.svg`。
-- `auditgraph.renderers.markdown`：可选导出摘要或修复清单。
-- `auditgraph.cli`：暴露 build 和 render 命令。
+- `change_audit.schema`：图谱类型和序列化契约。
+- `change_audit.runs`：审计运行和快照建模。
+- `change_audit.adapters.gitdiff`：将 Git diff 元数据、变更文件和 finding hunk context 转换成图谱节点。
+- `change_audit.adapters.crossreview`：导入 CrossReview `ReviewResult`。
+- `change_audit.adapters.evidence`：导入确定性证据摘要。
+- `change_audit.graph`：归一化并连接节点和边。
+- `change_audit.renderers.html`：渲染默认审计视图 `audit.html`，包含 hunk snippet 和反馈采集。
+- `change_audit.renderers.svg`：可选渲染概览图 `audit-graph.svg`。
+- `change_audit.renderers.markdown`：可选导出摘要或修复清单。
+- `change_audit.cli`：暴露 build 和 render 命令。
 
 ## 数据流
 
@@ -31,9 +31,9 @@ Git diff / CrossReview / evidence
 
 ## 集成契约
 
-CrossReview 作为输入格式被消费。`audit-graph` 在 v0 不应导入 CrossReview 的私有内部实现。
+CrossReview 作为输入格式被消费。`change-audit` 在 v0 不应导入 CrossReview 的私有内部实现。
 
-当配置审计 checkpoint 时，Sopify 可以在 develop 完成后、finalize 前调用 `audit-graph`。该集成是可选能力；独立 CLI 使用仍是主产品路径。
+当配置审计 checkpoint 时，Sopify 可以在 develop 完成后、finalize 前调用 `change-audit`。该集成是可选能力；独立 CLI 使用仍是主产品路径。
 
 tech-report 生成叙事型技术报告时，可以读取 `audit.json` 或生成产物。
 
@@ -45,7 +45,7 @@ LLM、CrossReview 或其他上游只负责产生或辅助产生 `audit.json` 兼
 
 本地编辑器跳转链接不写入 `audit.json`。HTML renderer 可以根据 repo root 和用户编辑器偏好生成 `vscode://` 等链接；链接不可用时，页面仍必须依靠 hunk snippet 独立可读。
 
-HTML renderer 的 CSS 和 JS 作为 renderer static assets 维护在 `auditgraph/renderers/` 下，渲染时内联嵌入最终 `audit.html`，产物仍为单文件自包含。
+HTML renderer 的 CSS 和 JS 作为 renderer static assets 维护在 `change_audit/renderers/` 下，渲染时内联嵌入最终 `audit.html`，产物仍为单文件自包含。
 
 HTML 渲染管线包含校验门：
 

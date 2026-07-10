@@ -1,4 +1,4 @@
-# audit-graph 数据模型
+# change-audit 数据模型
 
 ## 核心对象
 
@@ -270,7 +270,7 @@ v0 action 枚举：
 
 Adapter 负责把外部输入转换成图谱节点和边。
 
-`auditgraph.adapters.gitdiff` 负责读取 Git diff 元数据、变更文件、finding 相关 hunk snippet 和必要行号信息。`auditgraph.adapters.crossreview`、`auditgraph.adapters.evidence` 负责把外部审查结果和确定性证据导入统一图谱。
+`change_audit.adapters.gitdiff` 负责读取 Git diff 元数据、变更文件、finding 相关 hunk snippet 和必要行号信息。`change_audit.adapters.crossreview`、`change_audit.adapters.evidence` 负责把外部审查结果和确定性证据导入统一图谱。
 
 ## Renderer 边界
 

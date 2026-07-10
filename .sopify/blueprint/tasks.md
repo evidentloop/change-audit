@@ -1,4 +1,4 @@
-# audit-graph 长期任务
+# change-audit 长期任务
 
 - [ ] 定义并冻结 `audit.json` v0 schema。
 - [x] 定义摘要审计字段和 `supports_claim` / `challenges_claim` 边。

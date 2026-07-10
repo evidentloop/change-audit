@@ -1,4 +1,4 @@
-# audit-graph
+# change-audit
 
 AI 代码变更的审计链路。
 
@@ -6,13 +6,13 @@ AI 代码变更的审计链路。
 
 AI 写代码很快，AI 审查也能快速发现问题。但审计链路——改了什么、审了什么、确认了什么、还有什么没关——散落在聊天记录和终端输出里。等人终于来读报告时，上下文已经丢了。
 
-`audit-graph` 把审查证据归集为两个可审计产物：机器可读图谱（`audit.json`）和自包含 HTML 审计页（`audit.html`），带代码上下文、证据关联和用户决策控件。
+`change-audit` 把审查证据归集为两个可审计产物：机器可读 Audit Graph（`audit.json`）和自包含 HTML 审计页（`audit.html`），带代码上下文、证据关联和用户决策控件。
 
 ```text
 AI coding diff + review signals → audit.json → audit.html → human decision JSONL
 ```
 
-![audit-graph architecture](docs/assets/audit-graph-architecture.png)
+![change-audit architecture](docs/assets/change-audit-architecture.png)
 
 ## 当前状态
 
@@ -26,7 +26,7 @@ AI coding diff + review signals → audit.json → audit.html → human decision
 
 ## 不做什么
 
-`audit-graph` 不生成 finding、不跑测试、不判断代码是否正确。它可视化来自其他工具的审查信号，让它们可追溯。
+`change-audit` 不生成 finding、不跑测试、不判断代码是否正确。它可视化来自其他工具的审查信号，让它们可追溯。
 
 ## 目标产物
 
@@ -55,15 +55,15 @@ v0 目标 HTML 形态——设计参考，尚未实现。
 - **问题审查**：有没有 bug、风险、遗漏边界或失败证据，哪些 finding 需要修复。
 - **用户决策**：确认问题、标记非问题、调整严重度或补充上下文。
 
-一次 AI coding 任务可能经历多轮生成、审查、修复和再审查。`audit-graph` 记录这个收敛过程。
+一次 AI coding 任务可能经历多轮生成、审查、修复和再审查。`change-audit` 记录这个收敛过程。
 
 ## V0 形态
 
 两个 CLI 命令：
 
 ```text
-audit-graph build    # 从 diff + 审查输入生成 audit.json
-audit-graph render   # 从 audit.json 生成 audit.html
+change-audit build    # 从 diff + 审查输入生成 audit.json
+change-audit render   # 从 audit.json 生成 audit.html
 ```
 
 每个 finding 渲染为卡片：标题、位置、带关键行高亮的 hunk snippet、证据链、修复建议和用户决策控件。静态 HTML 使用 localStorage 暂存反馈，并导出 `audit-feedback.jsonl`。

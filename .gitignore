@@ -17,7 +17,7 @@ build/
 dist/
 *.egg-info/
 
-# audit-graph generated outputs
+# change-audit generated outputs
 /audit/
 /audit.json
 /audit.html
