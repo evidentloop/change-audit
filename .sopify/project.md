@@ -2,7 +2,7 @@
 
 ## 命名契约
 
-- 产品、GitHub 仓库、未来 distribution 和 CLI：`change-audit`
+- 产品、GitHub 仓库、PyPI distribution 和 CLI：`change-audit`
 - Python import package、源码目录：`change_audit`
 - 内部隔离审查子系统：`change_audit.review`
 - 内部数据模型：Audit Graph / `AuditGraph`
@@ -14,14 +14,16 @@
 
 ## 技术约定
 
-- Python 版本：`>=3.10`。
+- Python runtime 版本：`>=3.10`；推荐由 `uv tool` 管理隔离环境，pipx 作为 fallback，不要求用户手建 venv 或把包装进项目环境。
 - 结构契约：JSON Schema 2020-12 是唯一 schema 真相源；Python 只实现校验和语义约束，不建立第二套模型定义。
 - 模板：Jinja2；CSS 和 JS 作为 package resources 维护并内联到自包含 HTML。
-- 入口：一期保留 `python -m change_audit prepare/finalize/render`；正式 console-script 后续只做别名。
-- 宿主边界：AI host LLM 是唯一模型执行面；Python 包不集成模型 SDK，也不读取 provider/API key 配置。
+- 入口：零安装预览使用 GitHub Pages，临时试用使用 `uvx change-audit demo`，正式安装使用 `uv tool install change-audit`（或 pipx）与标准 skills CLI；安装后由 AI host 自然语言触发。`change-audit prepare/finalize/render` 是稳定集成入口，`python -m change_audit` 保留为开发与诊断入口。
+- 宿主边界：产品 runtime 不执行模型；真实语义输出由外部 AI host/LLM 提供。Python 包不集成模型 SDK，也不读取 provider/API key 配置。
 - Prompt provenance：prepare 冻结 product prompt source/version/hash，finalize 校验 prompt 文件及当前契约后再 ingest；跨进程版本漂移或 prompt 篡改不得冒充原版本完成。
 - Reviewer payload：Git 文本 diff 不携带 `GIT binary patch`；binary 文件保留路径/change_type 元数据，视觉内容明确不在一期文本审查范围。
-- 集成形态：一个 Python 包承载业务，一个用户级/宿主级 Skill 负责发现和编排，用户项目不复制集成文档。
+- 集成形态：PyPI 包是唯一 runtime 与产品版本真相源；同仓库 `skills/change-audit/` 是静态薄编排层；GitHub Pages 提供零安装预览。产品不自研 npm launcher、跨平台独立二进制、宿主 adapter 框架或模型 provider 层。
+- 诊断边界：`doctor` 可以提示 `npx` 是否可用，但不扫描宿主私有目录或把文件存在宣称为 Skill discovery；安装异常优先使用标准 skills CLI 与宿主文档诊断。
+- demo fixture：使用 wheel 内独立合成资源，在临时 Git 仓库中复用正式主链；不把真实 dogfood 证据作为运行依赖，也不为 demo 新增 diff 输入协议。
 - 一期默认输入：本地 Git diff；长期输入按 artifact profile 管理。
 - 默认产物：`audit.json` 和 `audit.html`；`audit-feedback.jsonl` 由用户显式导出。
 - 中间产物：prepare 在最终目录同父目录创建隐藏 staging workspace，`.run/` 位于其中；成功时目录整体提交，失败时 staging 留作诊断。
