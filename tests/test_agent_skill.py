@@ -69,6 +69,8 @@ def test_install_authority_and_fixed_version_text_contract() -> None:
     assert "Ask for installation or upgrade authorization" in text
     assert "If the user declines installation, stop" in text
     assert "`schema_version` equal to `0.2`" in text
+    assert "`prompt_version` equal to `v0.3`" in text
+    assert "PRODUCT_REVIEWER_PROMPT_VERSION" in text
     assert "non-empty `package_version`" in text
     assert "from change_audit.api import" in text
     assert "<PYTHON> -m change_audit --help" in text

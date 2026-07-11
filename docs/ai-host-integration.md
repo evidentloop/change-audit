@@ -2,7 +2,7 @@
 
 ## 状态
 
-本文件定义一期 `code_diff` profile 的已实现契约。CrossReview 已等价迁入 `change_audit.review`，`prepare`、`finalize`、`render`、可信 hunk adapter、状态完成门、正式产物对提交与 AI host Skill 均已实现；Codex 已完成端到端 dogfood，Qoder 模型级 smoke 按用户决定留待手工验证。仓库长期 review 内核是 artifact-general，但非 diff 类型在具备专属 adapter、可信 anchor、eval baseline 和 renderer profile 前，不使用本文件的正式 audit 交付承诺。
+本文件定义已经实现的 `code_diff` 集成契约。正式报告通过 `prepare → 隔离宿主审查 → finalize` 生成；`render` 只从已校验的 `audit.json` 重建 HTML。Codex 已完成端到端 dogfood，Qoder 模型级 smoke 按用户决定留待手工验证。当前不支持非 Git diff 输入。
 
 ## 用户看到什么
 
@@ -12,7 +12,7 @@
 帮我用 change-audit 审计最近的本地改动
 ```
 
-AI host 通过用户级或宿主级 Skill 发现 `change-audit`，完成审查编排，并返回摘要与 `audit.html` 路径。用户不需要知道 ReviewPack、ReviewResult、CrossReview 或隐藏中间文件。
+AI host 通过用户级或宿主级 Skill 发现 `change-audit`，完成审查编排，并返回摘要与 `audit.html` 路径。用户不需要知道 ReviewPack、ReviewResult 或隐藏中间文件。
 
 一期默认正式产物只有：
 
@@ -34,13 +34,13 @@ AI host LLM
   -> 在隔离审查上下文中理解变更，产生语义 findings
 
 change-audit Python package
-  -> artifact-general review 内核
+  -> ReviewPack、结果 ingest、约束归一化与裁决
   -> code-diff adapter、Audit Graph、校验、风险状态和 HTML renderer
 ```
 
-CrossReview 的可复用能力已等价迁入 `change_audit.review`。它是包内审查子系统，不是第二个安装项、第二个 Skill 或用户必须理解的产品。
+ReviewPack、canonical prompt、结果 ingest、normalizer 与 adjudicator 直接组成包内的 `change_audit.review` 内核，不存在第二个安装项、第二个 Skill 或第二套模型调用路径。
 
-默认链路不集成模型 SDK、不读取 API key。宿主已有的 LLM 是一期主要 finding 生产者；Python 只生成机械字段、校验语义输出并渲染稳定报告。
+Python 包不集成模型 SDK，也不读取 provider/API key 配置。宿主已有的 LLM 是 finding 生产者；Python 只生成机械字段、校验语义输出并渲染稳定报告。
 
 ## Skill 编排契约
 
@@ -57,7 +57,7 @@ python -m change_audit prepare --diff HEAD~1 [--out DIR]
 - `hunk-index.json`：可信路径、行范围、hunk ID 和完整代码片段。
 - `prompt.md`：为宿主 LLM 准备的隔离审查提示。
 
-prepare 同时在骨架中冻结 reviewer prompt 的 source、version 与完整渲染文本 SHA-256。当前 product prompt 为 `product/v0.2`：Section/字段名和协议枚举保持英文，`What`、`Why`、Observations 与 Overall Assessment 使用简体中文；`Where` 优先给出最能直接证明问题的一条修改行。文本 diff 不携带 `GIT binary patch`，但 binary 文件路径、change type 与 Git binary 占位仍保留在可信元数据中。
+prepare 同时在骨架中冻结 reviewer prompt 的 source、version 与完整渲染文本 SHA-256。当前 product prompt 为 `product/v0.3`：Section/字段名和协议枚举保持英文，`What`、`Why`、Observations 与 Overall Assessment 使用简体中文；`Where` 优先给出最能直接证明问题的一条修改行。文本 diff 不携带 `GIT binary patch`，但 binary 文件路径、change type 与 Git binary 占位仍保留在可信元数据中。
 
 最终目录此时不得出现；staging 根目录也尚未生成候选 `audit.json`。
 
@@ -131,7 +131,7 @@ Skill 应当：
 
 1. 匹配“审计本地改动”“review diff”“audit changes”等明确意图。
 2. 确认仓库、diff spec 和输出位置；默认 `HEAD~1` 只能在用户意图允许时采用。
-3. 检查兼容包版本；缺包时说明来源和命令，等待授权后才安装。
+3. 检查非空包版本、schema `0.2`、prompt `v0.3` 与三个模块命令；缺包或任一契约不兼容时说明来源和命令，等待授权后才安装或升级。
 4. 顺序执行 prepare、隔离宿主审查和 finalize。
 5. 校验退出码、审查状态以及 `audit.json` / `audit.html` 的存在和对应关系。
 6. 返回简短摘要、审查状态和可打开的报告路径。

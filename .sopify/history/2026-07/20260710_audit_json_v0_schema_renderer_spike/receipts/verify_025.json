@@ -1,0 +1,55 @@
+{
+  "evidence": {
+    "dead_surface_scan": "passed",
+    "git_diff_check": "passed",
+    "javascript": "syntax and feedback behavior passed",
+    "prompt": {
+      "newline_filename_escape": true,
+      "prepare_and_prompt_lab_share": "render_host_reviewer_prompt",
+      "protocol_body_unchanged": true,
+      "template_sha256": "ea9f6d367e4d6791f188a1669753c2c77fcbc6eb8ae594400216b742c40663a7",
+      "version": "v0.3"
+    },
+    "protected_v02_sample": "git diff empty and five SHA-256 values unchanged",
+    "public_commands": [
+      "prepare",
+      "finalize",
+      "render"
+    ],
+    "review": {
+      "code_quality": "passed; no compatibility layer, replacement config, provider path or duplicate Git collector remains",
+      "spec_compliance": "passed after Skill v0.3 probe, shared safe prompt constructor, dead pack I/O removal and Prompt Lab closure"
+    },
+    "ruff": "passed",
+    "tests": "323 passed in 10.43s",
+    "wheel": {
+      "anthropic": false,
+      "banned_review_modules": {
+        "budget": false,
+        "cli": false,
+        "config": false,
+        "eval": false,
+        "formatter": false,
+        "reviewer": false,
+        "verify": false
+      },
+      "file_count": 32,
+      "isolated_install": "passed",
+      "path": "/private/tmp/change-audit-wave5-final-dist.kz6XDX/change_audit-0.1.0a0-py3-none-any.whl",
+      "pyyaml": "dev extra only",
+      "runtime_dependencies": [
+        "jinja2>=3.1",
+        "jsonschema>=4.23"
+      ],
+      "sha256": "f283f803fb0fde6187a98087501db1bde047314854cd830de6e7b12f1bfa19be"
+    }
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_025",
+    "source": "wave_5_final_code_and_wheel_verification"
+  },
+  "timestamp": "2026-07-11T07:04:09+00:00",
+  "verdict": "wave_5_code_and_wheel_gates_passed"
+}

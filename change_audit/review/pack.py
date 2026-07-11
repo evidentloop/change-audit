@@ -1,15 +1,8 @@
-"""Pack assembly: git diff → ReviewPack.
-
-Implements 1B.1 (pack assembly) and supports 1C.1 (pack CLI).
-Core responsibility: construct a valid ReviewPack from git diff + optional context.
+"""Construct and serialize ReviewPack values from trusted adapter inputs.
 
 Design decisions:
-  - ``--diff REF`` → ``git diff REF HEAD`` (committed changes).
-  - ``--diff A..B`` → passed directly to git (explicit range).
-  - ``--staged``   → ``git diff --cached`` (staged vs HEAD).
-  - default        → ``git diff`` (unstaged working tree vs index).
-  - changed_files via ``git diff --name-only -z`` (NUL-delimited, handles special-char paths).
-    Regex fallback available for standalone diff text via ``extract_changed_files()``.
+  - Git collection belongs to ``change_audit.adapters.gitdiff``.
+  - ``extract_changed_files()`` is a fallback for callers that only have diff text.
   - Language detected from file extension (simple mapping).
   - Fingerprints: artifact_fp = sha256(diff), pack_fp = sha256(pack-sans-fp).
   - pack_completeness computed per v0-scope.md §10.2 (returned, not stored on pack).
@@ -21,7 +14,6 @@ from __future__ import annotations
 import datetime
 import json
 import re
-import subprocess
 from pathlib import Path
 
 from .schema import (
@@ -99,111 +91,10 @@ def detect_language(path: str) -> str | None:
     return _LANG_MAP.get(suffix) or _LANG_MAP.get(suffix.lower())
 
 
-# ---------------------------------------------------------------------------
-# Git diff
-# ---------------------------------------------------------------------------
-
-class GitDiffError(Exception):
-    """Raised when git diff fails."""
-
-
-def diff_from_git(
-    ref: str | None = None,
-    *,
-    staged: bool = False,
-    repo_root: Path | None = None,
-) -> str:
-    """Run git diff and return the unified diff string.
-
-    Modes:
-      - *ref* provided, no ``..``: ``git diff REF HEAD`` (committed changes).
-      - *ref* contains ``..``:     ``git diff REF`` (explicit range).
-      - ``staged=True``:           ``git diff --cached`` (staged vs HEAD).
-      - default (no ref):          ``git diff`` (unstaged working tree vs index).
-
-    Raises :class:`GitDiffError` on non-zero git exit.
-    """
-    cmd = ["git", "--no-pager", "diff"]
-    if staged:
-        cmd.append("--cached")
-    elif ref is not None:
-        if ".." in ref:
-            cmd.append(ref)
-        else:
-            cmd.extend([ref, "HEAD"])
-    # else: plain "git diff" for unstaged working tree
-
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=repo_root,
-            check=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        raise GitDiffError(
-            f"git diff failed (exit {exc.returncode}): {exc.stderr.strip()}"
-        ) from exc
-
-    return result.stdout
-
-
-# ---------------------------------------------------------------------------
-# Changed-file extraction
-# ---------------------------------------------------------------------------
-
-def changed_files_from_git(
-    ref: str | None = None,
-    *,
-    staged: bool = False,
-    repo_root: Path | None = None,
-) -> list[FileMeta]:
-    """Get changed file list via ``git diff --name-only -z``.
-
-    Modes mirror :func:`diff_from_git`.
-
-    Uses NUL-delimited output (``-z``) to correctly handle paths with
-    special characters (spaces, tabs, quotes). Preferred over regex parsing.
-
-    Raises :class:`GitDiffError` on non-zero git exit.
-    """
-    cmd = ["git", "--no-pager", "diff", "--name-only", "-z"]
-    if staged:
-        cmd.append("--cached")
-    elif ref is not None:
-        if ".." in ref:
-            cmd.append(ref)
-        else:
-            cmd.extend([ref, "HEAD"])
-    # else: plain unstaged
-
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=repo_root,
-            check=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        raise GitDiffError(
-            f"git diff --name-only failed (exit {exc.returncode}): {exc.stderr.strip()}"
-        ) from exc
-
-    # -z output: NUL-separated paths, trailing NUL
-    paths = [p for p in result.stdout.split("\0") if p]
-    seen: dict[str, FileMeta] = {}
-    for p in paths:
-        if p not in seen:
-            seen[p] = FileMeta(path=p, language=detect_language(p))
-    return list(seen.values())
-
-
 def build_diff_source(ref: str | None, staged: bool) -> GitDiffSource:
     """Build a :class:`GitDiffSource` from diff collection parameters.
 
-    Used by the CLI to attach provenance metadata to every ReviewPack.
+    Used by the Git adapter to attach provenance metadata to every ReviewPack.
     For artifact-based reviews (v1), construct :class:`ArtifactDiffSource` directly.
     """
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -220,16 +111,15 @@ def build_diff_source(ref: str | None, staged: bool) -> GitDiffSource:
     return GitDiffSource(type="committed", base=ref, head="HEAD")
 
 
-# Regex fallback for extract_changed_files (used when only diff text is available,
-# e.g. piped input). Known limitation: fails on quoted paths and paths containing " b/".
+# Regex fallback for callers with only diff text. Known limitation: fails on quoted
+# paths and paths containing " b/"; the product Git adapter supplies FileMeta directly.
 _DIFF_HEADER_RE = re.compile(r"^diff --git a/(.*?) b/(.*)$", re.MULTILINE)
 
 
 def extract_changed_files(diff: str) -> list[FileMeta]:
     """Parse a unified diff to extract the list of changed files.
 
-    This is a **regex fallback** — prefer :func:`changed_files_from_git` when
-    a git repo is available. Known limitations:
+    This is a **regex fallback**. Known limitations:
 
     - Paths with special characters (tabs, quotes) are quoted by git and
       won't match the regex.
@@ -280,24 +170,6 @@ def compute_pack_completeness(pack: ReviewPack) -> float:
     if pack.evidence:
         score += 0.10
     return round(score, 2)
-
-
-# ---------------------------------------------------------------------------
-# File I/O helpers
-# ---------------------------------------------------------------------------
-
-def read_task_file(path: str) -> str:
-    """Read a task-description file from disk."""
-    return Path(path).read_text(encoding="utf-8")
-
-
-def read_context_files(paths: list[str]) -> list[ContextFile]:
-    """Read context files from disk into ContextFile objects."""
-    result: list[ContextFile] = []
-    for p in paths:
-        content = Path(p).read_text(encoding="utf-8")
-        result.append(ContextFile(path=p, content=content))
-    return result
 
 
 # ---------------------------------------------------------------------------

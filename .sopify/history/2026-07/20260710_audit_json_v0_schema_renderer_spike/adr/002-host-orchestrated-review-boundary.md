@@ -18,7 +18,7 @@
 - Python 只提供 `prepare`、`finalize`、`render` 三个模块命令。
 - `prepare` 与 `finalize` 通过同父目录隐藏 staging workspace 中的 `.run/` 跨进程交接。
 - Skill 负责宿主 LLM 调用、安装授权、错误处理和正式产物展示。
-- Python 默认依赖不包含模型 SDK；provider-backed reviewer 只允许作为可选 extra。
+- Python 包不包含模型 SDK、provider/API key 配置或 standalone reviewer；宿主 LLM 是唯一模型执行面。
 - 后续增加 console-script 时，不移除 `python -m change_audit` 模块入口。
 
 ## 理由
@@ -37,3 +37,4 @@
 - `.run/` 必须有清理、失败诊断和 prompt injection 测试；POSIX 权限尽力收紧为目录 `0700`、文件 `0600`，但不作为跨平台硬门禁。
 - 用户默认只看到 `audit.json` 与 `audit.html`。
 - 完整 review 的正式产物按 ADR-005 在 staging 中验证后成对提交。
+- Wave 5 删除迁移期为等价性保留的 standalone CLI/config/reviewer/formatter 与 provider verify 路径；不以 change-audit 新命名复制这些未使用能力。

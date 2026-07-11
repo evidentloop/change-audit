@@ -28,7 +28,6 @@ from change_audit.review.schema import (
     Locatability,
     PackBudget,
     ResultBudget,
-    ReviewerConfig,
     ReviewerFailureReason,
     ReviewerMeta,
     ReviewPack,
@@ -39,7 +38,6 @@ from change_audit.review.schema import (
     compute_fingerprint,
     validate_eval_review_result_contract,
     validate_category,
-    validate_finding_constraints,
     validate_finding_id,
     validate_review_pack,
     validate_review_result,
@@ -203,116 +201,7 @@ class TestFinding:
         )
         assert f.file is None
         assert f.line is None
-        assert f.actionable is True  # default, but constraints would flag this
-
-
-# ===== Finding Constraints =====
-
-class TestFindingConstraints:
-    """1A.2 — Severity × locatability × confidence constraint rules."""
-
-    def test_valid_high_severity(self):
-        """high + exact + plausible = valid."""
-        f = Finding(
-            id="f-001", severity=Severity.HIGH, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.EXACT,
-            confidence=Confidence.PLAUSIBLE, file="a.py", line=1,
-        )
-        assert validate_finding_constraints(f) == []
-
-    def test_high_requires_exact_and_plausible(self):
-        """high severity without exact locatability or plausible confidence → violation."""
-        f = Finding(
-            id="f-001", severity=Severity.HIGH, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.FILE_ONLY,
-            confidence=Confidence.PLAUSIBLE, file="a.py",
-        )
-        violations = validate_finding_constraints(f)
-        assert "high_requires_exact_and_plausible" in violations
-
-    def test_speculative_severity_cap(self):
-        """speculative + high → violation (cap at medium)."""
-        f = Finding(
-            id="f-001", severity=Severity.HIGH, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.EXACT,
-            confidence=Confidence.SPECULATIVE, file="a.py", line=1,
-            actionable=False,
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_severity_cap" in violations
-
-    def test_speculative_medium_is_ok(self):
-        """speculative + medium → no severity cap violation."""
-        f = Finding(
-            id="f-001", severity=Severity.MEDIUM, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.EXACT,
-            confidence=Confidence.SPECULATIVE, file="a.py", line=1,
-            actionable=False,
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_severity_cap" not in violations
-
-    def test_no_location_severity_cap(self):
-        """locatability=none + medium → violation (cap at low)."""
-        f = Finding(
-            id="f-001", severity=Severity.MEDIUM, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.NONE,
-            confidence=Confidence.PLAUSIBLE,
-        )
-        violations = validate_finding_constraints(f)
-        assert "no_location_severity_cap" in violations
-
-    def test_speculative_none_must_be_note(self):
-        """speculative + none + anything other than note → violation."""
-        f = Finding(
-            id="f-001", severity=Severity.LOW, summary="s", detail="d",
-            category="suggestion", locatability=Locatability.NONE,
-            confidence=Confidence.SPECULATIVE, actionable=False,
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_none_is_note" in violations
-
-    def test_speculative_none_note_is_valid(self):
-        """speculative + none + note = valid (the only valid combo for this pair)."""
-        f = Finding(
-            id="f-001", severity=Severity.NOTE, summary="s", detail="d",
-            category="suggestion", locatability=Locatability.NONE,
-            confidence=Confidence.SPECULATIVE, actionable=False,
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_none_is_note" not in violations
-
-    def test_speculative_not_actionable(self):
-        """speculative + actionable=True → violation."""
-        f = Finding(
-            id="f-001", severity=Severity.NOTE, summary="s", detail="d",
-            category="suggestion", locatability=Locatability.NONE,
-            confidence=Confidence.SPECULATIVE, actionable=True,
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_not_actionable" in violations
-
-    def test_plausible_actionable_ok(self):
-        """plausible + actionable=True → no violation."""
-        f = Finding(
-            id="f-001", severity=Severity.LOW, summary="s", detail="d",
-            category="logic_error", locatability=Locatability.FILE_ONLY,
-            confidence=Confidence.PLAUSIBLE, file="a.py",
-        )
-        violations = validate_finding_constraints(f)
-        assert "speculative_not_actionable" not in violations
-
-    def test_multiple_violations(self):
-        """A single finding can violate multiple rules."""
-        f = Finding(
-            id="f-001", severity=Severity.HIGH, summary="s", detail="d",
-            category="suggestion", locatability=Locatability.NONE,
-            confidence=Confidence.SPECULATIVE, actionable=True,
-        )
-        violations = validate_finding_constraints(f)
-        # Should hit: high_requires_exact_and_plausible, speculative_severity_cap,
-        # no_location_severity_cap, speculative_none_is_note, speculative_not_actionable
-        assert len(violations) >= 4
+        assert f.actionable is True  # default
 
 
 # ===== Finding ID & Category Validation =====
@@ -657,30 +546,6 @@ class TestFingerprint:
         fp = compute_fingerprint("test")
         assert all(c in "0123456789abcdef" for c in fp)
         assert len(fp) == 64  # SHA-256
-
-
-# ===== ReviewerConfig =====
-
-class TestReviewerConfig:
-    """1A.4 — ReviewerConfig structure."""
-
-    def test_construction(self):
-        cfg = ReviewerConfig(
-            provider="anthropic",
-            model="claude-sonnet-4-20250514",
-            api_key_env="ANTHROPIC_API_KEY",
-        )
-        assert cfg.provider == "anthropic"
-        assert cfg.model == "claude-sonnet-4-20250514"
-        assert cfg.api_key_env == "ANTHROPIC_API_KEY"
-
-    def test_openai_config(self):
-        cfg = ReviewerConfig(
-            provider="openai",
-            model="gpt-4o",
-            api_key_env="OPENAI_API_KEY",
-        )
-        assert cfg.provider == "openai"
 
 
 # ===== Sub-structures =====

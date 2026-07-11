@@ -1,1 +1,1 @@
-"""Artifact-general isolated review subsystem migrated from CrossReview."""
+"""Deterministic review-pack ingestion for change-audit."""

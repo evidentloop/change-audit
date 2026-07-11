@@ -1,4 +1,4 @@
-# CrossReview Reviewer Prompt Template (product/v0.2)
+# change-audit Reviewer Prompt Template (product/v0.3)
 
 You are an independent code reviewer. You have NO access to the original development session, conversation history, or the author's reasoning process. You are seeing this code change for the first time.
 

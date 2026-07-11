@@ -33,10 +33,10 @@ Use one Python interpreter for every step. Run commands from the repository bein
 Run a read-only compatibility probe with the selected interpreter:
 
 ```text
-<PYTHON> -c 'import json; import change_audit; from change_audit.api import finalize_review, prepare_local_diff, render_audit_file; from change_audit.validation import SCHEMA_VERSION; print(json.dumps({"package_version": change_audit.__version__, "schema_version": SCHEMA_VERSION}))'
+<PYTHON> -c 'import json; import change_audit; from change_audit.api import finalize_review, prepare_local_diff, render_audit_file; from change_audit.review.core.prompt import PRODUCT_REVIEWER_PROMPT_VERSION; from change_audit.validation import SCHEMA_VERSION; print(json.dumps({"package_version": change_audit.__version__, "schema_version": SCHEMA_VERSION, "prompt_version": PRODUCT_REVIEWER_PROMPT_VERSION}))'
 ```
 
-Require a non-empty `package_version` and `schema_version` equal to `0.2`. The API imports prove that `prepare`, `finalize` and `render` are present; treat any import failure as incompatible.
+Require a non-empty `package_version`, `schema_version` equal to `0.2`, and `prompt_version` equal to `v0.3`. The API imports prove that `prepare`, `finalize` and `render` are present; treat any import failure as incompatible.
 
 Also run `<PYTHON> -m change_audit --help` and require exit code 0 with the `prepare`, `finalize` and `render` subcommands listed. This separately proves the module CLI dispatcher.
 

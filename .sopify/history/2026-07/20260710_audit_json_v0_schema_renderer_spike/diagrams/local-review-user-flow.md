@@ -1,8 +1,8 @@
 # 本地审计用户链路
 
-![change-audit host review flow](../../../../docs/assets/change-audit-review-flow.svg)
+![change-audit host review flow](../../../../../docs/assets/change-audit-review-flow.svg)
 
-PNG 版本：[`change-audit-review-flow.png`](../../../../docs/assets/change-audit-review-flow.png)
+PNG 版本：[`change-audit-review-flow.png`](../../../../../docs/assets/change-audit-review-flow.png)
 
 图是辅助视图，下面的文字链路是可检索、可验收的权威契约：
 

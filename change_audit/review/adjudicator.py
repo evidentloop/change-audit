@@ -33,8 +33,8 @@ def determine_advisory_verdict(
     """Produce a deterministic advisory verdict.
 
     Rule evaluation order (first match wins):
-    1. rejected budget → INCONCLUSIVE
-    2. truncated budget → CONCERNS
+    1. rejected input → INCONCLUSIVE
+    2. truncated review → CONCERNS
     3. evidence error/skipped → CONCERNS
     4. speculative_ratio > 50% → CONCERNS
     5. evidence failed + findings → CONCERNS
@@ -52,14 +52,14 @@ def determine_advisory_verdict(
         for finding in findings
     )
 
-    # 1. Budget rejected — cannot produce a meaningful verdict.
+    # 1. Rejected input cannot produce a meaningful verdict.
     if budget_status == BudgetStatus.REJECTED:
         return AdvisoryVerdict(
             verdict=Verdict.INCONCLUSIVE,
-            rationale="review input was rejected by the budget gate",
+            rationale="review input was rejected before semantic review",
         )
 
-    # 2. Budget truncated — partial review, flag concerns regardless.
+    # 2. Truncated review is partial and must remain concern-like.
     if budget_status == BudgetStatus.TRUNCATED:
         return AdvisoryVerdict(
             verdict=Verdict.CONCERNS,

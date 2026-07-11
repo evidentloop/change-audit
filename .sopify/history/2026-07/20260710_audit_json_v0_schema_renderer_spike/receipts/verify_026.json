@@ -1,0 +1,67 @@
+{
+  "evidence": {
+    "browser": {
+      "console_errors": 0,
+      "desktop_1280": "no page overflow; 7/7 hunk panes no horizontal or vertical scroll",
+      "mobile_375": "no page overflow; 7/7 hunk panes no horizontal or vertical scroll; metrics remain two columns",
+      "transport": "localhost"
+    },
+    "comparison": {
+      "interpretation": "independent reviewer variance; prompt protocol body unchanged",
+      "shared_findings": 6,
+      "v02_directory": "byte-identical and unmodified",
+      "v02_only": "static PNG export failure counted as pass",
+      "v03_only": "circle/ellipse bounding-box collision false positive"
+    },
+    "documentation": {
+      "current_identity": "change-audit only",
+      "new_sample": "docs/examples/dogfood-fireworks-tech-graph-v03",
+      "overdesign_review": "passed; no new provider, compatibility, config, renderer injection or duplicate ingest path",
+      "prompt_lab_baseline_sentence": "preserved verbatim",
+      "protected_sample": "docs/examples/dogfood-fireworks-tech-graph",
+      "relative_links": "all current links exist except intentionally preserved fixtures/README.md reference whose target is outside main"
+    },
+    "dogfood": {
+      "additions": 914,
+      "audit_html_sha256": "e9a70b56deaeac701b919323c7495b8a7aa39693c7b775bac20291ec4701a69c",
+      "audit_json_sha256": "dbf0ea2ede6e3094d5fd1910c3646f4bca4868aae1d62ef179533be474fbc374",
+      "binary_files": 5,
+      "deletions": 281,
+      "diff": "d5ef26deac6b1ed37ee9b89b52dddb1bcaac6c24..9a64e5a926d430a421a71b5cf433b0553876db28",
+      "extra_svg_injection": false,
+      "files": 21,
+      "finding_count": 7,
+      "fix_count": 0,
+      "hunks": 52,
+      "native_html": true,
+      "prompt_sha256": "0400ed0b961edee4cea64cd5746ee411ccfc0e17511a53dc8c9b8e9471c558b7",
+      "prompt_source": "product",
+      "prompt_version": "v0.3",
+      "review_status": "complete",
+      "risk_score": 100,
+      "run_id": "run-842aeae6dc0b48b88ab95b38097997a0",
+      "source_repository": "fireworks-tech-graph",
+      "trusted_changed_line_anchors": 7,
+      "unscored_finding_count": 0,
+      "verdict": "concerns"
+    },
+    "formal_validation": {
+      "html_trace": "passed",
+      "installed_wheel_render_sha256": "e9a70b56deaeac701b919323c7495b8a7aa39693c7b775bac20291ec4701a69c",
+      "schema": "passed"
+    },
+    "format_retry": {
+      "reason": "first response used non-protocol Section headings and unbackticked Where values",
+      "same_isolated_reviewer": true,
+      "semantic_changes": false
+    }
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_026",
+    "source": "wave_5_v03_dogfood_and_docs_closure"
+  },
+  "timestamp": "2026-07-11T07:56:23+00:00",
+  "verdict": "wave_5_v03_dogfood_and_documentation_passed"
+}

@@ -1,0 +1,29 @@
+{
+  "evidence": {
+    "branch": "codex/chore-single-product-closure",
+    "decisions": [
+      "D113 remove standalone provider/CLI/config without compatibility layer",
+      "D114 keep only main-chain review kernel and move eval to prompt-lab",
+      "D115 remove anthropic extra and runtime PyYAML",
+      "D116 rename canonical prompt to change-audit product/v0.3 and rerun same Fireworks range"
+    ],
+    "diff_check": "PASS",
+    "exit_gate_count": 6,
+    "protocol_check": "PASS",
+    "review_result": {
+      "code_quality": "passed; plan reduces runtime surfaces and adds no replacement framework",
+      "overdesign": "none in plan",
+      "spec_compliance": "passed; approved deletion/fusion scope and same-range dogfood are explicit"
+    },
+    "wave": "5 Single-product consolidation"
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_023",
+    "source": "wave_5_plan_closure",
+    "user_decision": "approved single-product fusion and standalone path deletion"
+  },
+  "timestamp": "2026-07-11T06:15:02+00:00",
+  "verdict": "wave_5_design_gate_passed"
+}

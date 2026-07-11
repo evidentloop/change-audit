@@ -1,8 +1,8 @@
 # Schema、审查与 renderer 架构
 
-![change-audit architecture](../../../../docs/assets/change-audit-architecture.svg)
+![change-audit architecture](../../../../../docs/assets/change-audit-architecture.svg)
 
-PNG 版本：[`change-audit-architecture.png`](../../../../docs/assets/change-audit-architecture.png)
+PNG 版本：[`change-audit-architecture.png`](../../../../../docs/assets/change-audit-architecture.png)
 
 关键边界：
 

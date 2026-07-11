@@ -36,7 +36,7 @@ Three rules shape the product:
 
 ## See a real report
 
-The checked-in [Fireworks Tech Graph dogfood](./docs/examples/dogfood-fireworks-tech-graph/) was regenerated after implementation from this exact range:
+The current [Fireworks Tech Graph `product/v0.3` dogfood](./docs/examples/dogfood-fireworks-tech-graph-v03/) was generated through the consolidated single-product path from this exact range:
 
 ```text
 d5ef26deac6b1ed37ee9b89b52dddb1bcaac6c24..9a64e5a926d430a421a71b5cf433b0553876db28
@@ -44,9 +44,11 @@ d5ef26deac6b1ed37ee9b89b52dddb1bcaac6c24..9a64e5a926d430a421a71b5cf433b0553876db
 
 It covers 21 files and 52 hunks, with 7 findings anchored to real added lines and 0 unscored findings. The final state is `complete + concerns`; its diagnostics still report partial intent coverage and `0.65` pack completeness.
 
-- Open the [self-contained HTML report](./docs/examples/dogfood-fireworks-tech-graph/audit.html).
-- Inspect the [canonical audit.json](./docs/examples/dogfood-fireworks-tech-graph/audit.json).
-- Read the [generation record](./docs/examples/dogfood-fireworks-tech-graph/README.md) and [same-source baseline comparison](./docs/examples/dogfood-fireworks-tech-graph/baseline-comparison.md).
+- Open the [self-contained HTML report](./docs/examples/dogfood-fireworks-tech-graph-v03/audit.html).
+- Inspect the [canonical audit.json](./docs/examples/dogfood-fireworks-tech-graph-v03/audit.json).
+- Read the [same-range v0.2/v0.3 comparison](./docs/examples/dogfood-fireworks-tech-graph-v03/README.md).
+
+The earlier [`product/v0.2` sample](./docs/examples/dogfood-fireworks-tech-graph/) remains byte-for-byte unchanged as local comparison evidence; its sample-only SVG annotation is not part of the product pipeline.
 
 The report is evidence of the implemented pipeline, not a claim that the reviewer found every defect in the range.
 
@@ -95,7 +97,7 @@ natural-language request
 
 ![change-audit architecture](./docs/assets/change-audit-architecture.png)
 
-The default Python path does not call a model SDK or manage API keys. Diff text, source, comments, filenames, and reviewer output are treated as untrusted data; review payloads are never executed.
+change-audit uses the model capability already provided by the AI host, so no separate model service or API key is required. Reviewed diffs and model output are treated as untrusted data, and commands embedded in them are never executed.
 
 ## Host integrator commands
 
@@ -137,14 +139,14 @@ See [AI host integration](./docs/ai-host-integration.md) for the locator contrac
 | Exact add/delete-line anchors and bounded trusted hunk excerpts | Implemented |
 | Complete, partial, failed, and inconclusive states | Implemented |
 | Browser-local decisions and JSONL export | Implemented; not consumed |
-| Codex end-to-end dogfood | Completed on the Fireworks range above |
+| Codex end-to-end dogfood | Completed with `product/v0.3` on the Fireworks range above |
 | Qoder model-level smoke | Deferred for manual verification; not claimed as passed |
 | Report language | Simplified Chinese in v0 |
 | Folder diff, file-only review, or remote PR URL | Not supported |
 | Automatic fixes, command execution, or feedback ingestion | Not supported |
 | PyPI package, release tag, or console script | Not published |
 
-The internal `change_audit.review` subsystem is artifact-general by direction, but a new artifact type is not a formal audit profile until it has an adapter, trusted anchors, an evaluation baseline, and a renderer profile. Schema `0.2` is specifically the code-diff profile.
+Schema `0.2` currently only supports Git diff.
 
 ## Development
 
@@ -161,7 +163,8 @@ Useful references:
 - [Data model](./docs/data-model.md)
 - [AI host integration](./docs/ai-host-integration.md)
 - [Hunk rendering reference](./docs/examples/hunk-context-demo/)
-- [Real Fireworks dogfood](./docs/examples/dogfood-fireworks-tech-graph/)
+- [Current Fireworks `product/v0.3` dogfood](./docs/examples/dogfood-fireworks-tech-graph-v03/)
+- [Preserved Fireworks `product/v0.2` sample](./docs/examples/dogfood-fireworks-tech-graph/)
 
 ## License
 

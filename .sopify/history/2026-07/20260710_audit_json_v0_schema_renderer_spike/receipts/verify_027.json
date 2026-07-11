@@ -1,0 +1,71 @@
+{
+  "evidence": {
+    "documentation": {
+      "bilingual_readme": "aligned",
+      "current_crossreview_identity": "absent outside migration/source evidence",
+      "formal_generation_chain": "prepare -> isolated host review -> finalize",
+      "missing_relative_links": "only the intentionally preserved ../fixtures/README.md reference",
+      "render_boundary": "independent HTML rebuild from validated audit.json"
+    },
+    "native_v03_sample": {
+      "html_trace": "passed",
+      "installed_wheel_render_sha256": "e9a70b56deaeac701b919323c7495b8a7aa39693c7b775bac20291ec4701a69c",
+      "path": "docs/examples/dogfood-fireworks-tech-graph-v03",
+      "schema": "passed"
+    },
+    "protected_sample": {
+      "audit_html_sha256": "d527cc76f384b2cf9a38cd0cd95f111f05a116486e1226c94cb0c2e083357f1d",
+      "audit_json_sha256": "ee52e12329a25fcee6ce6bee6c82725f8d64c8e1ae38af07fed457ff6bcad0b8",
+      "git_diff_from_HEAD": "empty",
+      "path": "docs/examples/dogfood-fireworks-tech-graph"
+    },
+    "result": "passed",
+    "retry": {
+      "first_attempt": "failed because the system python3 was 3.9.6 while change-audit requires Python >=3.10",
+      "root_cause": "environment_or_dependency",
+      "second_attempt": "passed in a fresh Python 3.12 environment"
+    },
+    "retry_count": 1,
+    "review_result": {
+      "code_quality": "passed; duplicate runtime surfaces were removed, constraint behavior has direct tests, public docs are readable and no replacement abstraction was introduced",
+      "overdesign": "none; no new provider, compatibility layer, config system, renderer injection or document-framework rewrite",
+      "spec_compliance": "passed; the single host-orchestrated code-diff product chain, protected v0.2 sample and v0.3 evidence match the approved Wave 5 scope"
+    },
+    "runtime_constraints": [
+      "high + file_only is downgraded to medium",
+      "medium + no location is downgraded to low",
+      "speculative + no location becomes non-actionable note"
+    ],
+    "scope": "Wave 5 final code, documentation, protected samples, package surface, schema/trace and clean-wheel installation",
+    "tests": {
+      "full": "316 passed in 10.14s",
+      "git_diff_check": "passed",
+      "javascript": "1 passed",
+      "ruff": "passed",
+      "targeted": "96 passed"
+    },
+    "verification_source": "project_native",
+    "wheel": {
+      "deterministic_render": "passed",
+      "file_count": 32,
+      "isolated_install": "passed",
+      "isolated_source_copy": true,
+      "python": "3.12",
+      "runtime_dependencies": [
+        "jinja2>=3.1",
+        "jsonschema>=4.23"
+      ],
+      "sha256": "a027072f6cf8cf7ce789d9cb444173dee9d7d7a0b9ee069e994ac8ccc909a842",
+      "standalone_modules_absent": true
+    }
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_027",
+    "source": "wave_5_final_qoder_followup_closure",
+    "user_decision": "approved minimal fixes and full closure"
+  },
+  "timestamp": "2026-07-11T08:38:13+00:00",
+  "verdict": "wave_5_final_closure_gates_passed"
+}
