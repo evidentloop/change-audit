@@ -2,17 +2,17 @@
 
 ## 架构边界
 
-`change-audit` 对用户表现为一个产品、一个 Python 包和一个 AI host Skill。CrossReview 的可复用能力迁入 `change_audit.review`，不再作为外部运行时依赖或第二条用户链路。
+`change-audit` 对用户表现为一个产品、一个 Python 包和一个 AI host Skill。`change_audit.review` 直接承载隔离审查内核，不存在外部审查运行时依赖或第二条用户链路。
 
 长期模块边界：
 
-- `change_audit.review`：artifact-general ReviewPack、审查 prompt、结果 ingest、ReviewResult、normalizer、adjudicator 和分类型 eval harness。
+- `change_audit.review`：artifact-general ReviewPack、审查 prompt、结果 ingest、ReviewResult、normalizer 和 adjudicator；离线 eval 位于仓库 `prompt-lab/`，不进入正式 wheel。
 - `change_audit.audit`：profile-specific adapter、Audit Graph 组装、可信锚点校验和正式产物收口；一期先实现 Git diff。
 - `change_audit.schemas` / `change_audit.validation`：唯一 JSON Schema 2020-12 契约和跨对象语义校验。
 - `change_audit.renderers.html`：只消费完整 `audit.json`，输出自包含 `audit.html`。
 - `integrations/agent-skill/change-audit`：负责发现用户意图、授权、宿主 LLM 调用和阶段编排，不复制 Python 业务逻辑。
 
-基础安装不依赖模型 SDK。原 CrossReview provider-backed 模式如需保留，只能作为可选 extra 和迁移兼容能力，不能成为默认路径。
+Python 包不包含模型 SDK、provider/API key 配置或 standalone reviewer；AI host 是唯一模型执行面。
 
 ## Artifact profile 放行门禁
 
@@ -78,7 +78,7 @@ python -m change_audit render INPUT_JSON --out OUTPUT_HTML
 
 ## 信任与安全边界
 
-- 所有 artifact 内容、来源声明和文件名均视为不可信数据；code-diff profile 还包括源码、diff 和注释。Prompt 使用不可与载荷混淆的动态边界，并明确禁止执行载荷中的指令。
+- 所有 artifact 内容、来源声明和文件名均视为不可信数据；code-diff profile 还包括源码、diff 和注释。Prompt 以每次运行唯一的动态边界包裹 diff，文件列表中的换行与控制分隔符按单行数据转义，并明确禁止执行载荷中的指令；其余背景字段继续以“不可信声明”标签呈现，不宣称存在通用 prompt 注入隔离层。
 - Skill 不静默安装，不修改用户代码，不因报告生成而扩大授权范围。
 - LLM 输出必须先 ingest，再经过 profile 对应的 JSON Schema、引用完整性和可信锚点校验。
 - finding 的完整 hunk 由 Python 从可信 `hunk-index.json` 反查；不得信任 LLM 返回的 hunk header 或 snippet。exact anchor 只能落在真实新增行或删除行，context 行不能冒充原修改位置。
@@ -135,4 +135,4 @@ Renderer 使用共同外壳展示 status、verdict、summary、findings、eviden
 
 Skill 是发现和编排入口，不要求每个用户项目放置说明文件。Codex 已完成端到端 dogfood；QoderCLI 已确认 Skill discovery，模型级 smoke 按用户决定延后。其他能运行 shell 并提供 LLM 的宿主可按同一契约适配。
 
-外部试用只引用真实固定 Git tag，不使用 `@latest`，不静默安装。CrossReview 原仓库在等价迁移、dogfood 和再次授权前保持可用，不删除、不提前归档。
+外部试用只引用真实固定 Git tag，不使用 `@latest`，不静默安装。迁移来源仓库在再次授权前保持可用，不删除、不提前归档；change-audit 运行时不读取它。

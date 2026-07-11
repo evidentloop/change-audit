@@ -1,10 +1,10 @@
-"""Dev-only eval harness for CrossReview fixture aggregation.
+"""Offline fixture evaluator for change-audit Prompt Lab.
 
 The v0 harness is intentionally an offline aggregator:
 
 - It reads saved fixture inputs and saved runtime outputs.
 - It does not call reviewer backends by itself.
-- It computes the release-gate metrics defined in docs/v0-scope.md §4/§12.
+- It computes the release-gate metrics defined in docs/v0-scope.md (质量门禁).
 
 This keeps product runtime concerns separate from eval-layer judgment and lets
 humans review and amend adjudication files without re-running model calls.
@@ -21,7 +21,12 @@ from typing import Any
 
 import yaml
 
-from change_audit.review.schema import (
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from change_audit.review.schema import (  # noqa: E402
     ReviewResult,
     ReviewStatus,
     review_pack_from_dict,
@@ -554,7 +559,7 @@ def evaluate_fixtures(fixtures: list[EvalFixture], *, mode: str = "release-gate"
     external_gates = _passes_release_gate(external_metrics)
     overall_gates = _passes_release_gate(overall_metrics)
 
-    # v0-scope.md §12 exception: fixture_count gate uses overall pool size,
+    # v0-scope.md 质量门禁 exception: fixture_count gate uses overall pool size,
     # not external-only count, so early development isn't blocked by pool split.
     external_gates["fixture_count"] = overall_gates["fixture_count"]
 
@@ -584,8 +589,8 @@ def build_report(fixtures_root: Path, *, mode: str = "release-gate") -> dict[str
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="python -m change_audit.review.eval",
-        description="CrossReview dev-only eval harness.",
+        prog="python prompt-lab/eval.py",
+        description="Offline change-audit fixture evaluator.",
     )
     parser.add_argument(
         "--fixtures",

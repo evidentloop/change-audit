@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import yaml
@@ -27,7 +29,25 @@ from change_audit.review.schema import (
     review_result_to_json,
     to_serializable,
 )
-from change_audit.review.eval import EvalContractError, build_report, evaluate_fixtures, load_fixture, main
+
+
+def _load_prompt_lab_eval():
+    module_path = Path(__file__).resolve().parents[2] / "prompt-lab" / "eval.py"
+    spec = importlib.util.spec_from_file_location("prompt_lab_eval", module_path)
+    assert spec is not None
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_eval = _load_prompt_lab_eval()
+EvalContractError = _eval.EvalContractError
+build_report = _eval.build_report
+evaluate_fixtures = _eval.evaluate_fixtures
+load_fixture = _eval.load_fixture
+main = _eval.main
 
 
 def _write_fixture(

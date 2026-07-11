@@ -281,7 +281,7 @@ def normalize_review_output(
     """Parse reviewer output into Findings plus quality metrics.
 
     ``pack_completeness`` may be provided by the caller; if omitted it is
-    computed from the pack for standalone correctness.
+    computed from the pack when the caller does not already have it.
     """
     if pack_completeness is None:
         pack_completeness = compute_pack_completeness(pack)

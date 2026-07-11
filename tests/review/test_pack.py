@@ -3,25 +3,17 @@
 from __future__ import annotations
 
 import json
-import subprocess
-from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from change_audit.review.pack import (
-    GitDiffError,
     assemble_pack,
     build_diff_source,
-    changed_files_from_git,
     compute_pack_completeness,
     detect_language,
-    diff_from_git,
     extract_changed_files,
     pack_to_dict,
     pack_to_json,
-    read_context_files,
-    read_task_file,
 )
 from change_audit.review.schema import (
     ArtifactType,
@@ -374,108 +366,6 @@ class TestSerialization:
         assert d["budget"]["timeout_sec"] is None
 
 
-# ===== Git Changed Files =====
-
-class TestChangedFilesFromGit:
-    """changed_files_from_git — NUL-delimited subprocess integration."""
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_basic(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="src/auth.py\0tests/test_auth.py\0")
-        files = changed_files_from_git("HEAD~1")
-        assert len(files) == 2
-        assert files[0].path == "src/auth.py"
-        assert files[0].language == "python"
-        assert files[1].path == "tests/test_auth.py"
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_special_chars_in_path(self, mock_run: MagicMock):
-        """NUL-delimited output handles paths with tabs/spaces correctly."""
-        mock_run.return_value = MagicMock(stdout="file\twith\ttabs.py\0space file.js\0")
-        files = changed_files_from_git("HEAD~1")
-        assert len(files) == 2
-        assert files[0].path == "file\twith\ttabs.py"
-        assert files[1].path == "space file.js"
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_path_with_b_slash(self, mock_run: MagicMock):
-        """Paths containing ' b/' are handled correctly (no regex split issue)."""
-        mock_run.return_value = MagicMock(stdout="docs/file b/section.md\0")
-        files = changed_files_from_git("HEAD~1")
-        assert len(files) == 1
-        assert files[0].path == "docs/file b/section.md"
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_empty_output(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="")
-        files = changed_files_from_git("HEAD~1")
-        assert files == []
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_command_structure(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="")
-        changed_files_from_git("HEAD~1")
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "--name-only", "-z", "HEAD~1", "HEAD"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_range_ref(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="a.py\0")
-        changed_files_from_git("abc..def")
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "--name-only", "-z", "abc..def"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_git_failure_raises(self, mock_run: MagicMock):
-        mock_run.side_effect = subprocess.CalledProcessError(
-            128, "git", stderr="fatal: bad ref"
-        )
-        with pytest.raises(GitDiffError, match="git diff --name-only failed"):
-            changed_files_from_git("nonexistent")
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_dedup(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="a.py\0a.py\0")
-        files = changed_files_from_git("HEAD~1")
-        assert len(files) == 1
-
-
-# ===== Git Diff =====
-
-class TestDiffFromGit:
-    """diff_from_git — subprocess integration."""
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_simple_ref(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="diff output")
-        result = diff_from_git("HEAD~1")
-        assert result == "diff output"
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "HEAD~1", "HEAD"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_range_ref(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="range diff")
-        result = diff_from_git("abc..def")
-        assert result == "range diff"
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "abc..def"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_repo_root_passed(self, mock_run: MagicMock):
-        mock_run.return_value = MagicMock(stdout="")
-        diff_from_git("HEAD~1", repo_root=Path("/tmp/repo"))
-        assert mock_run.call_args[1]["cwd"] == Path("/tmp/repo")
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_git_failure_raises(self, mock_run: MagicMock):
-        mock_run.side_effect = subprocess.CalledProcessError(
-            128, "git", stderr="fatal: bad ref"
-        )
-        with pytest.raises(GitDiffError, match="git diff failed"):
-            diff_from_git("nonexistent")
-
-
 # ===== Assemble Pack =====
 
 class TestAssemblePack:
@@ -556,91 +446,6 @@ class TestAssemblePack:
     def test_default_budget(self):
         pack = assemble_pack(SIMPLE_DIFF)
         assert pack.budget.max_files is None
-
-
-# ===== File I/O =====
-
-class TestFileIO:
-    """read_task_file / read_context_files."""
-
-    def test_read_task_file(self, tmp_path: Path):
-        f = tmp_path / "task.md"
-        f.write_text("# Task\nDo the thing.", encoding="utf-8")
-        assert read_task_file(str(f)) == "# Task\nDo the thing."
-
-    def test_read_task_file_missing(self):
-        with pytest.raises(FileNotFoundError):
-            read_task_file("/nonexistent/task.md")
-
-    def test_read_context_files(self, tmp_path: Path):
-        f1 = tmp_path / "plan.md"
-        f2 = tmp_path / "design.md"
-        f1.write_text("plan", encoding="utf-8")
-        f2.write_text("design", encoding="utf-8")
-        result = read_context_files([str(f1), str(f2)])
-        assert len(result) == 2
-        assert result[0].path == str(f1)
-        assert result[0].content == "plan"
-        assert result[1].content == "design"
-
-    def test_read_context_file_missing(self, tmp_path: Path):
-        with pytest.raises(FileNotFoundError):
-            read_context_files([str(tmp_path / "nonexistent.md")])
-
-
-# ===== Git Diff — staged / unstaged modes =====
-
-class TestDiffFromGitWorktree:
-    """diff_from_git staged and unstaged modes."""
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_staged_command(self, mock_run: MagicMock):
-        """staged=True → git diff --cached."""
-        mock_run.return_value = MagicMock(stdout="staged diff")
-        result = diff_from_git(staged=True)
-        assert result == "staged diff"
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "--cached"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_unstaged_command(self, mock_run: MagicMock):
-        """No ref, no staged → git diff (unstaged working tree)."""
-        mock_run.return_value = MagicMock(stdout="unstaged diff")
-        result = diff_from_git()
-        assert result == "unstaged diff"
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_staged_ignores_ref_when_staged_flag_set(self, mock_run: MagicMock):
-        """staged=True takes priority; ref kwarg has no effect (caller should not pass both)."""
-        mock_run.return_value = MagicMock(stdout="")
-        diff_from_git(staged=True)
-        cmd = mock_run.call_args[0][0]
-        assert "--cached" in cmd
-        assert "HEAD" not in cmd
-
-
-class TestChangedFilesFromGitWorktree:
-    """changed_files_from_git staged and unstaged modes."""
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_staged_command(self, mock_run: MagicMock):
-        """staged=True → git diff --name-only -z --cached."""
-        mock_run.return_value = MagicMock(stdout="src/auth.py\0")
-        files = changed_files_from_git(staged=True)
-        assert len(files) == 1
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "--name-only", "-z", "--cached"]
-
-    @patch("change_audit.review.pack.subprocess.run")
-    def test_unstaged_command(self, mock_run: MagicMock):
-        """No ref, no staged → git diff --name-only -z."""
-        mock_run.return_value = MagicMock(stdout="src/main.py\0")
-        files = changed_files_from_git()
-        assert len(files) == 1
-        cmd = mock_run.call_args[0][0]
-        assert cmd == ["git", "--no-pager", "diff", "--name-only", "-z"]
 
 
 # ===== Build DiffSource helper =====

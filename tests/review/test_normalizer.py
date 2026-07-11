@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from change_audit.review.normalizer import declared_finding_ids, normalize_review_output
 from change_audit.review.schema import (
     Confidence,
@@ -203,6 +205,36 @@ f-002
         assert second.severity == Severity.MEDIUM
         assert second.actionable is False
 
+    @pytest.mark.parametrize(
+        ("where", "what", "severity", "expected_severity", "expected_actionable"),
+        [
+            ("`src/auth.py`", "Missing validation causes a crash.", "HIGH", Severity.MEDIUM, True),
+            ("repository-wide", "Missing validation causes a crash.", "MEDIUM", Severity.LOW, True),
+            ("repository-wide", "This might break callers.", "HIGH", Severity.NOTE, False),
+        ],
+    )
+    def test_runtime_constraint_downgrades(
+        self,
+        where,
+        what,
+        severity,
+        expected_severity,
+        expected_actionable,
+    ):
+        raw = f"""\
+## Section 1: Findings
+
+### f-001
+- **Where**: {where}
+- **What**: {what}
+- **Why**: The changed behavior affects callers.
+- **Severity estimate**: {severity}
+- **Category**: logic_error
+"""
+        finding = normalize_review_output(raw, PACK).findings[0]
+        assert finding.severity == expected_severity
+        assert finding.actionable is expected_actionable
+
     def test_chinese_hedge_is_not_treated_as_actionable_certainty(self):
         raw = """\
 ## Section 1: Findings
@@ -380,7 +412,7 @@ The changes address real concerns but the URL classifier is too loose.
 ## Section 1: Findings
 
 ### f-001: Version mismatch between __init__.py and pyproject.toml
-- **Where**: `crossreview/__init__.py`, line 3
+- **Where**: `change_audit/__init__.py`, line 3
 - **What**: Hardcoded version does not match pyproject.toml.
 - **Why**: Package will report wrong version at runtime.
 - **Severity estimate**: HIGH

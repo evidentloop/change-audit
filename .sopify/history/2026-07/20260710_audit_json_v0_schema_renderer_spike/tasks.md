@@ -166,6 +166,28 @@
 - [x] 7.2 运行完整 pytest、ruff、wheel、schema、HTML trace 与 Skill 验收。
 - [x] 7.3 为每个 Wave 写验证回执。
 - [-] 7.4 已按用户授权提交并 push 当前开发分支；方案归档、发布 tag、PyPI 发布和旧仓库处理未获授权，本轮不执行。
-- [ ] 7.5 按用户授权补充最小 GitHub Actions CI 与 MIT `LICENSE`，验证后提交、push 并创建 Draft MR；不创建 tag 或 Release。
+- [x] 7.5 按用户授权补充最小 GitHub Actions CI 与 MIT `LICENSE`，验证后提交、push 并创建 PR #1；已合并至 `main@f003337`，main CI 成功，不创建 tag 或 Release。
 
 收口说明：7.1–7.3 由 `verify_021.json` 收口。最终工作树通过 429 项全量测试、Ruff、JavaScript、Skill、schema/trace、wheel 隔离安装、同 range Fireworks 样张与 localhost DOM 门禁；样张额外 SVG 只作为当前 HTML 的阅读附注，不进入 renderer、schema 或 Audit Graph。功能提交 `5e6b142b…` 已 push 至 `origin/codex/feat-audit-json-v0`，交付证据见 `exec_001.json`。Qoder 模型级 smoke 由用户后续手工验证；方案归档、tag、PyPI 发布和旧仓库处理未获授权，本轮不执行。
+
+## Wave 5 — Single-product consolidation
+
+- [x] 8.1 删除 `review/config.py`、`review/reviewer.py`、`review/cli.py`、`review/formatter.py`、standalone provider budget/verify 路径，以及 `review/pack.py` 中只服务旧内部 CLI 的重复 Git/File I/O helper 与专属测试；未创建新配置名或兼容层。
+- [x] 8.2 将 ReviewResult 结果构造融合进 `ingest.py`，保留 ReviewPack、ReviewResult、pack、normalizer、adjudicator、状态和完成门语义。
+- [x] 8.3 将 eval harness 移至 `prompt-lab/`，Prompt Lab 只保留 canonical prompt 渲染与离线 fixture 评估，删除独立 prompt template 和 provider/API key `--api-only` 路径。
+- [x] 8.4 移除 `anthropic` extra，将 PyYAML 从 runtime dependency 移至 dev；clean wheel 不再包含 standalone/runtime-dev 模块。
+- [x] 8.5 统一当前运行态、README、集成文档、blueprint 和 Prompt Lab 的 change-audit 命名；只在迁移 ADR、历史回执和来源说明保留 CrossReview。
+- [x] 8.6 将 canonical prompt 升级为 `product/v0.3`，补 provenance/hash/版本漂移测试；审查协议正文 hash 与 v0.2 保持一致。
+- [x] 8.7 运行定向与全量测试、Ruff、JavaScript、schema/trace/XSS、wheel 隔离安装、Skill 验收和 dead-surface 扫描，执行 spec compliance 与 code quality 两阶段复审。该阶段的 323 项测试与 wheel SHA-256 `f283f803…19be` 记录在 `verify_025.json`；最终收口结果见 8.10。
+- [x] 8.8 使用完全相同 Fireworks range 从全新 staging 重新执行 `prepare -> isolated host review -> finalize`，生成并验证 `product/v0.3` 原生主链 `audit.json` / `audit.html` 与真实哈希；不得覆盖或修改现有 `docs/examples/dogfood-fireworks-tech-graph/`，验证通过后将新证据独立写入 `docs/examples/dogfood-fireworks-tech-graph-v03/`。最终 run 为 `run-842aeae6dc0b48b88ab95b38097997a0`，7/7 finding 锚定真实新增行、0 unscored、0 fix；JSON/HTML SHA-256 为 `dbf0ea2e…374` / `e9a70b56…69c`。
+- [x] 8.9 收口中英文 README、长期 blueprint、项目约定和方案文档，完成全局命名、链接、安装路径与过度设计审计。当前文档只保留一条产品主链；唯一缺失相对链接是用户明确要求原样保留、且真实 fixture 不在 main 的 `fixtures/README.md`。
+- [x] 8.10 写 Wave 5 与最终验证回执；全部门禁通过后使用 `sopify_writer` 完成协议 finalize，将方案迁入 `.sopify/history/2026-07/` 并更新历史索引。最终 316 项测试通过；Python 3.12 clean wheel SHA-256 为 `a027072f…a842`，同一 `audit.json` 的安装后重渲染 SHA-256 为 `e9a70b56…69c`。证据见 `verify_027.json` 与 `final.json`。
+
+### Wave 5 退出门禁
+
+- 公开 Python 命令仍只有 `prepare`、`finalize`、`render`；运行时不读取 provider/API key 配置，不直接调用模型 SDK。
+- 正式 wheel 不包含 standalone CLI/config/reviewer/formatter、provider budget/verify 或 eval harness；METADATA 不包含 Anthropic，PyYAML 只在 dev extra。
+- `change_audit.review` 只保留主链所需的 pack、prompt、ingest、normalizer、adjudicator、schema 与相关确定性能力；不得新增替代层或兼容框架。
+- 当前运行态和产品文档统一使用 change-audit；CrossReview 只出现在明确标注的迁移历史与来源证据中。
+- prompt `product/v0.3` 的 source/version/hash 在 prepare/finalize 中 fail closed，并由相同 Fireworks range 的全新真实报告证明。
+- 全量测试、Ruff、JavaScript、schema/trace/XSS、wheel、Skill、localhost 1280/375 DOM 与两阶段复审全部通过；任一失败时不得归档方案或创建 PR。

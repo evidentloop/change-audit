@@ -52,7 +52,7 @@ def test_prepare_creates_only_hidden_staging_and_machine_locator(tmp_path: Path)
     assert "staged" not in skeleton["run"]["label"]
     assert skeleton["reviewer_prompt"] == {
         "source": "product",
-        "version": "v0.2",
+        "version": "v0.3",
         "sha256": "sha256:" + hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
     }
     if os.name == "posix":
@@ -106,7 +106,7 @@ def test_prepare_fails_closed_if_canonical_prompt_loses_diff_placeholder(
     repo = initialized_repo(tmp_path)
     stage_simple_change(repo)
     monkeypatch.setattr(
-        "change_audit.audit.finalize.get_default_reviewer_template",
+        "change_audit.review.core.prompt.get_default_reviewer_template",
         lambda: "broken prompt without the canonical diff block",
     )
 

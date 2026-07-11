@@ -1,0 +1,54 @@
+{
+  "evidence": {
+    "completed_tasks": [
+      "8.1",
+      "8.2",
+      "8.3",
+      "8.4",
+      "8.5",
+      "8.6"
+    ],
+    "full_tests": "343 passed in 10.80s",
+    "javascript": "syntax and feedback behavior passed",
+    "prompt": {
+      "protocol_body_unchanged_from_v0.2": true,
+      "single_canonical_source": true,
+      "version": "v0.3"
+    },
+    "removed_runtime_modules": [
+      "budget",
+      "cli",
+      "config",
+      "eval",
+      "formatter",
+      "reviewer",
+      "verify"
+    ],
+    "review_result": {
+      "code_quality": "passed; no replacement config, CLI, provider or compatibility layer",
+      "overdesign": "reduced; roughly 1,800 runtime/dev lines removed from wheel surface",
+      "spec_compliance": "passed; only the host-integrated main chain remains"
+    },
+    "ruff": "passed",
+    "wheel": {
+      "anthropic_extra": false,
+      "dev_only_pyyaml": true,
+      "isolated_install": "passed",
+      "path": "/private/tmp/change-audit-wave5-dist.yoHj81/change_audit-0.1.0a0-py3-none-any.whl",
+      "runtime_dependencies": [
+        "jinja2>=3.1",
+        "jsonschema>=4.23"
+      ],
+      "sha256": "42e206b17960dc62e18b9da1f17c7f972c34d17396ee6ace283ae4eecbfd66d3",
+      "standalone_modules_absent": true
+    }
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "verify_024",
+    "source": "wave_5_core_and_prompt_lab_validation"
+  },
+  "timestamp": "2026-07-11T06:28:21+00:00",
+  "verdict": "wave_5_single_product_core_passed"
+}

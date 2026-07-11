@@ -85,7 +85,7 @@ def test_finalize_publishes_exact_bug_pair_and_cleans_run_dir(tmp_path: Path) ->
     assert finding["category"] == "bug"
     assert finding["hunk"].startswith(trusted_header)
     assert audit["runs"][0]["summary"] == "The diff has one concrete problem."
-    assert audit["extensions"]["change_audit"]["reviewer_prompt"]["version"] == "v0.2"
+    assert audit["extensions"]["change_audit"]["reviewer_prompt"]["version"] == "v0.3"
     assert audit["extensions"]["change_audit"]["reviewer_prompt"]["sha256"].startswith(
         "sha256:"
     )

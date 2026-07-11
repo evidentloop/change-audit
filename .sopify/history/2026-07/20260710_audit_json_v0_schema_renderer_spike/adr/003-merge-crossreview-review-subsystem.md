@@ -2,7 +2,9 @@
 
 ## 状态
 
-已采纳，Wave 0B 迁移复核通过
+已采纳，Wave 0B 迁移复核通过；运行面保留范围由 Wave 5 的 ADR-002 修订及 D113-D117 部分取代
+
+Wave 0B 的等价迁移结论继续作为历史证据。其“内部能力名、可选 reviewer、内部 CLI compatibility 与 eval 位于 distribution”的运行面决策不再代表最终架构；Wave 5 只保留 change-audit 主链直接使用的审查内核，并将离线 eval 移至仓库开发工具。
 
 ## 日期
 

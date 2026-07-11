@@ -3,12 +3,12 @@
 This module owns the post-reviewer path for host-integrated mode.
 The host executes the canonical prompt in an isolated context and passes
 the raw analysis text back. This module runs normalizer + adjudicator
-to produce a standard ReviewResult — no LLM call, no budget gate.
+to produce a standard ReviewResult without calling an LLM.
 """
 
 from __future__ import annotations
 
-from .adjudicator import determine_advisory_verdict
+from .adjudicator import determine_advisory_verdict, determine_intent_coverage
 from .normalizer import declared_finding_ids, normalize_review_output
 from .pack import compute_pack_completeness
 from .schema import (
@@ -18,8 +18,8 @@ from .schema import (
     ReviewStatus,
     ReviewerMeta,
     ResultBudget,
+    SCHEMA_VERSION,
 )
-from .verify import build_review_result
 
 
 def run_ingest(
@@ -39,8 +39,8 @@ def run_ingest(
     This function takes the raw analysis text and produces a ReviewResult
     by running normalizer + adjudicator. No LLM call is made.
 
-    Budget gate is skipped — the host manages its own context window.
-    Budget fields are populated as:
+    The host manages its own context window. Budget fields record the observed
+    input size as follows:
       - status = COMPLETE
       - files_reviewed = files_total = len(pack.changed_files)
       - chars_consumed = len(pack.diff)
@@ -83,17 +83,22 @@ def run_ingest(
         chars_limit=pack.budget.max_chars_total,
     )
 
-    return build_review_result(
-        pack=pack,
-        reviewer=reviewer,
-        budget=result_budget,
+    findings = normalization.findings
+    return ReviewResult(
+        schema_version=SCHEMA_VERSION,
+        artifact_fingerprint=pack.artifact_fingerprint,
+        pack_fingerprint=pack.pack_fingerprint,
         review_status=(
             ReviewStatus.COMPLETE
             if output_contract_complete
             else ReviewStatus.TRUNCATED
         ),
-        findings=normalization.findings,
+        intent_coverage=determine_intent_coverage(pack, findings),
         raw_findings=normalization.raw_findings,
+        findings=findings,
+        evidence=list(pack.evidence or []),
         advisory_verdict=advisory_verdict,
         quality_metrics=normalization.quality_metrics,
+        reviewer=reviewer,
+        budget=result_budget,
     )

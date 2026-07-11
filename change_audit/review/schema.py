@@ -1,16 +1,19 @@
-"""CrossReview v0-alpha schema definitions.
+"""ReviewPack and ReviewResult schema definitions for change-audit.
 
-All types mirror v0-scope.md §7 exactly.
+All types mirror v0-scope.md exactly.
 tasks.md is the task index; this file follows v0-scope.md as the field truth.
 
 Design decisions:
   - Finding.category is str (not enum) — defer enum decision until normalizer
     runs across 10+ fixtures and a stable category set emerges.
   - ReviewResult builds the full v0-scope shell; nullable fields use None defaults
-    so 1B components (reviewer, budget gate, adjudicator) plug in without schema changes.
-  - Severity constraints (locatability × confidence matrix) are enforced via
-    validate_finding_constraints() — not in the dataclass __post_init__ — so callers
-    can construct Findings freely then validate before emission.
+    so ingest and adjudication can preserve honest partial/failed states.
+  - Severity constraints (locatability × confidence matrix) are enforced by
+    the normalizer at ingest time, not in the dataclass __post_init__.
+
+Note: SCHEMA_VERSION ("0.1-alpha") tracks the internal ReviewPack/ReviewResult
+schema. The public audit.json schema version ("0.2") is defined separately in
+validation.py — they version different contracts.
 """
 
 from __future__ import annotations
@@ -237,10 +240,9 @@ SCHEMA_VERSION = "0.1-alpha"
 
 @dataclass
 class Finding:
-    """A single review finding. v0-scope.md §7 Finding.
+    """A single review finding. v0-scope.md Finding.
 
     category is str (not enum) — the set is not frozen yet.
-    Constraint validation is done by validate_finding_constraints(), not here.
     """
     id: str                            # f-001, f-002, ...
     severity: Severity
@@ -337,69 +339,8 @@ class ReviewResult:
     )
 
 
-# ---------------------------------------------------------------------------
-# ReviewerConfig — adapter-layer config, not the core schema.
-# Core receives a resolved config; it does not choose defaults.
-# v0-scope.md §8 Model Resolution.
-# ---------------------------------------------------------------------------
-
-@dataclass
-class ReviewerConfig:
-    """Resolved reviewer configuration passed from adapter layer to core.
-
-    Core does not pick defaults — that's the adapter's job (CLI or host).
-    Fields: provider + model + api_key_env (points to env var name, never stores key directly).
-    """
-    provider: str              # "anthropic" | "openai" | ...
-    model: str                 # e.g. "claude-sonnet-4-20250514"
-    api_key_env: str           # env var name holding the API key, e.g. "ANTHROPIC_API_KEY"
-
-
-# ---------------------------------------------------------------------------
-# Constraint validation
-# ---------------------------------------------------------------------------
-
-# v0-scope.md §7 Finding Constraints — 5 rules
 _FINDING_ID_RE = re.compile(r"^f-\d{3}$")
 _CATEGORY_RE = re.compile(r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$")
-
-
-class ConstraintViolation(Exception):
-    """Raised when a Finding violates v0 severity/locatability/confidence constraints."""
-
-
-def validate_finding_constraints(f: Finding) -> list[str]:
-    """Check a Finding against v0-scope.md §7 constraint rules.
-
-    Returns a list of violated rule names (empty = all good).
-    Does NOT raise — caller decides whether violations are fatal.
-    """
-    violations: list[str] = []
-
-    # Rule 1: high severity requires exact locatability AND plausible confidence
-    if f.severity == Severity.HIGH:
-        if f.locatability != Locatability.EXACT or f.confidence != Confidence.PLAUSIBLE:
-            violations.append("high_requires_exact_and_plausible")
-
-    # Rule 2: speculative findings capped at medium
-    if f.confidence == Confidence.SPECULATIVE and f.severity in (Severity.HIGH,):
-        violations.append("speculative_severity_cap")
-
-    # Rule 3: locatability=none capped at low
-    if f.locatability == Locatability.NONE and f.severity in (Severity.HIGH, Severity.MEDIUM):
-        violations.append("no_location_severity_cap")
-
-    # Rule 4: speculative + none → must be note
-    if (f.confidence == Confidence.SPECULATIVE
-            and f.locatability == Locatability.NONE
-            and f.severity != Severity.NOTE):
-        violations.append("speculative_none_is_note")
-
-    # Rule 5: speculative findings default not actionable
-    if f.confidence == Confidence.SPECULATIVE and f.actionable:
-        violations.append("speculative_not_actionable")
-
-    return violations
 
 
 def validate_finding_id(finding_id: str) -> bool:
@@ -414,7 +355,6 @@ def validate_category(category: str) -> bool:
 
 # ---------------------------------------------------------------------------
 # Pack / Result validation — "construct freely, validate before emission"
-# Same pattern as validate_finding_constraints: returns violation list, doesn't raise.
 # ---------------------------------------------------------------------------
 
 def validate_review_pack(pack: ReviewPack) -> list[str]:

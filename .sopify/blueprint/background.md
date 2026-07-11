@@ -12,8 +12,8 @@ AI coding 会生成代码变更，也会生成 plan、design、analysis、review
 
 - `change_audit.review` 是 artifact-general 隔离审查内核；AI host 的 LLM 负责目标相关的语义判断。
 - `change_audit.audit` 与 renderer 是 profile-specific 正式产品层；只有具备 adapter、可信 anchor、eval baseline 和 renderer profile 的类型，才承诺完整审计产物。
-- Python 不内置默认 LLM SDK；它负责构造可信上下文、约束审查输出、生成机械字段、校验引用并确定性呈现。
-- CrossReview 不再作为用户可见的第二个产品，而是等价迁入 `change_audit.review` 的内部隔离审查能力。
+- Python 不内置 LLM SDK 或 provider/API key 配置；它负责构造可信上下文、约束审查输出、生成机械字段、校验引用并确定性呈现。
+- `change_audit.review` 直接承载 ReviewPack、prompt、ingest、normalizer 与 adjudicator；迁移来源不形成第二个产品或第二套运行链路。
 - 用户只需要安装一个包、发现一个 Skill，并看到最终审计产物。
 
 ## 用户入口
@@ -39,7 +39,7 @@ AI coding 会生成代码变更，也会生成 plan、design、analysis、review
 
 ## 非目标
 
-- 一期不提供默认 provider SDK 或要求用户配置模型 API key。
+- 一期不提供 provider SDK，也不要求用户配置模型 API key。
 - 不由 Python 的文本规则替代 LLM 语义审查；确定性规则未来只能作为增强。
 - 不自动修改代码，不把审计结论当作发布阻断策略。
 - 一期不做 folder diff、无 diff artifact 正式审计或远程 PR URL；这些是后续 profile 候选，不是永久排除。

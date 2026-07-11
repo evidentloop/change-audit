@@ -1,0 +1,19 @@
+{
+  "evidence": {
+    "branch": "codex/chore-single-product-closure",
+    "final_verification": "verify_027.json",
+    "protected_v02_sample": "unchanged",
+    "tests": "316 passed",
+    "v03_render_sha256": "e9a70b56deaeac701b919323c7495b8a7aa39693c7b775bac20291ec4701a69c",
+    "wheel_sha256": "a027072f6cf8cf7ce789d9cb444173dee9d7d7a0b9ee069e994ac8ccc909a842"
+  },
+  "provenance": {
+    "host": "Codex",
+    "plan_id": "20260710_audit_json_v0_schema_renderer_spike",
+    "receipt_id": "final",
+    "source": "wave_5_final_archive",
+    "user_decision": "approved full closure"
+  },
+  "timestamp": "2026-07-11T08:39:11+00:00",
+  "verdict": "finalized"
+}

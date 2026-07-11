@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any, Mapping
@@ -392,5 +391,4 @@ def build_audit_graph(
             }
         },
     }
-    json.dumps(audit, ensure_ascii=False)
     return audit
