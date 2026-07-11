@@ -165,4 +165,4 @@ python -m build
 
 ## License
 
-项目元数据当前声明 MIT；正式发布前仍需补充根目录 `LICENSE` 文件。
+本项目采用 [MIT License](./LICENSE)。

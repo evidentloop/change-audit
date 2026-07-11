@@ -165,4 +165,4 @@ Useful references:
 
 ## License
 
-Project metadata currently declares MIT. A root `LICENSE` file still needs to be added before a formal release.
+Licensed under the [MIT License](./LICENSE).

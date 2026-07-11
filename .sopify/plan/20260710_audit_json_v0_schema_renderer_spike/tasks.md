@@ -166,5 +166,6 @@
 - [x] 7.2 运行完整 pytest、ruff、wheel、schema、HTML trace 与 Skill 验收。
 - [x] 7.3 为每个 Wave 写验证回执。
 - [-] 7.4 已按用户授权提交并 push 当前开发分支；方案归档、发布 tag、PyPI 发布和旧仓库处理未获授权，本轮不执行。
+- [ ] 7.5 按用户授权补充最小 GitHub Actions CI 与 MIT `LICENSE`，验证后提交、push 并创建 Draft MR；不创建 tag 或 Release。
 
 收口说明：7.1–7.3 由 `verify_021.json` 收口。最终工作树通过 429 项全量测试、Ruff、JavaScript、Skill、schema/trace、wheel 隔离安装、同 range Fireworks 样张与 localhost DOM 门禁；样张额外 SVG 只作为当前 HTML 的阅读附注，不进入 renderer、schema 或 Audit Graph。功能提交 `5e6b142b…` 已 push 至 `origin/codex/feat-audit-json-v0`，交付证据见 `exec_001.json`。Qoder 模型级 smoke 由用户后续手工验证；方案归档、tag、PyPI 发布和旧仓库处理未获授权，本轮不执行。

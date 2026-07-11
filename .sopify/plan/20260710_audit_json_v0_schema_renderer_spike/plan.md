@@ -2,8 +2,8 @@
 
 Plan Snapshot:
 - Goal: 将 CrossReview 合并为 artifact-general 内部审查子系统，并先交付由 AI host Skill 编排的 Git diff 审计 profile、HTML 报告与用户决策闭环。
-- Status: Wave 0A/0B/1/2/3/4 与最终验证 7.1–7.3 全部通过；Wave 4 由 `verify_020.json` 收口，最终工作树由 `verify_021.json` 收口。同 range Fireworks 真实报告、中文阅读契约、changed-line 锚点、localhost DOM、最终 wheel、中英文 README、封面和整体复审均有证据。功能提交 `5e6b142b…` 已 push 至 `origin/codex/feat-audit-json-v0`。Qoder 模型级 smoke 按用户决定延后。
-- Next: 交付最终审计结论并等待用户审阅。方案归档、tag、PyPI 发布和旧仓库处理仍需单独授权。
+- Status: Wave 0A/0B/1/2/3/4 与最终验证 7.1–7.3 全部通过；Wave 4 由 `verify_020.json` 收口，最终工作树由 `verify_021.json` 收口。同 range Fireworks 真实报告、中文阅读契约、changed-line 锚点、localhost DOM、最终 wheel、中英文 README、封面和整体复审均有证据。功能分支已 push；用户已授权补最小 CI、MIT `LICENSE` 并创建 Draft MR。Qoder 模型级 smoke 按用户决定延后。
+- Next: 完成 7.5 的最小发布准备验证并创建 Draft MR；不创建 tag 或 Release。
 
 ## Context / Why
 
@@ -151,4 +151,4 @@ audit/.YYYYMMDD_<slug>.change-audit-staging/
 
 ## Next
 
-交付最终审计结论并等待用户审阅；方案归档、tag、PyPI 发布和旧仓库处理仍需单独授权。
+完成最小 CI 与 MIT `LICENSE` 验证，提交并 push 后创建 Draft MR；方案归档、tag、Release、PyPI 发布和旧仓库处理仍需单独授权。
