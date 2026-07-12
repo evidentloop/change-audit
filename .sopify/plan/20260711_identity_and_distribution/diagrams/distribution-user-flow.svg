@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="1280" height="760" role="img" aria-labelledby="title desc">
-  <title id="title">change-audit 用户路径与证据闭环</title>
-  <desc id="desc">从在线报告、replay demo、CLI 与 Skill 安装，到隔离审查、正式审计产物和 audit-evidence 发布证据的完整流程。</desc>
+  <title id="title">EvidentLoop 目标用户路径与证据闭环</title>
+  <desc id="desc">身份门禁通过后，从在线报告、replay demo、CLI 与 Skill 安装，到隔离审查、正式审计产物和 audit-evidence 发布证据的完整流程。</desc>
   <style>
     text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'Microsoft JhengHei', 'SimHei', sans-serif; }
     .title { fill: #111827; font-size: 24px; font-weight: 700; }
@@ -25,8 +25,8 @@
   </defs>
 
   <rect width="1280" height="760" fill="#ffffff"/>
-  <text x="48" y="42" class="title">change-audit 用户路径与证据闭环</text>
-  <text x="48" y="66" class="subtitle">main / PyPI / Skill 服务用户 · audit-evidence 保存可追溯发布证据</text>
+  <text x="48" y="42" class="title">EvidentLoop 目标用户路径与证据闭环</text>
+  <text x="48" y="66" class="subtitle">身份门禁通过后的目标态 · main / PyPI / Skill 服务用户 · audit-evidence 保存发布证据</text>
   <rect x="1062" y="30" width="168" height="32" rx="16" fill="#f0fdfa" stroke="#99f6e4"/>
   <text x="1146" y="51" text-anchor="middle" fill="#0f766e" font-size="12" font-weight="700">v0 · Git diff only</text>
 
@@ -79,14 +79,14 @@
     <rect x="366" y="156" width="42" height="42" rx="9" fill="#7c3aed"/>
     <text x="387" y="182" text-anchor="middle" class="icon-label">DEMO</text>
     <text x="424" y="171" class="node-title">replay demo</text>
-    <text x="424" y="193" class="node-sub">uvx change-audit demo</text>
+    <text x="424" y="193" class="node-sub">uvx evidentloop demo</text>
   </g>
   <g>
     <rect x="620" y="136" width="220" height="90" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.6"/>
     <rect x="636" y="156" width="42" height="42" rx="9" fill="#2563eb"/>
     <text x="657" y="182" text-anchor="middle" class="icon-label">CLI</text>
     <text x="694" y="171" class="node-title">安装 CLI</text>
-    <text x="694" y="193" class="node-sub">uv tool install</text>
+    <text x="694" y="193" class="node-sub">uv tool install evidentloop</text>
   </g>
   <g>
     <rect x="890" y="136" width="220" height="90" rx="10" fill="#ffffff" stroke="#fdba74" stroke-width="1.6"/>

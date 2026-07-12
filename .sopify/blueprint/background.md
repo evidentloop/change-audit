@@ -4,7 +4,13 @@
 
 AI coding 会生成代码变更，也会生成 plan、design、analysis、review-result、final answer 和 agent trace 等产物。审查过程通常散落在聊天、终端和临时 Markdown 中，用户难以确认目标是否可靠、结论依据是什么，也难以把自己的接受、误报或严重度调整带到下一轮。
 
-用户真正需要的是一条可审计链路：把有明确边界的审查目标交给隔离上下文，经 AI 语义审查得到可回链 findings，再由成熟的 artifact profile 形成机器记录、人类报告和可导出的用户决策。
+用户真正需要的是一条可审计链路：把有明确边界的审查目标交给隔离上下文，经 AI 语义审查得到可回链 findings，再由已经通过放行门禁的审计适配能力形成结构化审计记录、可交互审计报告和可导出的用户决策。
+
+## 产品愿景
+
+目标是让 AI 辅助开发工作流中任何具有明确审查边界和可验证来源、并能通过相应审计适配能力建立可信锚点的结构化产物，形成可回链、机器可检验的审计记录，并通过可交互审计报告完成检查、反馈、修订与复审。
+
+审计适配能力（artifact profile）定义一类产物如何被采集、定位、验证和呈现。同一种产物可以按本次审计目的成为审查目标、上下文或证据；只有作为正式审查目标且通过放行门禁时，产品才承诺生成完整审计产物：`audit.json` 保存结构化事实与结论，`audit.html` 提供可检查、可反馈、可分享的交互式报告。
 
 ## 产品定位
 
@@ -31,9 +37,9 @@ AI coding 会生成代码变更，也会生成 plan、design、analysis、review
 
 ## 核心产物
 
-- `audit.json`：成熟 artifact profile 的最终机器真相源，包含审查目标、状态、findings、evidence 和 fixes。
-- `audit.html`：具备 renderer profile 时的默认人类审计界面；共同外壳保持一致，定位内容按 hunk、section、claim 或其他可信 anchor 呈现。
-- `audit-feedback.jsonl`：用户显式导出的决策记录；一期只采集，不自动消费。
+- `audit.json`：已通过放行门禁的审查目标所对应的正式结构化记录，是审查目标、状态、findings、evidence 和 fixes 的唯一事实来源。
+- `audit.html`：具备 renderer profile 时的交互式审计报告；共同外壳保持一致，定位内容按 hunk、section、claim 或其他可信 anchor 呈现，并支持用户检查和反馈 findings。
+- `audit-feedback.jsonl`：用户显式导出的结构化决策记录，为后续重新裁决、生成新审计版本和重渲染报告提供输入。
 
 实验性非 diff 类型可以先停在内部 ReviewResult 或宿主摘要，不因此宣称完整 audit 支持。正式产物在同父目录隐藏 staging 中完成校验后成对提交；成功时中间物默认清理。
 
@@ -44,4 +50,4 @@ AI coding 会生成代码变更，也会生成 plan、design、analysis、review
 - 不自动修改代码，不把审计结论当作发布阻断策略。
 - demo/replay 不验证模型质量，不得冒充一次真实 AI 审查。
 - 一期不做 folder diff、无 diff artifact 正式审计或远程 PR URL；这些是后续 profile 候选，不是永久排除。
-- 一期不做 hosted dashboard、反馈消费、SVG 产品 renderer 或 Markdown renderer。
+- 一期不做 hosted dashboard、SVG 产品 renderer 或 Markdown renderer；反馈消费是否纳入首个公开 Alpha 由具体方案和验证决定，不在长期蓝图中排除。
