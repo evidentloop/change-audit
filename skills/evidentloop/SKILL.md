@@ -26,14 +26,14 @@ Confirm the repository and Git diff spec from the user's request.
 - Use `HEAD~1` only when “recent/latest change” clearly permits that default; otherwise ask for the diff scope.
 - Pass an explicit output directory only when the user chose it. Let `prepare` own default naming and collision suffixes.
 
-Use one Python interpreter for every step. Bootstrap it only from the installed console script:
+Bootstrap `<PYTHON>` only from the installed console script. Once `python_executable` is selected from the `doctor --json` result, use that exact interpreter for every remaining Python-driven step:
 
 1. Use the host-native executable lookup restricted to `PATH` to resolve `evidentloop` without executing repository content. Require a non-empty absolute console-script path. For containment checks only, inspect both that path and its canonical target; reject either one when it is inside the audited repository unless the user explicitly selected that exact dogfood environment. Continue to execute the original path, never its canonical target.
 2. Invoke that exact console-script path with `doctor --json` as argv values in an environment that removes `PYTHONPATH` and `PYTHONHOME` and sets `PYTHONNOUSERSITE=1`. Do not inherit Python import-path overrides from the audited repository.
 3. Require exit code 0 and parse stdout as exactly one JSON object.
-4. Require a non-empty absolute `python_executable` value. Apply the same original-path and canonical-target containment check without replacing the returned path; outside explicit dogfood, reject either one when it is inside the audited repository. Invoke the original returned path with `-I -m evidentloop --help`, and use it as `<PYTHON>` for every remaining Python command. Pass the path as one argv value and keep `-I` on every probe and module CLI call so the untrusted repository cannot shadow the installed package.
+4. Require a non-empty absolute `python_executable` value. Apply the same original-path and canonical-target containment check without replacing the returned path; outside explicit dogfood, reject either one when it is inside the audited repository. Invoke the original returned path with `-I -m evidentloop --help`, and use it as `<PYTHON>` for every remaining Python command. After selecting `<PYTHON>`, use that exact path with `-I` for every Python-driven compatibility probe, JSON/JSONL parser, path/file/report assertion, `prepare`, and `finalize` invocation. Pass the path as one argv value so the untrusted repository cannot shadow the installed package.
 
-Never run the probe with an unverified system `python3`. Never search the filesystem, user directories, parent directories, package caches, or repository checkouts to find either an interpreter or an EvidentLoop installation. If the console script is absent, its JSON is invalid, or `python_executable` cannot run the module CLI, stop before `prepare` and report the detected state. Run all commands from the repository being audited.
+Never substitute an unverified system `python3` after selecting `<PYTHON>`. Never search the filesystem, user directories, parent directories, package caches, or repository checkouts to find either an interpreter or an EvidentLoop installation. If the console script is absent, its JSON is invalid, or `python_executable` cannot run the module CLI, stop before `prepare` and report the detected state. Run all commands from the repository being audited.
 
 ## 2. Check compatibility and installation authority
 
@@ -71,7 +71,7 @@ Require exit code 0 and parse stdout as exactly one JSON locator. Require non-em
 Verify that:
 
 - `final_dir` does not yet exist;
-- `staging_dir` is a hidden sibling of `final_dir`;
+- the canonical parent of `staging_dir` equals the canonical parent of `final_dir`, and the `staging_dir` basename starts with `.`. This is the complete hidden-sibling gate; do not require its basename to equal `.` plus the final basename or infer another naming formula;
 - the canonical parents of `prompt_path` and `raw_analysis_path` both equal `staging_dir/.run/`, their basenames are `prompt.md` and `raw-analysis.md`, and neither locator entry is a symlink;
 - `prompt_path` is a readable regular file and `raw_analysis_path` does not exist yet; its final basename must be `raw-analysis.md`;
 - no formal `audit.json` or `audit.html` exists yet.
@@ -120,7 +120,7 @@ codex -a never exec --ephemeral --ignore-user-config --ignore-rules --strict-con
   --json <PROMPT_TEXT>
 ```
 
-Pass `<PROMPT_TEXT>` as one argv value, not shell source. Require a non-empty reviewer `thread.started` ID different from the orchestrator ID, exactly one final `agent_message`, and `turn.completed`. Reject the run if JSONL contains any tool item or `command_execution`, `file_change`, or `collab_tool_call` event, or if the empty working directory changes. Remove the temporary HOME, `CODEX_HOME`, and working directory before `finalize`; a cleanup failure is a blocker. Write only the final `agent_message` text to `raw_analysis_path`. If any check fails, stop before `finalize`.
+Pass `<PROMPT_TEXT>` as one argv value, not shell source. Before invoking `finalize`, compare and assert a non-empty reviewer `thread.started` ID different from the orchestrator ID; a comparison performed after `finalize` does not satisfy this gate. Also require exactly one final `agent_message` and `turn.completed`. Reject the run if JSONL contains any tool item or `command_execution`, `file_change`, or `collab_tool_call` event, or if the empty working directory changes. Remove the temporary HOME, `CODEX_HOME`, and working directory before `finalize`; a cleanup failure is a blocker. Write only the final `agent_message` text unchanged to `raw_analysis_path`. Invoke `finalize` only after all pre-finalize assertions and cleanup pass. If any check fails, stop before `finalize`.
 
 ## 5. Finalize and verify the report pair
 

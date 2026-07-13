@@ -95,6 +95,19 @@ def test_codex_isolation_recipe_text_contract() -> None:
     assert "the exact heading `## Section 1: Findings`" in text
 
 
+def test_wave43_dogfood_gate_text_contract() -> None:
+    text = _skill_text()
+    assert "every remaining Python-driven step" in text
+    assert "every Python-driven compatibility probe, JSON/JSONL parser" in text
+    assert "Never substitute an unverified system `python3`" in text
+    assert "canonical parent of `staging_dir` equals the canonical parent of `final_dir`" in text
+    assert "This is the complete hidden-sibling gate" in text
+    assert "do not require its basename to equal `.` plus the final basename" in text
+    assert "Before invoking `finalize`" in text
+    assert "a comparison performed after `finalize` does not satisfy this gate" in text
+    assert "Invoke `finalize` only after all pre-finalize assertions and cleanup pass" in text
+
+
 def test_install_authority_and_fixed_version_text_contract() -> None:
     text = _skill_text()
     assert "Ask for installation or upgrade authorization" in text
