@@ -64,6 +64,26 @@ def test_host_security_and_public_command_text_contract() -> None:
     assert "Python naming, schema, adapter, validation or rendering logic" in text
 
 
+def test_codex_isolation_recipe_text_contract() -> None:
+    text = _skill_text()
+    assert "Codex CLI 0.144.1 isolation recipe" in text
+    assert "ordinary collaboration subagent" in text
+    assert "--ephemeral --ignore-user-config --ignore-rules --strict-config" in text
+    assert "-s read-only" in text
+    assert "-c 'tools={}'" in text
+    assert "writable ephemeral `CODEX_HOME`" in text
+    assert "Copy only `auth.json`" in text
+    assert "SSL_CERT_FILE=<SYSTEM_CA_FILE>" in text
+    assert "`thread.started` ID different from the orchestrator ID" in text
+    assert "`command_execution`, `file_change`, or `collab_tool_call`" in text
+    assert "exactly one final `agent_message`" in text
+    assert "`turn.completed`" in text
+    assert "Remove the temporary HOME, `CODEX_HOME`, and working directory" in text
+    assert "a cleanup failure is a blocker" in text
+    assert "If any check fails, stop before `finalize`" in text
+    assert "the exact heading `## Section 1: Findings`" in text
+
+
 def test_install_authority_and_fixed_version_text_contract() -> None:
     text = _skill_text()
     assert "Ask for installation or upgrade authorization" in text

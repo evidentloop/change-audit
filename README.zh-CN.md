@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` 使用 wheel 内合成 Git 变更与固定 reviewer replay，不访问模型或网络；终端、JSON 和 HTML 都会明确标记该 provenance。
 
-本地安装命令已在隔离 HOME 的 Codex 环境中验证，会安装完整的 [`skills/evidentloop/`](./skills/evidentloop/) 目录及宿主元数据。安装与 discovery 已验证，真实审计 E2E 仍是后续门禁。
+本地安装命令与真实审计 E2E 已在 macOS arm64、Codex CLI `0.144.1` 的隔离 HOME 中验证。安装包含完整的 [`skills/evidentloop/`](./skills/evidentloop/) 目录及宿主元数据；实测 E2E 使用无工具事件的独立 reviewer thread，并生成了精确锚定的 finding。
 
 进入要审计的 Git 仓库后，对宿主说：
 
@@ -168,7 +168,7 @@ Locator 契约、失败处理、prompt 数据边界与安装授权规则见 [AI 
 | console script、`doctor` 与离线合成 replay `demo` | 本地已实现；尚未发布到 PyPI |
 | 自动修复、执行命令、消费反馈 | 首个公开 Alpha 不支持 |
 | PyPI、release tag、公开 Pages | 尚不可用 |
-| 标准 Skill 安装 | 本地 checkout 安装与 Codex discovery 已验证；远程发布安装尚不可用 |
+| 标准 Skill 安装 | 本地 checkout 安装、Codex discovery 与真实审计 E2E 已验证；远程发布安装尚不可用 |
 
 当前公开审查目标只有 Git diff。其他 artifact profile 必须具备独立 adapter、可信 anchor、评测基线和 renderer 契约后，才能成为正式能力。
 
@@ -186,6 +186,7 @@ python -m build
 - [v0 范围](./docs/v0-scope.md)
 - [数据模型](./docs/data-model.md)
 - [AI host 集成](./docs/ai-host-integration.md)
+- [外部 Alpha 试跑清单](./docs/alpha-trial.md)
 
 ## License
 

@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` uses a bundled synthetic Git change and frozen reviewer replay. It does not access a model or the network, and its terminal, JSON, and HTML outputs explicitly mark that provenance.
 
-The local installer command was verified in an isolated HOME with Codex. It installs the complete [`skills/evidentloop/`](./skills/evidentloop/) directory, including host metadata. Installation and discovery are verified separately from the real audit E2E, which remains a later gate.
+The local installer command and real audit E2E were verified in an isolated HOME with Codex CLI `0.144.1` on macOS arm64. The installation includes the complete [`skills/evidentloop/`](./skills/evidentloop/) directory and host metadata; the verified E2E used a separate reviewer thread with no tool events and produced an exactly anchored finding.
 
 Then, inside the Git repository to inspect, ask the host:
 
@@ -168,7 +168,7 @@ See [AI host integration](./docs/ai-host-integration.md) for the locator contrac
 | Console script, `doctor`, and offline synthetic replay `demo` | Implemented locally; not published to PyPI |
 | Automatic fixes, command execution, or feedback ingestion | Not supported in the first public Alpha |
 | PyPI, release tag, or public Pages | Not available |
-| Standard Skill installation | Local checkout install and Codex discovery verified; remote release install unavailable |
+| Standard Skill installation | Local checkout install, Codex discovery, and Codex real audit E2E verified; remote release install unavailable |
 
 The current public audit target is a Git diff. Additional artifact profiles require their own adapter, trusted anchors, evaluation baseline, and renderer contract before they can become supported review targets.
 
@@ -186,6 +186,7 @@ References:
 - [V0 scope](./docs/v0-scope.md)
 - [Data model](./docs/data-model.md)
 - [AI host integration](./docs/ai-host-integration.md)
+- [External Alpha trial checklist](./docs/alpha-trial.md)
 
 ## License
 
