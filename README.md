@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` uses a bundled synthetic Git change and frozen reviewer replay. It does not access a model or the network, and its terminal, JSON, and HTML outputs explicitly mark that provenance.
 
-The local installer command and real audit E2E were verified in an isolated HOME with Codex CLI `0.144.1` on macOS arm64. The installation includes the complete [`skills/evidentloop/`](./skills/evidentloop/) directory and host metadata; the verified E2E used a separate reviewer thread with no tool events and produced an exactly anchored finding.
+The local installer command and real audit E2E were verified in isolated HOME environments with Codex CLI `0.144.1` and `0.144.3` on macOS arm64. Both runs used a separate reviewer thread with no tool events and produced formal report pairs; the known-defect `0.144.1` sample produced an exactly anchored finding, while the external `0.144.3` sample truthfully completed as inconclusive. Codex support is gated by observable isolation capabilities, not an exact CLI version.
 
 Then, inside the Git repository to inspect, ask the host:
 

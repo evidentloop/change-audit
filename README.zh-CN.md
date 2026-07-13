@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` 使用 wheel 内合成 Git 变更与固定 reviewer replay，不访问模型或网络；终端、JSON 和 HTML 都会明确标记该 provenance。
 
-本地安装命令与真实审计 E2E 已在 macOS arm64、Codex CLI `0.144.1` 的隔离 HOME 中验证。安装包含完整的 [`skills/evidentloop/`](./skills/evidentloop/) 目录及宿主元数据；实测 E2E 使用无工具事件的独立 reviewer thread，并生成了精确锚定的 finding。
+本地安装命令与真实审计 E2E 已在 macOS arm64、Codex CLI `0.144.1` 和 `0.144.3` 的隔离 HOME 中验证。两次验证都使用无工具事件的独立 reviewer thread 并生成正式报告对；`0.144.1` 的已知缺陷样本得到精确锚定的 finding，`0.144.3` 的外部样本如实得到 inconclusive。Codex 支持以可观察的隔离能力为门禁，不精确锁定 CLI 版本。
 
 进入要审计的 Git 仓库后，对宿主说：
 
