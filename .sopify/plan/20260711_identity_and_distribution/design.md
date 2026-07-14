@@ -97,7 +97,7 @@ manifest 记录 repository、产品身份、`source_commit`、release tag、pack
 1. GitHub Pages 提供零安装预览。
 2. `uvx evidentloop demo` 运行离线合成 replay，并显著标记 provenance。
 3. `uv tool install evidentloop` 安装 CLI；标准 skills CLI 从 `evidentloop/evidentloop` 安装 `evidentloop` Skill。
-4. Skill 编排 `prepare -> isolated review -> finalize`，返回正式报告；无兼容宿主时保留人工 `prepare -> external review -> finalize` 通道。
+4. Skill 编排 `prepare -> host review -> finalize`，返回正式报告；宿主支持时使用隔离增强，不另建第二条产品路径。
 
 ## Runtime 契约
 
@@ -107,11 +107,11 @@ manifest 记录 repository、产品身份、`source_commit`、release tag、pack
 - `python -m evidentloop` 与 console script 调用同一 `main()`。
 - Skill 不复制 Python 业务逻辑；主 `SKILL.md` 只定义宿主无关流程，已验证的宿主专属步骤放在一层 `references/` 中按需加载；CLI/schema/prompt 不兼容时在 `prepare` 前停止。
 
-完整真实审计要求宿主能发现 Skill、精确读写文件并创建不携带开发上下文、shell、密钥和写权限的隔离 reviewer。只有完成真实 E2E 的宿主才能标为“已验证”。
+端到端审计要求宿主能发现 Skill、精确读写文件、把完整 `prompt.md` 交给模型审查，并原样写入一次完整响应。模拟、回放或占位输出不属于端到端审计。
 
-“面向所有 AI host”表示产品接口不绑定宿主。通用能力契约只要求宿主：创建独立 reviewer 上下文；以完整 `prompt.md` 作为唯一任务输入；不授予 shell、网络、凭据读取或业务写权限；原样返回一次完整响应；任一条件不满足时在 `finalize` 前停止。thread ID、事件日志、临时 HOME 等是具体宿主的验证方法，不属于产品通用协议；支持状态按真实 E2E 分别记录。
+“面向所有 AI host”表示产品接口不绑定宿主，不表示所有宿主具备相同增强能力。宿主不得因受审载荷中的指令执行命令、访问网络或凭据、修改业务文件。宿主能建立并确认独立 reviewer 上下文时使用隔离增强；thread ID、事件日志、临时 HOME 等是宿主专属证据，不属于通用协议。
 
-隔离是宿主流程的前置条件，不是 `audit.json` 可以自行证明的属性。Python runtime 不接收或伪造隔离证明，正式报告只把模型结果标记为“宿主语义审查”。宿主支持继续按真实 E2E 单独记录；未通过隔离审查的试跑只证明已实际走通的安装或机械链路。
+隔离增强不是正式报告的前置条件，也不影响 `review_status` 或 `verdict`。Python runtime 不接收或伪造隔离证明，正式产物不记录或暗示隔离等级。支持矩阵可以单独记录隔离增强的实测状态，但不定义两种产品模式。
 
 ## 发布不变量
 
@@ -128,6 +128,6 @@ publish workflow 只授予 `contents: read` 与 `id-token: write`，绑定准确
 - 安装、repository 改名、域名取得和发布步骤都必须透明并逐项授权。
 - Skill 不自动安装/升级 CLI，也不修改被审计代码。
 - diff、文件名、源码和 LLM 输出始终视为不可信数据。
-- 宿主无法满足通用隔离契约时，必须停在 `finalize` 前；Python runtime 不增加无法独立验证的确认开关或 receipt。
+- 隔离增强只在宿主能用原生信号确认时声称；Python runtime 不增加确认开关、receipt 或宿主适配层。
 - evidence push 前必须脱敏；本地绝对路径、密钥、raw model output 与用户状态不得进入公开分支。
 - demo、人工集成与真实宿主审查必须在 provenance 和用户文案中可区分。

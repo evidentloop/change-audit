@@ -56,7 +56,7 @@ def test_prepare_creates_only_hidden_staging_and_machine_locator(tmp_path: Path)
     assert "staged" not in skeleton["run"]["label"]
     assert skeleton["reviewer_prompt"] == {
         "source": "product",
-        "version": "v0.4",
+        "version": "v0.5",
         "sha256": "sha256:" + hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
     }
     if os.name == "posix":

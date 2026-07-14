@@ -219,9 +219,9 @@ class QualityMetrics:
 @dataclass
 class ReviewerMeta:
     """Reviewer metadata. v0-scope.md §7 ReviewResult.reviewer."""
-    type: Literal["fresh_llm"] = "fresh_llm"  # host-integrated reviewers also use fresh_llm; execution path differs, not reviewer type
+    type: Literal["host_llm"] = "host_llm"
     model: str = ""
-    session_isolated: bool | None = None  # host claim only; the Python runtime cannot verify isolation
+    session_isolated: bool | None = None  # optional host observation; not an artifact guarantee or verdict input
     failure_reason: ReviewerFailureReason | None = None
     raw_analysis: str | None = None    # audit trail — reviewer's free-form analysis text
     latency_sec: float | None = None
@@ -701,7 +701,7 @@ def review_result_from_dict(data: dict[str, Any]) -> ReviewResult:
 
     reviewer_data = data.get("reviewer") or {}
     reviewer = ReviewerMeta(
-        type=reviewer_data.get("type", "fresh_llm"),
+        type=reviewer_data.get("type", "host_llm"),
         model=reviewer_data.get("model", ""),
         session_isolated=reviewer_data.get("session_isolated"),
         failure_reason=(

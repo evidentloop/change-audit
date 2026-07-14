@@ -46,7 +46,7 @@ Their `audit.json` and `audit.html` files retain the original schema `0.2` and p
 
 ## Quick start
 
-Requirements: Git, Python 3.10 or newer, and an AI host that can discover the Skill and create an isolated reviewer context. EvidentLoop does not bind to a host; compatibility is declared only after a host completes the real end-to-end workflow.
+Requirements: Git, Python 3.10 or newer, and an AI host that can discover the Skill and ask its model to review the change. EvidentLoop does not bind to a host; compatibility is declared only after a host completes the end-to-end workflow.
 
 ### Public Alpha path
 
@@ -104,7 +104,7 @@ Or in Chinese:
 帮我用 EvidentLoop 审计 staged changes，并生成 HTML 报告。
 ```
 
-The Skill requires package `0.1.0a0`, schema `0.3`, and prompt `v0.4` before `prepare`; any mismatch stops the run. It then prepares a trusted workspace, sends only the generated prompt to an isolated semantic reviewer, finalizes the report pair, and returns the report paths. The current report UI and reviewer prose are Simplified Chinese.
+The Skill requires package `0.1.0a0`, schema `0.3`, and prompt `v0.5` before `prepare`; any mismatch stops the run. It then prepares a trusted workspace, asks the host model to review the generated prompt, finalizes the report pair, and returns the report paths. When the host can establish and verify a separate review context, the Skill uses it as an isolation enhancement. The current report UI and reviewer prose are Simplified Chinese.
 
 ## How it works
 
@@ -112,7 +112,7 @@ The Skill requires package `0.1.0a0`, schema `0.3`, and prompt `v0.4` before `pr
 natural-language request
   → EvidentLoop Skill resolves repository and diff scope
   → Python prepare freezes Git evidence and prompt provenance
-  → isolated host reviewer returns semantic findings
+  → host LLM returns semantic findings
   → Python verifies changed-line anchors and builds the Audit Graph
   → schema, semantics, trace links, and HTML pass validation
   → audit.json + audit.html are published together
@@ -131,8 +131,8 @@ Most users should use the Skill. Integrators can call the module commands direct
 # 1. Create a hidden staging workspace and print one JSON locator.
 python -m evidentloop prepare --diff staged --out audit/20260710_example
 
-# 2. Open locator.prompt_path in a fresh isolated reviewer context
-#    and write the exact response to locator.raw_analysis_path.
+# 2. Give the complete locator.prompt_path to the host LLM
+#    and write its exact response to locator.raw_analysis_path.
 
 # 3. Validate and publish the report pair. The final directory must not exist.
 python -m evidentloop finalize --out audit/20260710_example
@@ -143,7 +143,7 @@ python -m evidentloop render \
   --out audit/20260710_example/audit.html
 ```
 
-`review` is a Skill action, not a Python command. `prepare` and `finalize` are not a shortcut pair: an isolated host review must write the raw result between them. Explicit `render --out` replaces only that HTML file and never modifies `audit.json`.
+`review` is a Skill action, not a Python command. `prepare` and `finalize` are not a shortcut pair: the host model's response must be written between them. Mock, replayed, or synthesized placeholder output is not an end-to-end review. Explicit `render --out` replaces only that HTML file and never modifies `audit.json`.
 
 The public Python API is available from `evidentloop.api`:
 
@@ -168,7 +168,7 @@ See [AI host integration](./docs/ai-host-integration.md) for the locator contrac
 | Console script, `doctor`, and offline synthetic replay `demo` | Implemented locally; not published to PyPI |
 | Automatic fixes, command execution, or feedback ingestion | Not supported in the first public Alpha |
 | PyPI, release tag, or public Pages | Not available |
-| Standard Skill installation | Local checkout and Codex E2E verified; Qoder mechanical path trialed, isolated review E2E not verified; remote release install unavailable |
+| Standard Skill installation | Local checkout and Codex E2E verified; Qoder mechanical path trialed, host review E2E pending; remote release install unavailable |
 
 The current public audit target is a Git diff. Additional artifact profiles require their own adapter, trusted anchors, evaluation baseline, and renderer contract before they can become supported review targets.
 

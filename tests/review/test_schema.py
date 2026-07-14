@@ -261,7 +261,7 @@ class TestReviewResult:
         assert result.findings == []
         assert result.evidence == []
         assert result.advisory_verdict.verdict == Verdict.INCONCLUSIVE
-        assert result.reviewer.type == "fresh_llm"
+        assert result.reviewer.type == "host_llm"
         assert result.budget.status == BudgetStatus.COMPLETE
 
     def test_reviewer_meta_defaults(self):
@@ -397,7 +397,7 @@ class TestReviewResultValidation:
                 "speculative_ratio": 0.0,
             },
             "reviewer": {
-                "type": "fresh_llm",
+                "type": "host_llm",
                 "model": "claude-sonnet-4-20250514",
                 "session_isolated": True,
                 "prompt_source": "product",

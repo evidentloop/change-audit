@@ -21,7 +21,7 @@ canonical prompt 位于：
 evidentloop/review/core/reviewer-prompt.md
 ```
 
-当前版本为 `product/v0.4`。`prompt-lab/run.py` 与产品 `prepare` 读取同一文件；Prompt Lab 不维护第二份实验模板，避免 prompt 版本和协议分叉。
+当前版本为 `product/v0.5`。`prompt-lab/run.py` 与产品 `prepare` 读取同一文件；Prompt Lab 不维护第二份实验模板，避免 prompt 版本和协议分叉。
 
 ## 渲染 prompt
 
@@ -48,7 +48,7 @@ case 目录至少包含一个 `pack.json`：
 
 命令会生成 `rendered-prompt.md`。将其交给 fresh host LLM session 后，响应应另存为 case 证据；Prompt Lab 本身不发起模型请求。
 
-`run.py` 的 raw response 是手工实验记录，不会自动变成 eval 输入。`eval.py` 只重放已经物化的 `review-result.json`。要建立真实 fixture，应走正式 `prepare → 隔离宿主审查 → finalize --keep-review-artifacts` 主链，再从成功报告目录的 `.run/review-result.json` 取得同一运行的确定性结果，并保留 prompt provenance；不要把 raw Markdown 直接交给 eval，也不要在 Prompt Lab 复制一套 ingest 逻辑。
+`run.py` 的 raw response 是手工实验记录，不会自动变成 eval 输入。`eval.py` 只重放已经物化的 `review-result.json`。要建立真实 fixture，应走正式 `prepare → host review → finalize --keep-review-artifacts` 主链，再从成功报告目录的 `.run/review-result.json` 取得同一运行的确定性结果，并保留 prompt provenance；不要把 raw Markdown 直接交给 eval，也不要在 Prompt Lab 复制一套 ingest 逻辑。
 
 ## 离线 fixture 评估
 

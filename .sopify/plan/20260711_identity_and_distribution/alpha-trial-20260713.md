@@ -2,7 +2,7 @@
 
 日期：2026-07-13 至 2026-07-14
 
-状态：首次试跑走通核心链路但 provenance 不一致；`74c7d16` 固定候选随后暴露安装和 runtime discovery 缺口并退役。`7d0bef6` 修复这两个产品问题后，固定 provenance、安装与 discovery 通过；用户认可的无维护历史 AI 外部试用者两次 strict 尝试又分别暴露 post-doctor 解释器、hidden-sibling 语义和 pre-finalize thread 比较问题。`2cb03af` 的 Qoder 试跑只证明安装与机械链路，独立 reviewer 隔离未验证。`fc875c9` 已完成宿主无关边界纠偏并冻结固定产物；Qoder 复跑进一步验证 provenance、Skill 安装完整性和机械链路，但仍未证明宿主 discovery 或满足独立 reviewer 门禁。4.3 保持待办，4.4 未开始。
+状态：多轮外部试跑已验证安装、discovery 与机械链路，并暴露 provenance、post-doctor 解释器、hidden-sibling 和宿主边界问题。`fc875c9` 的 Qoder 复跑使用模拟 raw analysis，只作为机械链路证据。2026-07-14 产品契约收口为一条宿主无关主链，隔离改为条件增强；prompt 升为 `v0.5`，`fc875c9` 退役。新候选待冻结，4.3 保持待办，4.4 未开始。
 
 ## 首次试跑：核心链路通过但 provenance 不一致
 
@@ -89,7 +89,7 @@
 - 独立 `codex exec` 只是一种宿主证据映射，不是产品通用协议。其他宿主使用自身原生能力满足通用隔离契约；Python 包不连接模型，也不包含模型 SDK 或 API key。
 - 4.3 已取得独立 AI 试用反馈但 strict gate 未通过。以上固定值只保留为历史 provenance，不得继续用于公开复跑。4.4 未开始。
 
-## `fc875c9` 当前固定候选
+## `fc875c9` 已退役候选
 
 - source commit：`fc875c95eb8a2afdb8a6246a694b277d034c7d29`
 - source archive：`source-fc875c9.tar`
@@ -98,7 +98,7 @@
 - 固定 wheel SHA-256：`a192c7d626d7b639126d184b723df063f0f5d1023529754f1c8c97e798bd4161`
 - 构建来源：archive 内 commit ID 与 source commit 一致；wheel 从该 archive 的原样解包目录构建。tar 内 `SKILL.md`、`agents/openai.yaml` 与 `references/codex-cli-isolation.md` 齐全，Skill 目录与候选提交逐文件一致。
 - 本地验证：固定 wheel 原件在 Python 3.11 隔离环境安装成功；doctor、module CLI、依赖完整性与 package `0.1.0a0` / schema `0.3` / prompt `v0.4` 均通过；安装后 wheel SHA-256 未变。
-- 验证基线：Python `328 passed`、Ruff、feedback JavaScript、Skill 规范校验与 diff check 通过。4.3 等待用户按公开清单复跑，4.4 未开始。
+- 验证基线：Python `328 passed`、Ruff、feedback JavaScript、Skill 规范校验与 diff check 通过。后续宿主契约收口与 prompt `v0.5` 使该候选退役，不得继续用于 4.3。
 
 ## `fc875c9` Qoder 外部复跑：固定候选机械链路通过
 
@@ -107,13 +107,21 @@
 - 已验证机械链路：doctor、兼容版本、prepare locator、hidden sibling、prompt provenance、run identity、finalize 原子发布、schema `0.3`、自包含 HTML 和 `.run/` 清理均符合预期。
 - reviewer 门禁：Qoder 当前未提供可确认独立 reviewer 上下文及禁止能力的原生方法。阻塞源于宿主当前能力无法满足通用契约，并非产品要求 `codex exec`、thread ID、JSONL 或临时 HOME 等 Codex 专属信号。
 - 诊断产物：执行者在 reviewer 门禁不满足后注入模拟 raw analysis 并调用 `finalize`，违反现有 Skill 的 pre-finalize fail-closed 规则，因此不构成真实审计 E2E。`review_status=partial` 源于输出未满足 prompt `v0.4` completion contract；`raw_findings_count=0` 且 `pack_completeness=0.65` 使内部 `advisory_verdict=inconclusive`，正式 `verdict` 则因 review status 非 complete 保持 `inconclusive`；隔离状态不参与这些判定。
-- 结论：本次只作为 Qoder 受限兼容性证据。`fc875c9` 继续作为当前固定候选，4.3 保持待办，4.4 未开始。
+- 结论：本次只作为 Qoder 机械链路证据，不构成端到端审计。`fc875c9` 已退役，4.3 保持待办，4.4 未开始。
+
+## 2026-07-14 宿主契约收口
+
+- 产品只保留 `prepare -> host review -> finalize` 一条主链，不定义两种产品模式或两种正式产物。
+- 宿主把完整 prompt 交给模型审查；模拟、回放或占位输出不构成端到端审计。
+- 宿主能建立并确认独立 reviewer 上下文时使用隔离增强。隔离不是正式报告的前置条件，不进入产物，也不影响 `review_status` 或 `verdict`。
+- prompt 升为 `v0.5`，public schema 保持 `0.3`。不新增 attestation、receipt、adapter、SDK、宿主注册表或 verdict 降级规则。
+- 新候选冻结后，先由 Qoder 或 Trae 复跑主链，再由 Codex 回归隔离增强。4.3 在此前保持待办。
 
 ## Wave 4.4 前置证据（尚未进入 4.4）
 
 - 既有基线：Python `327 passed`、Ruff、feedback JavaScript、Markdown shell 语法、diff check、本地隔离 wheel build 与维护者真实宿主 smoke 曾通过；这些结果只作为进入 4.4 前的参考，不能在 4.3 strict failure 后冒充 4.4 验收。
-- 当前纠偏：明确通用宿主契约与 Codex 证据映射，移除 Python runtime 对 reviewer 已隔离的默认假设和报告文案；不修改 prompt `v0.4`、schema `0.3`、normalizer 或模型执行边界。
-- 当前验证：Python `328 passed`、Ruff、feedback JavaScript、Skill 规范校验和 diff check 通过；`fc875c9` 固定候选已生成并完成本地 provenance 与 wheel 安装验证。
+- 当前收口：通用宿主主链与 Codex 隔离增强已分开，prompt 升为 `v0.5`，schema `0.3` 不变；不改 normalizer 或模型执行面。
+- 当前验证：完整测试、Skill 规范校验、候选 provenance 与 wheel 安装验证待新候选冻结时补充。
 - 4.4 状态：未开始。只有 4.3 通过并完成相应 CLI/Skill/文档收口后，才重跑 clean candidate、完整测试和修改后的真实宿主 smoke。
 
 ## 已退役的最小复跑候选
@@ -126,7 +134,7 @@
 - 本地预检：archive commit ID、Skill、prompt、wheel 完整性、隔离安装、兼容探针、doctor、module CLI 与 demo 均通过。
 - 外部状态：已执行但未通过；固定 provenance 正确，安装与 discovery 阻塞，4.3 保持待办。
 
-`74c7d16`、`7d0bef6` 与 `2cb03af` 只保留为退役证据；当前固定候选以 `fc875c9` 四值为准。后续若修改 runtime 或 Skill，必须废弃该候选并重新冻结，不得把 dirty tree 构建物冒充当前固定产物。
+`74c7d16`、`7d0bef6`、`2cb03af` 与 `fc875c9` 只保留为退役证据。新候选必须从 clean source commit 重新冻结，不得把 dirty tree 构建物冒充固定产物。
 
 ## 隐私边界
 

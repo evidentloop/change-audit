@@ -4,7 +4,7 @@
 
 AI coding 会生成代码变更，也会生成 plan、design、analysis、review-result、final answer 和 agent trace 等产物。审查过程通常散落在聊天、终端和临时 Markdown 中，用户难以确认目标是否可靠、结论依据是什么，也难以把自己的接受、误报或严重度调整带到下一轮。
 
-用户真正需要的是一条可审计链路：把有明确边界的审查目标交给隔离上下文，经 AI 语义审查得到可回链 findings，再由已经通过放行门禁的审计适配能力形成结构化审计记录、可交互审计报告和可导出的用户决策。
+用户真正需要的是一条可审计链路：把有明确边界的审查目标交给宿主模型，得到可回链 findings，再由已经通过放行门禁的审计适配能力形成结构化审计记录、可交互审计报告和可导出的用户决策。
 
 ## 产品愿景
 
@@ -16,7 +16,7 @@ AI coding 会生成代码变更，也会生成 plan、design、analysis、review
 
 `EvidentLoop` 是面向 AI 变更与可审查产物的可回链审计工具。
 
-- `evidentloop.review` 是 artifact-general 隔离审查内核；AI host 的 LLM 负责目标相关的语义判断。
+- `evidentloop.review` 是 artifact-general 语义审查内核；AI host 的 LLM 负责目标相关的语义判断。
 - `evidentloop.audit` 与 renderer 是 profile-specific 正式产品层；只有具备 adapter、可信 anchor、eval baseline 和 renderer profile 的类型，才承诺完整审计产物。
 - 产品 runtime 不内置 LLM SDK 或 provider/API key 配置；它负责构造可信上下文、约束审查输出、生成机械字段、校验引用并确定性呈现。
 - `evidentloop.review` 直接承载 ReviewPack、prompt、ingest、normalizer 与 adjudicator；迁移来源不形成第二个产品或第二套运行链路。

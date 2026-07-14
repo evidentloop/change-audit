@@ -7,7 +7,7 @@
 - [ ] 根据后续多语言与不同规模样本继续收紧宿主审查 prompt 和语言专项 eval；一期中文正文、协议格式和声明完整性门禁已完成。
 - [ ] 评估确定性规则作为 LLM 审查增强，但不替代语义 finding 主链路。
 - [ ] 评估多审查者、二次 adjudication 和语言专项 eval 对幻觉与漏报的改善。
-- [ ] 验证 uv、pipx clean install 和至少一个真实宿主的 `Skill discovery -> isolated review -> finalize`；只声明实测通过的宿主与平台。
+- [ ] 验证 uv、pipx clean install 和至少一个真实宿主的 `Skill discovery -> host review -> finalize`；只声明实测通过的宿主与平台，隔离增强单独记录。
 - [ ] 为 PyPI `evidentloop` 配置 Trusted Publisher，发布前创建同版本不可变 Git tag；GitHub Release 页面可选，未经授权不发布。
 - [ ] 建模多轮审计差异并消费 `audit-feedback.jsonl`。
 - [ ] 按真实需求逐类推进 artifact profile：先允许内部 ReviewResult，只有通过 adapter、可信 anchor、eval baseline 和 renderer profile 四项门禁后才公开正式 audit；候选包括 plan/design、analysis/review-result、agent output、folder diff、远程 PR 和 code snapshot。
@@ -17,7 +17,7 @@
 
 ## 明确延后
 
-- [-] Qoder 固定产物试跑已验证安装与 prepare/finalize 机械链路；独立 reviewer 隔离未验证，不声明真实审计 E2E 支持。
+- [-] Qoder 的已退役候选试跑只验证安装与 prepare/finalize 机械链路；因使用模拟审查输出，不声明端到端支持。新候选需要由 Qoder 或 Trae 重新验证。
 - [-] 自动修复代码或把审计结果升级为强制策略门禁。
 - [-] 在 Python 包集成模型 SDK、provider/API key 配置或 standalone reviewer；模型执行只由 AI host 承担。
 - [-] 在用户再次授权前归档、删除 CrossReview 仓库或中断旧包可用性。

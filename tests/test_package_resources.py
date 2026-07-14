@@ -42,15 +42,15 @@ def test_runtime_resources_are_readable_via_importlib() -> None:
     assert "prefers-reduced-motion" in css
     assert "EvidentLoopFeedback" in javascript
     assert "evidentloopReady" in javascript
-    assert PRODUCT_REVIEWER_PROMPT_VERSION == "v0.4"
-    assert prompt.startswith("# EvidentLoop Reviewer Prompt Template (product/v0.4)\n")
+    assert PRODUCT_REVIEWER_PROMPT_VERSION == "v0.5"
+    assert prompt.startswith("# EvidentLoop Reviewer Prompt Template (product/v0.5)\n")
     assert hashlib.sha256(prompt.encode("utf-8")).hexdigest() == (
-        "19246076f015f4df16a49d37fa0e3b3ae408a56f0a2bae57e89ce08998c487d6"
+        "d29412887eb5238d71e91d6a39dbb893b2435cf35d9d2e6430d1976402a2aecf"
     )
     # Freeze both resource identity and protocol wording for packaged artifacts.
     protocol_body = prompt.partition("\n")[2]
     assert hashlib.sha256(protocol_body.encode("utf-8")).hexdigest() == (
-        "607e9917eec85b3da15100c03c7eb59ff400fc44ea2e03dc71826f1f1e01e833"
+        "01ddcd3f5eb89c26d675fd68d07587e4ba4a8fc481e2de6d0d912d845583d451"
     )
     assert "Simplified Chinese" in prompt
     assert demo_fixture["fixture_id"] == "synthetic-off-by-one-v1"

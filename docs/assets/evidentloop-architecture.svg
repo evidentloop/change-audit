@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" width="1200" height="780" role="img" aria-labelledby="title desc">
   <title id="title">EvidentLoop v0 code-diff architecture</title>
-  <desc id="desc">The EvidentLoop v0 code-diff audit profile. The AI host Skill invokes prepare, an isolated host LLM produces semantic review text, Python stages and validates audit.json and audit.html, then one same-filesystem directory rename publishes the pair under a local single-writer model.</desc>
+  <desc id="desc">The EvidentLoop v0 code-diff audit profile. The AI host Skill invokes prepare, the host LLM produces semantic review text, Python stages and validates audit.json and audit.html, then one same-filesystem directory rename publishes the pair under a local single-writer model. Hosts use an isolated review context when available.</desc>
   <style>
     text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #111827; }
     .title { font-size: 25px; font-weight: 700; }
@@ -56,8 +56,8 @@
   <rect x="796" y="128" width="240" height="78" rx="8" fill="none" stroke="#9333ea" stroke-width="0.8" opacity="0.45"/>
   <path d="M820 147 L825 157 L836 162 L825 167 L820 177 L815 167 L804 162 L815 157 Z" fill="#9333ea" opacity="0.85"/>
   <text x="850" y="158" class="node-title">Host LLM</text>
-  <text x="850" y="179" class="node-sub">isolated semantic review</text>
-  <text x="850" y="196" class="micro">bugs • risks • quality • scope</text>
+  <text x="850" y="179" class="node-sub">semantic review</text>
+  <text x="850" y="196" class="micro">isolate when available • one main chain</text>
 
   <path d="M262 167 H440" class="control"/>
   <text x="288" y="154" class="edge-label">natural-language trigger</text>

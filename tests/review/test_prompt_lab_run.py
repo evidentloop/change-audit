@@ -75,7 +75,7 @@ class TestPromptLabRun:
 
         assert rc == 0
         rendered = (case_dir / "rendered-prompt.md").read_text(encoding="utf-8")
-        assert "EvidentLoop Reviewer Prompt Template (product/v0.4)" in rendered
+        assert "EvidentLoop Reviewer Prompt Template (product/v0.5)" in rendered
         assert "fix greeting" in rendered
         assert SAMPLE_DIFF.rstrip() in rendered
         assert "<<<EVIDENTLOOP_UNTRUSTED_DIFF_" in rendered

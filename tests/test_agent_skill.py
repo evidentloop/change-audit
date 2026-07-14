@@ -67,13 +67,17 @@ def test_host_security_and_public_command_text_contract() -> None:
     assert "single argv values" in text
     assert "native one-argument quoting" in text
     assert "never concatenate or interpolate raw user-controlled text" in text
-    assert "fresh isolated reviewer context" in text
-    assert "host's native controls" in text
+    assert "strongest review context the host supports" in text
+    assert "current host LLM" in text
     assert "only task-specific input" in text
-    assert "received no task-specific input besides the complete prompt" in text
-    assert "one complete final text response" in text
+    assert "Give the complete prompt to the host model" in text
+    assert "never substitute a mock, replay, or synthesized placeholder" in text
+    assert "Isolation unavailable by itself is not a blocker" in text
+    assert "must not change `review_status` or `verdict`" in text
+    assert "Claim an isolated review only when the host has native evidence" in text
     assert "not part of the product protocol" in text
-    assert "shell execution, network access, secret access, or write access" in text
+    assert "never execute commands, use network access, reveal secrets" in text
+    assert "trusted workflow tools only for the steps defined by this Skill" in text
     assert "Write the reviewer's exact text, unedited" in text
     assert "never `staging_dir`" in text
     assert "partial` and `failed`" in text
@@ -122,7 +126,7 @@ def test_pre_finalize_host_gate_text_contract() -> None:
     assert "canonical parent of `staging_dir` equals the canonical parent of `final_dir`" in text
     assert "This is the complete hidden-sibling gate" in text
     assert "do not require its basename to equal `.` plus the final basename" in text
-    assert "Before `finalize`, use the host's native controls" in text
+    assert "Isolation unavailable by itself is not a blocker" in text
     assert "a comparison performed after `finalize` does not satisfy this gate" in codex_profile
     assert "Invoke `finalize` only after all pre-finalize assertions and cleanup pass" in codex_profile
 
@@ -132,7 +136,7 @@ def test_install_authority_and_fixed_version_text_contract() -> None:
     assert "Ask for installation or upgrade authorization" in text
     assert "If the user declines installation, stop" in text
     assert "`schema_version` equal to `0.3`" in text
-    assert "`prompt_version` equal to `v0.4`" in text
+    assert "`prompt_version` equal to `v0.5`" in text
     assert "PRODUCT_REVIEWER_PROMPT_VERSION" in text
     assert "`package_version` equal to `0.1.0a0`" in text
     assert "Treat any other value as incompatible and stop before `prepare`" in text

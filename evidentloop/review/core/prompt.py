@@ -12,7 +12,7 @@ from evidentloop.review.schema import to_serializable
 
 
 PRODUCT_REVIEWER_PROMPT_SOURCE = "product"
-PRODUCT_REVIEWER_PROMPT_VERSION = "v0.4"
+PRODUCT_REVIEWER_PROMPT_VERSION = "v0.5"
 CANONICAL_DIFF_BLOCK = "```diff\n{diff}\n```"
 
 

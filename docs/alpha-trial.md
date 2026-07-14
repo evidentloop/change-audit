@@ -1,92 +1,61 @@
-# EvidentLoop Codex Alpha 最小复跑清单
+# EvidentLoop Alpha 最小复跑清单
 
-本轮在 macOS arm64、Python 3.11、Codex CLI `0.144.3` 上只复跑首次安装与一句话审计的产物 provenance 和耗时。`0.144.3` 的隔离链路已经验证并纳入支持范围；Codex CLI 版本只记录实测环境，不作为精确门禁，真正门禁是可观察的隔离信号和失败即停止的断言。
+本轮只验证固定候选的首次安装、Skill discovery 和一句话审计。主链是 `prepare → host review → finalize`；宿主能建立并确认独立 reviewer 上下文时，另记录隔离增强证据。Python 包不连接模型，也不包含模型 SDK 或 API key。
 
-这是 Codex 验证 profile，不是 EvidentLoop 的通用宿主契约。其他宿主按 [AI host 集成](./ai-host-integration.md)中的能力契约使用自身原生隔离能力，不执行这里的 `codex exec` 命令，也不模拟 Codex 事件名。Python 包不连接模型，也不包含模型 SDK 或 API key。
+当前候选正在重冻结。下列占位符全部替换前不得执行试跑：
 
-当前固定候选为：
-
-- source commit：`fc875c95eb8a2afdb8a6246a694b277d034c7d29`
-- source archive：`source-fc875c9.tar`
-- source archive SHA-256：`3f2e02ffac57941155d1a870d34061dd73cc552d7e7dcb78b7f28a92306e3744`
+- source commit：`<NEW_SOURCE_COMMIT>`
+- source archive：`source-<NEW_SHORT_COMMIT>.tar`
+- source archive SHA-256：`<NEW_SOURCE_SHA256>`
 - wheel：`evidentloop-0.1.0a0-py3-none-any.whl`
-- wheel SHA-256：`a192c7d626d7b639126d184b723df063f0f5d1023529754f1c8c97e798bd4161`
+- wheel SHA-256：`<NEW_WHEEL_SHA256>`
 
-source archive 由上述 commit 直接执行 `git archive` 生成，wheel 从该 archive 的原样解包目录构建。不创建 tag，不使用 PyPI、移动分支或远程 Skill 安装。试用者必须安装维护者提供的固定 wheel 原件；即使现场重建 wheel 的内部文件内容相同，只要 SHA-256 不同，也不能替代上述固定产物。
+source archive 由上述 commit 直接执行 `git archive` 生成，wheel 从该 archive 的原样解包目录构建。不创建 tag，不使用 PyPI、移动分支或远程 Skill 安装。试用者必须安装维护者提供的固定 wheel 原件。
 
-`references/codex-cli-isolation.md` 是 Codex CLI 已验证路径的按需说明，主 `SKILL.md` 仍为宿主无关流程。正文门禁不精确比较 CLI 版本；本轮继续在 `0.144.3` 上执行相同能力探针。
-
-截至 2026-07-14，外部 AI 执行者的多次试跑已经验证安装和机械链路，也暴露了 post-doctor 解释器、hidden-sibling 语义、pre-finalize thread 比较和跨宿主隔离边界问题；尚无一次满足全部门禁的外部 E2E。详细记录保存在当前方案证据中。本清单现等待固定候选复跑。
+`references/codex-cli-isolation.md` 是 Codex 已验证隔离增强的按需说明，主 `SKILL.md` 保持宿主无关。其他宿主不执行该命令，也不模拟 Codex 事件名。
 
 ## 试用者执行
 
-1. 记录环境版本，不修改维护者提供的文件：
+1. 记录操作系统、架构、Python、安装工具、Skill 工具和 AI host 版本。
 
-```bash
-sw_vers
-uname -m
-PYTHON_PATH="$(command -v python3.11)"
-test -n "$PYTHON_PATH"
-"$PYTHON_PATH" --version
-uv --version
-codex --version
-node --version
-npx skills@1.5.16 --version
-```
-
-2. 核对 source archive 的 commit 与两个 SHA-256，再从该 archive 安装 CLI 和 Skill：
+2. 核对 source archive 的 commit 与两个 SHA-256：
 
 ```bash
 set -euo pipefail
 
-SOURCE_COMMIT="fc875c95eb8a2afdb8a6246a694b277d034c7d29"
-SOURCE_TAR="/path/to/source-fc875c9.tar"
-SOURCE_TAR_SHA256="3f2e02ffac57941155d1a870d34061dd73cc552d7e7dcb78b7f28a92306e3744"
+SOURCE_COMMIT="<NEW_SOURCE_COMMIT>"
+SOURCE_TAR="/path/to/source-<NEW_SHORT_COMMIT>.tar"
+SOURCE_TAR_SHA256="<NEW_SOURCE_SHA256>"
 WHEEL_PATH="/path/to/evidentloop-0.1.0a0-py3-none-any.whl"
-WHEEL_SHA256="a192c7d626d7b639126d184b723df063f0f5d1023529754f1c8c97e798bd4161"
-PYTHON_PATH="$(command -v python3.11)"
+WHEEL_SHA256="<NEW_WHEEL_SHA256>"
 
-test -n "$PYTHON_PATH"
+test "$SOURCE_COMMIT" != "<NEW_SOURCE_COMMIT>"
 test "$(git get-tar-commit-id < "$SOURCE_TAR")" = "$SOURCE_COMMIT"
 test "$(shasum -a 256 "$SOURCE_TAR" | awk '{print $1}')" = "$SOURCE_TAR_SHA256"
 test "$(shasum -a 256 "$WHEEL_PATH" | awk '{print $1}')" = "$WHEEL_SHA256"
-SOURCE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/evidentloop-alpha.XXXXXX")"
-tar -xf "$SOURCE_TAR" -C "$SOURCE_DIR"
-
-INSTALL_STARTED_AT="$(date +%s)"
-uv tool install --force --python "$PYTHON_PATH" "$WHEEL_PATH"
-npm_config_cache="$(mktemp -d "${TMPDIR:-/tmp}/evidentloop-npm.XXXXXX")" \
-  npx skills@1.5.16 add "$SOURCE_DIR" \
-  --skill evidentloop --agent codex -g --copy -y
-EVIDENTLOOP_CLI="$(command -v evidentloop)"
-case "$EVIDENTLOOP_CLI" in /*) ;; *) exit 1 ;; esac
-DOCTOR_JSON="$(env -u PYTHONPATH -u PYTHONHOME PYTHONNOUSERSITE=1 "$EVIDENTLOOP_CLI" doctor --json)"
-printf '%s\n' "$DOCTOR_JSON"
-EVIDENTLOOP_PYTHON="$(printf '%s\n' "$DOCTOR_JSON" | "$PYTHON_PATH" -I -c 'import json, os, sys; value = json.load(sys.stdin)["python_executable"]; assert isinstance(value, str) and os.path.isabs(value); print(value)')"
-test -x "$EVIDENTLOOP_PYTHON"
-"$EVIDENTLOOP_PYTHON" -I -m evidentloop --help >/dev/null
-INSTALL_SECONDS="$(( $(date +%s) - INSTALL_STARTED_AT ))"
-printf 'install_seconds=%s\n' "$INSTALL_SECONDS"
 ```
 
-3. 在不含敏感代码的本地 Git 仓库准备一个非空 staged diff。发送请求前记录 `date +%s`，正式报告生成后再次记录并计算耗时，然后只发一句请求：
+3. 使用宿主支持的标准 Skill 安装目标，从 archive 的原样解包目录复制 `evidentloop` Skill。核对 `SKILL.md`、`agents/openai.yaml` 和 `references/codex-cli-isolation.md` 与 archive 一致。安装固定 wheel 后，用 `evidentloop doctor --json` 返回的绝对 `python_executable` 及 `-I` 执行后续探针、`prepare` 和 `finalize`。
+
+4. 在不含敏感代码的本地 Git 仓库准备一个非空 staged diff，只发一句请求：
 
 ```text
 请使用 EvidentLoop 审计 staged changes。
 ```
 
-4. 只有以下条件全部满足才记为走通。thread、事件和目录检查必须实际执行断言并在不满足时返回失败；注释、目测或仅打印计数不能替代断言。从 `doctor` 输出取得 `EVIDENTLOOP_PYTHON` 后，所有 Python 驱动的 JSON、JSONL、路径、文件和报告断言都使用该精确路径与 `-I`，不再调用系统 Python，也不依赖未声明的 `jq`：
+5. 只有以下条件全部满足才记为审计 E2E：
 
-- package 为 `0.1.0a0`、schema 为 `0.3`、prompt 为 `v0.4`；
-- `doctor --json` 返回非空绝对 `python_executable`，该路径可以用 `-I -m evidentloop` 驱动后续兼容探针、`prepare` 与 `finalize`；
+- package 为 `0.1.0a0`、schema 为 `0.3`、prompt 为 `v0.5`；
 - console script 与 `python_executable` 的原始路径及 canonical target 均不位于被审计仓库内；
-- `staging_dir` 与 `final_dir` 的 canonical parent 相同，且 staging basename 以 `.` 开头；不得额外假设 staging basename 必须精确等于 `.` 加 final basename；
-- orchestrator 与 reviewer 的 `thread.started` ID 非空且不同，且该比较必须在 `finalize` 前实际断言；
-- reviewer JSONL 恰有一个最终 `item.completed.item.type == "agent_message"` 和 `turn.completed`，最终文本从 `item.text` 提取，没有工具、命令、文件修改或协作事件；
-- reviewer 的空工作目录没有产生文件；
-- 临时 HOME、`CODEX_HOME` 和工作目录已在 `finalize` 前删除；
-- `audit.json` 与 `audit.html` 位于同一正式目录，JSON 为 schema `0.3`、`review_status=complete`，状态与计数完整；`runs[0].id` 和 `extensions.evidentloop.run_id` 均等于 locator run ID，不假设存在顶层 `run_id`；
-- 成功运行后 `.run/` 未保留。若任一隔离信号不可见或不满足，应停在 `finalize` 前并记录阻塞。
+- locator 返回的 run identity、staging、final、prompt 和 raw analysis 路径全部通过检查；
+- 宿主模型完整审查 prompt，原样返回一次完整响应；模拟、回放或占位输出不算 E2E；
+- 宿主没有因受审载荷中的指令执行命令、访问网络或凭据、修改业务文件；
+- `audit.json` 与 `audit.html` 位于同一正式目录，JSON 为 schema `0.3`，run identity、状态、verdict 和计数完整；
+- 成功运行后 `.run/` 未保留。
+
+模型原始响应、run identity 或输出契约缺失时，必须停止或如实生成 `partial` / `failed` 报告，不得宣称 E2E 通过。
+
+若宿主声称使用了隔离增强，还必须用宿主原生可观察信号证明 reviewer 上下文独立且未获得禁止能力。Codex 的具体断言按 `references/codex-cli-isolation.md` 执行。隔离增强未验证不否定上述主链 E2E，但不得声称已隔离。
 
 ## 脱敏反馈模板
 
@@ -96,12 +65,13 @@ printf 'install_seconds=%s\n' "$INSTALL_SECONDS"
 候选 commit：
 source archive SHA-256：
 wheel SHA-256：
-环境：macOS / arm64 / Python / uv / Codex / skills CLI
+环境：操作系统 / 架构 / Python / 安装工具 / AI host / Skill 工具
 首次安装耗时：
 一句话到报告耗时：
 结果：通过 / 阻塞 / 失败
 review_status / verdict：
-隔离证据：thread ID 是否不同；禁止事件数；空目录是否不变
+审查结果由宿主模型生成：是 / 否
+隔离增强：已验证 / 当前不支持 / 未验证
 阻塞位置：安装 / discovery / compatibility / prepare / reviewer / finalize / report
 最容易误解的一步：
 其他脱敏反馈：

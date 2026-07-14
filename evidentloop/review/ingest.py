@@ -1,8 +1,8 @@
 """Host-integrated ingest pipeline: raw analysis → ReviewResult.
 
 This module owns the post-reviewer path for host-integrated mode.
-The host executes the canonical prompt in an isolated context and passes
-the raw analysis text back. This module runs normalizer + adjudicator
+The host executes the canonical prompt with its available LLM context and
+passes the raw analysis text back. This module runs normalizer + adjudicator
 to produce a standard ReviewResult without calling an LLM.
 """
 
@@ -35,7 +35,7 @@ def run_ingest(
 ) -> ReviewResult:
     """Run the ingest pipeline for host-integrated review.
 
-    The host has already executed the canonical prompt in an isolated context.
+    The host has already given the canonical prompt to its model for review.
     This function takes the raw analysis text and produces a ReviewResult
     by running normalizer + adjudicator. No LLM call is made.
 

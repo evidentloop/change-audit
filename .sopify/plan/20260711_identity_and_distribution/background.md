@@ -66,4 +66,4 @@
 - 双分支漂移：manifest 绑定准确 `source_commit`；不一致即阻断发布。
 - 公开证据泄露本地信息：push 前执行路径、密钥、raw output 与个人信息扫描。
 - evidence branch 不减少 Git 对象总量：当前目标是默认树和认知隔离，不宣称解决 clone 体积。
-- 宿主边界漂移：产品按能力接入 AI host，但当前通用契约、Codex 验证信号和外部试跑口径存在混写。收口时只分清三层责任：宿主负责隔离审查，Skill 在 `finalize` 前 fail closed，Python runtime 只校验收到的审查结果与正式产物；不新增宿主 adapter、模型 SDK 或隔离证明协议。
+- 宿主边界漂移：产品按能力接入 AI host，通用契约、Codex 验证信号和外部试跑口径曾存在混写。收口后只保留一条 `prepare -> host review -> finalize` 主链；宿主能建立并确认独立 reviewer 时使用隔离增强，Python runtime 只校验审查结果与正式产物。不新增宿主 adapter、模型 SDK、隔离证明协议或两种产品模式。
