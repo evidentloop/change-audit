@@ -15,9 +15,9 @@
 - `evidentloop.schemas` / `evidentloop.validation`：唯一 JSON Schema 2020-12 契约和跨对象语义校验。
 - `evidentloop.renderers.html`：只消费完整 `audit.json`，输出自包含 `audit.html`。
 - Python CLI：通过 console script 提供 doctor、demo、prepare、finalize 和 render；uv/pipx 负责隔离安装、升级与卸载。
-- `skills/evidentloop`：静态薄 Skill，负责发现用户意图、授权、宿主 LLM 调用和阶段编排，不复制确定性业务逻辑，也不动态下载 prompt 或脚本。
+- `skills/evidentloop`：静态薄 Skill，负责发现用户意图、授权、宿主 LLM 调用和阶段编排；主 `SKILL.md` 保持宿主无关，已验证的宿主专属步骤放在一层 `references/` 中按需加载，不复制确定性业务逻辑，也不动态下载 prompt 或脚本。
 
-确定性 runtime 不包含模型 SDK、provider/API key 配置或 standalone reviewer；AI host 是真实审查的主要模型执行面。Skill 只保留必要编排说明和展示元数据，不把审计内核、宿主 adapter 或模型调用脚本平铺进 `references/`。
+确定性 runtime 不包含模型 SDK、provider/API key 配置或 standalone reviewer；AI host 是真实审查的主要模型执行面。Skill 只保留必要编排说明和展示元数据；`references/` 只承载按需加载的宿主验证 profile，不放审计内核、宿主 adapter 或模型调用脚本。
 
 ## Artifact profile 放行门禁
 
@@ -161,5 +161,7 @@ Renderer 使用共同外壳展示 status、verdict、summary、findings、eviden
 PyPI package/CLI 是唯一 runtime 与产品版本真相源。静态 Skill 不维护独立语义版本，但必须声明兼容的 CLI/schema/prompt 范围，并在 `prepare` 前 fail closed；Skill 协议变化必须与对应 package release、不可变 Git tag 和安装 smoke 同步。
 
 标准 Skill 目录是生态发现入口。发布检查使用 `skills@latest` 从仓库嵌套目录安装并核对辅助文件完整性；skills CLI 负责报告实际安装目标，`doctor` 不自研宿主 adapter 或通用发现扫描。产品不预设 Codex、Qoder 或其他宿主；支持表只区分安装兼容与真实端到端已验证，后者必须完成 `Skill discovery -> isolated review -> finalize`。
+
+通用宿主契约只描述结果：独立 reviewer 以完整 prompt 作为唯一任务输入，不继承开发上下文，不具备 shell、网络、凭据读取或业务写权限，并原样返回一次完整响应；任一条件无法确认时必须在 `finalize` 前停止。thread ID、事件日志和临时目录是宿主专属证据映射。隔离不进入 `audit.json`，Python runtime 和 renderer 只把模型结果标记为宿主语义审查。
 
 发布前验证 clean wheel、console script、demo、doctor、package resources、Skill 嵌套安装和至少一个真实宿主端到端审计；随后创建与 package version 一致的不可变 Git tag，并通过 PyPI Trusted Publishing 发布。GitHub Release 页面可选；GitHub Pages 采用 `audit-evidence/docs`，无需额外前端框架或部署工作流。未经用户授权不创建 tag、Release 或 PyPI 发布。迁移来源仓库在再次授权前保持可用，不删除、不提前归档；EvidentLoop runtime 不读取它。

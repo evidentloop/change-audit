@@ -46,7 +46,7 @@ EvidentLoop 把本地 Git diff 的审查结果整理成经过校验的 `audit.js
 
 ## 快速开始
 
-需要 Git、Python 3.10 或更高版本，以及能够发现 Skill、创建隔离审查上下文的 AI host。
+需要 Git、Python 3.10 或更高版本，以及能够发现 Skill、创建隔离审查上下文的 AI host。EvidentLoop 不绑定宿主；只有完成真实端到端审计的宿主才标记为“已验证”。
 
 ### 公开 Alpha 路径
 
@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` 使用 wheel 内合成 Git 变更与固定 reviewer replay，不访问模型或网络；终端、JSON 和 HTML 都会明确标记该 provenance。
 
-本地安装命令与真实审计 E2E 已在 macOS arm64、Codex CLI `0.144.1` 和 `0.144.3` 的隔离 HOME 中验证。两次验证都使用无工具事件的独立 reviewer thread 并生成正式报告对；`0.144.1` 的已知缺陷样本得到精确锚定的 finding，`0.144.3` 的外部样本如实得到 inconclusive。Codex 支持以可观察的隔离能力为门禁，不精确锁定 CLI 版本。
+上面的最后一条安装命令是已验证的 Codex 示例；其他宿主使用自身支持的 Skill 安装目标。Codex CLI `0.144.1` 和 `0.144.3` 已在 macOS arm64 完成真实审计 E2E。宿主专属证据和当前兼容状态见 [AI host 集成](./docs/ai-host-integration.md)。
 
 进入要审计的 Git 仓库后，对宿主说：
 
@@ -168,7 +168,7 @@ Locator 契约、失败处理、prompt 数据边界与安装授权规则见 [AI 
 | console script、`doctor` 与离线合成 replay `demo` | 本地已实现；尚未发布到 PyPI |
 | 自动修复、执行命令、消费反馈 | 首个公开 Alpha 不支持 |
 | PyPI、release tag、公开 Pages | 尚不可用 |
-| 标准 Skill 安装 | 本地 checkout 安装、Codex discovery 与真实审计 E2E 已验证；远程发布安装尚不可用 |
+| 标准 Skill 安装 | 本地 checkout 与 Codex E2E 已验证；Qoder 已试跑机械链路，隔离审查 E2E 未验证；远程发布安装尚不可用 |
 
 当前公开审查目标只有 Git diff。其他 artifact profile 必须具备独立 adapter、可信 anchor、评测基线和 renderer 契约后，才能成为正式能力。
 

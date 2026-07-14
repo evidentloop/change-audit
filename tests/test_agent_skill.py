@@ -14,6 +14,10 @@ def _skill_text() -> str:
     return (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 
 
+def _codex_profile_text() -> str:
+    return (SKILL_DIR / "references/codex-cli-isolation.md").read_text(encoding="utf-8")
+
+
 def test_frontmatter_and_ui_metadata_text_contract() -> None:
     text = _skill_text()
     _, frontmatter, body = text.split("---", 2)
@@ -29,22 +33,19 @@ def test_frontmatter_and_ui_metadata_text_contract() -> None:
     assert len(text.splitlines()) < 500
 
 
-def test_positive_and_negative_trigger_examples_text_contract() -> None:
+def test_trigger_scope_stays_in_frontmatter() -> None:
     text = _skill_text()
+    _, frontmatter, body = text.split("---", 2)
+    description = yaml.safe_load(frontmatter)["description"]
     for phrase in (
-        "帮我用 evidentloop 审计最近的本地改动",
-        "审计 staged changes",
-        "Use evidentloop to audit",
-        "Review this local diff with evidentloop",
+        "staged/unstaged",
+        "审计本地改动",
+        "audit changes",
+        "ordinary prose review",
+        "generic PR review",
     ):
-        assert phrase in text
-    for phrase in (
-        "帮我润色这份 review 文档",
-        "解释一下这个函数",
-        "review this paragraph for grammar",
-        "summarize the PR discussion",
-    ):
-        assert phrase in text
+        assert phrase in description
+    assert "## Trigger acceptance examples" not in body
 
 
 def test_host_security_and_public_command_text_contract() -> None:
@@ -67,7 +68,12 @@ def test_host_security_and_public_command_text_contract() -> None:
     assert "native one-argument quoting" in text
     assert "never concatenate or interpolate raw user-controlled text" in text
     assert "fresh isolated reviewer context" in text
-    assert "Do not grant the reviewer shell execution" in text
+    assert "host's native controls" in text
+    assert "only task-specific input" in text
+    assert "received no task-specific input besides the complete prompt" in text
+    assert "one complete final text response" in text
+    assert "not part of the product protocol" in text
+    assert "shell execution, network access, secret access, or write access" in text
     assert "Write the reviewer's exact text, unedited" in text
     assert "never `staging_dir`" in text
     assert "partial` and `failed`" in text
@@ -75,37 +81,50 @@ def test_host_security_and_public_command_text_contract() -> None:
     assert "Python naming, schema, adapter, validation or rendering logic" in text
 
 
-def test_codex_isolation_recipe_text_contract() -> None:
-    text = _skill_text()
-    assert "Codex CLI 0.144.1 isolation recipe" in text
-    assert "ordinary collaboration subagent" in text
-    assert "--ephemeral --ignore-user-config --ignore-rules --strict-config" in text
-    assert "-s read-only" in text
-    assert "-c 'tools={}'" in text
-    assert "writable ephemeral `CODEX_HOME`" in text
-    assert "Copy only `auth.json`" in text
-    assert "SSL_CERT_FILE=<SYSTEM_CA_FILE>" in text
-    assert "`thread.started` ID different from the orchestrator ID" in text
-    assert "`command_execution`, `file_change`, or `collab_tool_call`" in text
-    assert "exactly one final `agent_message`" in text
-    assert "`turn.completed`" in text
-    assert "Remove the temporary HOME, `CODEX_HOME`, and working directory" in text
-    assert "a cleanup failure is a blocker" in text
-    assert "If any check fails, stop before `finalize`" in text
-    assert "the exact heading `## Section 1: Findings`" in text
+def test_codex_isolation_profile_is_loaded_conditionally() -> None:
+    skill_text = _skill_text()
+    profile_text = _codex_profile_text()
+    assert "[the Codex CLI isolation profile](references/codex-cli-isolation.md)" in skill_text
+    assert "When using the verified Codex CLI path" in skill_text
+    for codex_only_text in (
+        "CODEX_HOME",
+        "SSL_CERT_FILE",
+        "--ephemeral",
+        "thread.started",
+    ):
+        assert codex_only_text not in skill_text
+    assert "# Codex CLI isolation profile" in profile_text
+    assert "verified with Codex CLI `0.144.1` and `0.144.3`" in profile_text
+    assert "does not define requirements for other hosts" in profile_text
+    assert "ordinary collaboration subagent" in profile_text
+    assert "--ephemeral --ignore-user-config --ignore-rules --strict-config" in profile_text
+    assert "-s read-only" in profile_text
+    assert "-c 'tools={}'" in profile_text
+    assert "writable ephemeral `CODEX_HOME`" in profile_text
+    assert "Copy only `auth.json`" in profile_text
+    assert "SSL_CERT_FILE=<SYSTEM_CA_FILE>" in profile_text
+    assert "`thread.started` ID different from the orchestrator ID" in profile_text
+    assert "`command_execution`, `file_change`, or `collab_tool_call`" in profile_text
+    assert "exactly one final `agent_message`" in profile_text
+    assert "`turn.completed`" in profile_text
+    assert "Remove the temporary HOME, `CODEX_HOME`, and working directory" in profile_text
+    assert "a cleanup failure is a blocker" in profile_text
+    assert "If any check fails, stop before `finalize`" in profile_text
+    assert "the exact heading `## Section 1: Findings`" in skill_text
 
 
-def test_wave43_dogfood_gate_text_contract() -> None:
+def test_pre_finalize_host_gate_text_contract() -> None:
     text = _skill_text()
+    codex_profile = _codex_profile_text()
     assert "every remaining Python-driven step" in text
     assert "every Python-driven compatibility probe, JSON/JSONL parser" in text
     assert "Never substitute an unverified system `python3`" in text
     assert "canonical parent of `staging_dir` equals the canonical parent of `final_dir`" in text
     assert "This is the complete hidden-sibling gate" in text
     assert "do not require its basename to equal `.` plus the final basename" in text
-    assert "Before invoking `finalize`" in text
-    assert "a comparison performed after `finalize` does not satisfy this gate" in text
-    assert "Invoke `finalize` only after all pre-finalize assertions and cleanup pass" in text
+    assert "Before `finalize`, use the host's native controls" in text
+    assert "a comparison performed after `finalize` does not satisfy this gate" in codex_profile
+    assert "Invoke `finalize` only after all pre-finalize assertions and cleanup pass" in codex_profile
 
 
 def test_install_authority_and_fixed_version_text_contract() -> None:

@@ -2,7 +2,7 @@
 
 目录：`.sopify/plan/20260711_identity_and_distribution/`
 
-> Wave 0 至 Wave 3 的本地实现与门禁、Wave 4.1 clean 本地产物安装和 Wave 4.2 Codex 真实审计 E2E 已完成。`7d0bef6` 已修复 Python 安装与 Skill runtime discovery 缺口，但用户认可的无维护历史 AI 外部试用者两次 strict 尝试又分别暴露 post-doctor 解释器、hidden-sibling 语义和 pre-finalize thread 比较问题。`2cb03af` 只明确这三个已有 Skill gate 并增加静态契约测试；新固定产物已生成，Python runtime、schema 和 prompt 未改。4.3 等待用户复跑，4.4 未开始。Wave 6 发布 checkpoint 通过前不得改名远端 repository、购买域名、配置 PyPI、push tag、发布或启用 Pages。分支实现的 commit/push 由用户单独授权，不等同于发布授权。
+> Wave 0 至 Wave 3 的本地实现与门禁、Wave 4.1 clean 本地产物安装和 Wave 4.2 Codex 真实审计 E2E 已完成。`2cb03af` 固定候选的 Qoder 外部试跑通过 provenance、安装和机械链路，但宿主无法提供可验证的独立 reviewer，且在门禁缺失后错误执行了 `finalize`；本次只作为受限兼容性证据，4.3 保持未完成。宿主无关契约与报告中的无证据隔离声明已完成最小纠偏并通过 328 项 Python 测试、Ruff 与 JavaScript 测试；待提交后冻结新候选复跑。schema `0.3` 和 prompt `v0.4` 不变，4.4 未开始。Wave 6 发布 checkpoint 通过前不得改名远端 repository、购买域名、配置 PyPI、push tag、发布或启用 Pages。分支实现的 commit/push 由用户单独授权，不等同于发布授权。
 
 ## Wave 0：身份与注册风险门禁（最高优先级）
 
@@ -35,15 +35,16 @@
 ## Wave 3：Skill 安装与用户入口
 
 - [x] 3.1 已按宿主能力定义集成边界并建立实测矩阵；Skill 在 `prepare` 前精确要求 package `0.1.0a0`、schema `0.3`、prompt `v0.4`，任一不符即停止。未增加旧版本兼容、迁移器或宿主适配层。
-- [x] 3.2 已用 skills CLI `1.5.16` 在隔离 HOME 中从本地 checkout 完成用户级 copy 安装；默认递归找到嵌套 Skill，`SKILL.md` 与 `agents/openai.yaml` 完整一致。Codex CLI `0.144.1` 的 `skills/list` 将其识别为启用的用户级 Skill，且无解析错误。
+- [x] 3.2 已用 skills CLI `1.5.16` 在隔离 HOME 中从本地 checkout 完成用户级 copy 安装；默认递归找到嵌套 Skill，`SKILL.md`、`agents/openai.yaml` 与 `references/codex-cli-isolation.md` 完整一致。Codex CLI `0.144.1` 的 `skills/list` 将其识别为启用的用户级 Skill，且无解析错误。
 - [x] 3.3 中英文 README 已收敛为公开发布目标路径与当前本地 Alpha 路径；补齐 uv 主路径、pipx fallback、诊断、更新/卸载和高级人工入口，并明确 PyPI、远程 Skill 与 Pages 当前尚不可用。
+- [x] 3.4 主 `SKILL.md` 只保留宿主无关流程；Codex CLI 的已验证路径迁入一层 reference 并按需读取。未增加执行面清单、宿主注册表或 adapter。
 
 ## Wave 4：本地集成与外部试跑
 
 - [x] 4.1 已从 `e05db14` 的 clean source archive 构建 sdist/wheel；macOS arm64、Python 3.11.15 下 wheel × uv 0.11.28 与 sdist × pipx 1.15.0 均隔离安装成功。安装后在先证明拒绝网络连接的 macOS sandbox 中完成 CLI、module entry、兼容探针、doctor、demo、6 类 package resources 与 demo provenance 验证；wheel SHA-256 为 `e01b4cda…d650b`，sdist SHA-256 为 `b07a61a7…824a`。
 - [x] 4.2 macOS arm64、Python 3.11.15、Codex CLI `0.144.1` 的全新 HOME 已用本地 wheel 与复制安装的 Skill 完成一句话真实审计。独立 reviewer thread 与 orchestrator thread 不同；除 thread/turn 生命周期事件外，JSONL 仅有一个最终 `agent_message`，无工具、命令、文件修改或协作事件。最终报告为 `complete / concerns`，风险分 40，`billing.py:3` 精确锚定 1 条 high finding，`.run/` 已清理。canonical `Where` 与精确 section heading 已冻结在 prompt `v0.4`，未修改 demo fixture；文档收口后的 clean 候选 wheel SHA-256 为 `3c108b40…1370a`，sdist 为 `4623350b…dded8`，其 wheel runtime 文件与 E2E 实测 wheel 完全一致。
-- [ ] 4.3 用固定 `2cb03af` source archive、`6dc755a7…50b3d` wheel 与同 archive Skill，由用户按 `docs/alpha-trial.md` 重新走通首次安装与一句话审计，记录环境、耗时、阻塞、误解与脱敏反馈。上一候选的固定 provenance、安装、discovery 与 transport 均通过，但 attempt 1 在生成 `complete / inconclusive` 报告后才发现 post-doctor 解释器和 pre-finalize thread gate 未执行，唯一重试又因错误收窄 hidden-sibling 断言而停在 prepare 后；这些事实保持 strict failure。新候选只明确三个已有 gate，runtime、schema 和 prompt 未改。不收集源码，不要求 evidence worktree 或公开发布。
-- [ ] 4.4 仅在 4.3 通过后，根据 4.2-4.3 收口 CLI、Skill 与文档，并重跑 clean candidate、完整测试和修改后的真实宿主 smoke。既有 Python `327 passed`、Ruff、feedback JavaScript、Markdown shell 语法、diff check、本地隔离 wheel build 和维护者宿主 smoke 只作为前置基线，不能替代本项验收。当前未开始。
+- [ ] 4.3 由外部执行者在一个满足通用隔离契约的 AI host 上，使用同一固定候选走通首次安装与一句话审计，并记录环境、耗时、阻塞、误解与脱敏反馈。`2cb03af` 的 Qoder 试跑只证明固定 provenance、安装、doctor、prepare/finalize 机械链路和产物 identity；独立 reviewer 无法验证，缺失门禁后仍执行 `finalize`，因此不是正式 E2E。最小纠偏已完成，待提交并冻结新候选；Qoder 不作为首个 Alpha 的必选支持宿主，所有宿主仍只按真实 E2E 声明“已验证”。不收集源码，不要求 evidence worktree 或公开发布。
+- [ ] 4.4 仅在 4.3 通过后，根据 4.2-4.3 收口 CLI、Skill 与文档，并重跑 clean candidate、完整测试和修改后的真实宿主 smoke。既有 Python `328 passed`、Ruff、feedback JavaScript、Markdown shell 语法、diff check、本地隔离 wheel build 和维护者宿主 smoke 只作为前置基线，不能替代本项验收。当前未开始。
 
 ## Wave 5：evidence worktree 与 Pages
 

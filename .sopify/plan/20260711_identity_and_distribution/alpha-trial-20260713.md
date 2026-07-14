@@ -68,7 +68,16 @@
 - 清理与证据：两次 trial 的 HOME、`CODEX_HOME`、样本仓库、source、cache 与 reviewer 临时目录均已删除；原始 JSONL、报告副本和机器摘要保存在本地固定产物证据目录，不含认证内容，未 commit/push。
 - 结论：4.3 strict 验收不通过且本轮不再重试。已决定只明确 post-doctor verified Python、hidden-sibling 与 pre-finalize thread 三个已有 Skill gate；`7d0bef6` 因 Skill 变化不再作为下一轮候选。不得把本轮失败改写为通过，也不得进入 4.4。
 
-## 当前固定候选与剩余门禁
+## `2cb03af` Qoder 外部试跑：机械链路通过，隔离审查阻塞
+
+- 环境：macOS `15.6.1`（`24G90`）/ arm64 / Python `3.11.15` / uv `0.11.28` / Codex CLI `0.144.3` / skills CLI `1.5.16`；实际执行宿主为 Qoder。
+- provenance：source commit、archive SHA-256 与固定 wheel SHA-256 全部匹配；首次安装 `3` 秒，一句话到诊断产物 `86` 秒。
+- 已验证：doctor 返回仓库外绝对解释器；package `0.1.0a0`、schema `0.3`、prompt `v0.4`；prepare locator、hidden sibling、run identity、finalize 机械链路、正式目录和 `.run/` 清理均符合预期。
+- 阻塞：Qoder 未提供可验证的独立 reviewer identity、单一最终响应事件、禁止工具事件与临时 reviewer 环境。执行者已识别该限制，却仍写入 raw analysis 并调用 `finalize`，违反现有 Skill 的 pre-finalize fail-closed 规则。
+- 诊断产物：`partial / inconclusive`，不能作为真实审计 E2E。执行者把 `raw_findings_count=0` 归因于 `**f-001**`，但候选 parser 与测试明确支持独立行加粗编号；`pack_completeness=0.65` 由 ReviewPack 内容计算，只影响 advisory verdict，不决定 `review_status`。未保留可复核 raw output，因此实际解析缺口未知。
+- 结论：本次作为 Qoder 受限兼容性证据，4.3 保持待办。后续纠偏不新增宿主 adapter、模型 SDK 或隔离证明协议；产品只分清通用能力契约、宿主证据映射和 Python runtime 责任。
+
+## `2cb03af` 已退役候选
 
 - source commit：`2cb03afe5d8269b16a2a61541470fe5755974347`
 - source archive：`source-2cb03af.tar`
@@ -77,13 +86,14 @@
 - 固定 wheel SHA-256：`6dc755a75a055dd90c93d4e60498742a3537cc98d2cdbad84dcdd70089650b3d`
 - Skill 必须从该 source archive 复制，其 SHA-256 为 `708f7001f7cfc77416f3ccc6779c429008b70b6192f3bb476be8350ef0e8d723`。外部试用者必须安装上述固定 wheel 原件，不得现场重建或静默替换 SHA。
 - 新 wheel 的 `37` 个 ZIP entry 与 `7d0bef6` 原冻结 wheel 内容完全一致；变化仅在 source archive 内的 Skill 和静态契约测试，不把本次修复扩张成 runtime 变更。
-- 产品通用契约只要求 AI host 创建使用自身模型能力的隔离 reviewer 上下文。独立 `codex exec` 仅是 Codex 专项隔离步骤；其他宿主只能使用满足相同可观察隔离门禁的原生能力，Python 包不连接模型，也不包含模型 SDK 或 API key。
-- 4.3 已取得独立 AI 试用反馈但 strict gate 未通过；下一步由用户使用上述新固定产物重新执行 4.3。4.4 未开始。
+- 独立 `codex exec` 只是一种宿主证据映射，不是产品通用协议。其他宿主使用自身原生能力满足通用隔离契约；Python 包不连接模型，也不包含模型 SDK 或 API key。
+- 4.3 已取得独立 AI 试用反馈但 strict gate 未通过。当前纠偏修改 source 与 wheel，以上固定值只保留为历史 provenance；冻结新候选前不得继续执行公开复跑清单。4.4 未开始。
 
 ## Wave 4.4 前置证据（尚未进入 4.4）
 
 - 既有基线：Python `327 passed`、Ruff、feedback JavaScript、Markdown shell 语法、diff check、本地隔离 wheel build 与维护者真实宿主 smoke 曾通过；这些结果只作为进入 4.4 前的参考，不能在 4.3 strict failure 后冒充 4.4 验收。
-- 本轮修改：只明确 Skill 的三个既有执行门禁、增加对应静态契约测试并同步试跑文档；Python runtime、prompt、schema 和 AI host 通用集成契约均未修改。
+- 当前纠偏：明确通用宿主契约与 Codex 证据映射，移除 Python runtime 对 reviewer 已隔离的默认假设和报告文案；不修改 prompt `v0.4`、schema `0.3`、normalizer 或模型执行边界。
+- 当前验证：Python `328 passed`、Ruff、feedback JavaScript 和 diff check 通过；未生成或冒充新的固定候选。
 - 4.4 状态：未开始。只有 4.3 通过并完成相应 CLI/Skill/文档收口后，才重跑 clean candidate、完整测试和修改后的真实宿主 smoke。
 
 ## 已退役的最小复跑候选

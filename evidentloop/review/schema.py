@@ -221,7 +221,7 @@ class ReviewerMeta:
     """Reviewer metadata. v0-scope.md §7 ReviewResult.reviewer."""
     type: Literal["fresh_llm"] = "fresh_llm"  # host-integrated reviewers also use fresh_llm; execution path differs, not reviewer type
     model: str = ""
-    session_isolated: bool = True
+    session_isolated: bool | None = None  # host claim only; the Python runtime cannot verify isolation
     failure_reason: ReviewerFailureReason | None = None
     raw_analysis: str | None = None    # audit trail — reviewer's free-form analysis text
     latency_sec: float | None = None
@@ -703,7 +703,7 @@ def review_result_from_dict(data: dict[str, Any]) -> ReviewResult:
     reviewer = ReviewerMeta(
         type=reviewer_data.get("type", "fresh_llm"),
         model=reviewer_data.get("model", ""),
-        session_isolated=reviewer_data.get("session_isolated", True),
+        session_isolated=reviewer_data.get("session_isolated"),
         failure_reason=(
             ReviewerFailureReason(reviewer_data["failure_reason"])
             if reviewer_data.get("failure_reason")

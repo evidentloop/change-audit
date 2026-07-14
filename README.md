@@ -46,7 +46,7 @@ Their `audit.json` and `audit.html` files retain the original schema `0.2` and p
 
 ## Quick start
 
-Requirements: Git, Python 3.10 or newer, and an AI host that can discover the Skill and create an isolated reviewer context.
+Requirements: Git, Python 3.10 or newer, and an AI host that can discover the Skill and create an isolated reviewer context. EvidentLoop does not bind to a host; compatibility is declared only after a host completes the real end-to-end workflow.
 
 ### Public Alpha path
 
@@ -90,7 +90,7 @@ npx skills@latest add . --skill evidentloop --agent codex -g --copy
 
 `demo` uses a bundled synthetic Git change and frozen reviewer replay. It does not access a model or the network, and its terminal, JSON, and HTML outputs explicitly mark that provenance.
 
-The local installer command and real audit E2E were verified in isolated HOME environments with Codex CLI `0.144.1` and `0.144.3` on macOS arm64. Both runs used a separate reviewer thread with no tool events and produced formal report pairs; the known-defect `0.144.1` sample produced an exactly anchored finding, while the external `0.144.3` sample truthfully completed as inconclusive. Codex support is gated by observable isolation capabilities, not an exact CLI version.
+The final install command above is the verified Codex example; other hosts use their supported Skill installation target. Codex completed the real audit E2E on macOS arm64 with CLI `0.144.1` and `0.144.3`. Host-specific evidence and current compatibility status are recorded in [AI host integration](./docs/ai-host-integration.md).
 
 Then, inside the Git repository to inspect, ask the host:
 
@@ -168,7 +168,7 @@ See [AI host integration](./docs/ai-host-integration.md) for the locator contrac
 | Console script, `doctor`, and offline synthetic replay `demo` | Implemented locally; not published to PyPI |
 | Automatic fixes, command execution, or feedback ingestion | Not supported in the first public Alpha |
 | PyPI, release tag, or public Pages | Not available |
-| Standard Skill installation | Local checkout install, Codex discovery, and Codex real audit E2E verified; remote release install unavailable |
+| Standard Skill installation | Local checkout and Codex E2E verified; Qoder mechanical path trialed, isolated review E2E not verified; remote release install unavailable |
 
 The current public audit target is a Git diff. Additional artifact profiles require their own adapter, trusted anchors, evaluation baseline, and renderer contract before they can become supported review targets.
 

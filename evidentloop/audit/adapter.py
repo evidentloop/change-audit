@@ -283,7 +283,7 @@ def build_audit_graph(
             "type": "evidence",
             "source": "host_llm",
             "status": "fail",
-            "summary": f"隔离宿主审查结论：{review_finding.summary}",
+            "summary": f"宿主语义审查结论：{review_finding.summary}",
             "detail": review_finding.detail,
         }
         nodes.append(evidence_node)

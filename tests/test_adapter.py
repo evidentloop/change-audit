@@ -138,6 +138,9 @@ def test_exact_bug_uses_only_trusted_hunk_and_stable_fingerprint() -> None:
     assert finding["hunk"] == HUNK
     assert finding["highlight_lines"] == [1]
     assert finding["line_side"] == "new"
+    evidence = next(item for item in audit["nodes"] if item["type"] == "evidence")
+    assert evidence["source"] == "host_llm"
+    assert evidence["summary"].startswith("宿主语义审查结论：")
     assert not any(node["type"] == "fix" for node in audit["nodes"])
 
 

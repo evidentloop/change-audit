@@ -65,6 +65,7 @@ def test_reference_demo_renders_full_dual_line_hunks_and_trace() -> None:
     assert "data-feedback-severity" in html
     assert "data-feedback-export" in html
     assert "audit-feedback.jsonl" in html
+    assert "<td>宿主语义审查</td>" in html
     assert html.index('class="panel findings-section"') < html.index(
         'class="panel feedback-toolbar"'
     )

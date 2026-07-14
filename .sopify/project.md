@@ -19,9 +19,10 @@
 - 模板：Jinja2；CSS 和 JS 作为 package resources 维护并内联到自包含 HTML。
 - 入口：零安装预览使用 GitHub Pages，临时试用使用 `uvx evidentloop demo`，正式安装使用 `uv tool install evidentloop`（或 pipx）与标准 skills CLI；安装后由 AI host 自然语言触发。`evidentloop prepare/finalize/render` 是稳定集成入口，`python -m evidentloop` 保留为开发与诊断入口。
 - 宿主边界：产品 runtime 不执行模型；真实语义输出由外部 AI host/LLM 提供。Python 包不集成模型 SDK，也不读取 provider/API key 配置。
+- 隔离边界：独立 reviewer 是宿主在 `finalize` 前负责的流程条件；宿主专属 thread 或事件只作为验证证据。Python runtime 不证明隔离，正式产物统一称“宿主语义审查”。
 - Prompt provenance：prepare 冻结 product prompt `source="product"`、version `v0.4` 与 hash，finalize 校验 prompt 文件及当前契约后再 ingest；跨进程版本漂移或 prompt 篡改不得冒充原版本完成。
 - Reviewer payload：Git 文本 diff 不携带 `GIT binary patch`；binary 文件保留路径/change_type 元数据，视觉内容明确不在一期文本审查范围。
-- 集成形态：PyPI 包是唯一 runtime 与产品版本真相源；同仓库 `skills/evidentloop/` 是静态薄编排层；GitHub Pages 提供零安装预览。产品不自研 npm launcher、跨平台独立二进制、宿主 adapter 框架或模型 provider 层。
+- 集成形态：PyPI 包是唯一 runtime 与产品版本真相源；同仓库 `skills/evidentloop/` 是静态薄编排层，主 `SKILL.md` 只保留宿主无关流程，已验证的宿主专属步骤放在 `references/` 并按需加载；GitHub Pages 提供零安装预览。产品不自研 npm launcher、跨平台独立二进制、宿主 adapter 框架或模型 provider 层。
 - Skill 兼容门禁：公开 Alpha 前精确要求 package `0.1.0a0`、schema `0.3` 与 prompt `v0.4`；任一不符就在 `prepare` 前停止。没有外部用户的预发布版本不增加兼容别名、迁移器或宽松版本区间。
 - 诊断边界：`doctor --json` 返回当前安装环境的实际 `python_executable`，供 Skill 从 PATH 上的 console script 引导同一 runtime；bootstrap 移除 `PYTHONPATH` / `PYTHONHOME` 并禁用 user site，后续 module CLI 使用该绝对路径与 `-I`。非显式 dogfood 时，console 与 interpreter 的原始路径或 canonical target 均不得位于被审计仓库；canonical path 只用于 containment 比较，不替换虚拟环境执行路径。`doctor` 可以提示 `npx` 是否可用，但不扫描宿主私有目录或把文件存在宣称为 Skill discovery；安装异常优先使用标准 skills CLI 与宿主文档诊断。
 - demo fixture：使用 wheel 内独立合成资源，在临时 Git 仓库中复用正式主链；不把真实 dogfood 证据作为运行依赖，也不为 demo 新增 diff 输入协议。

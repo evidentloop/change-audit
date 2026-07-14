@@ -267,7 +267,7 @@ class TestReviewResult:
     def test_reviewer_meta_defaults(self):
         result = ReviewResult()
         assert result.reviewer.model == ""
-        assert result.reviewer.session_isolated is True
+        assert result.reviewer.session_isolated is None
         assert result.reviewer.failure_reason is None
         assert result.reviewer.raw_analysis is None
         assert result.reviewer.prompt_source is None

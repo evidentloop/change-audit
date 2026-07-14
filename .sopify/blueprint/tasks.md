@@ -17,7 +17,7 @@
 
 ## 明确延后
 
-- [-] 在 Qoder 手工完成 EvidentLoop Skill 的模型级正向 smoke；本轮只验证 QoderCLI 启动、临时链接和 Skill discovery。
+- [-] Qoder 固定产物试跑已验证安装与 prepare/finalize 机械链路；独立 reviewer 隔离未验证，不声明真实审计 E2E 支持。
 - [-] 自动修复代码或把审计结果升级为强制策略门禁。
 - [-] 在 Python 包集成模型 SDK、provider/API key 配置或 standalone reviewer；模型执行只由 AI host 承担。
 - [-] 在用户再次授权前归档、删除 CrossReview 仓库或中断旧包可用性。

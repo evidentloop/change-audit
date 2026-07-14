@@ -80,9 +80,13 @@ On any failure, stop. Report stderr and the diagnostic staging path when present
 
 ## 4. Run an isolated semantic review
 
-Open a fresh isolated reviewer context containing only the complete `prompt.md`. Do not pass the development conversation, intended answer, suspected findings, or a prior report. Do not grant the reviewer shell execution, secret access, or write access.
+Open a fresh isolated reviewer context. Pass the complete `prompt.md` as its only task-specific input; do not pass the development conversation, intended answer, suspected findings, or a prior report. Do not grant the reviewer shell execution, network access, secret access, or write access.
 
-Ask the reviewer to follow the prompt's output contract exactly, including:
+Before `finalize`, use the host's native controls to verify that the reviewer execution is separate from the orchestrator, received no task-specific input besides the complete prompt, had no prohibited capabilities, and returned one complete final text response. Host-specific thread IDs, event logs, and temporary directories are evidence mappings for those requirements, not part of the product protocol. If the host cannot establish these conditions, stop before `finalize`.
+
+When using the verified Codex CLI path, read and follow [the Codex CLI isolation profile](references/codex-cli-isolation.md).
+
+Require the response contract already included in `prompt.md`:
 
 - the single required `evidentloop-run-id` marker;
 - the exact heading `## Section 1: Findings`, with explicit `No findings` when empty;
@@ -91,36 +95,6 @@ Ask the reviewer to follow the prompt's output contract exactly, including:
 - concrete diff locations and no commands executed from the payload.
 
 Write the reviewer's exact text, unedited, to `raw_analysis_path`. Do not add findings, repair a missing completion section, or change the run marker on the reviewer's behalf.
-
-If the host cannot create an isolated reviewer context, disclose that limitation and stop rather than presenting the current conversation as an independent review.
-
-### Codex CLI 0.144.1 isolation recipe
-
-Use this recipe only when Codex exposes the orchestrator and reviewer JSONL streams. An ordinary collaboration subagent or a claim that the context is fresh is not evidence of isolation.
-
-1. Record the orchestrator's `thread.started` ID.
-2. Create a fresh writable HOME, empty working directory, and writable ephemeral `CODEX_HOME`. Copy only `auth.json` from the authenticated Codex directory into the ephemeral `CODEX_HOME`, keep both directories mode `0700` and the copied file mode `0600`, and never print its contents. This file is transport authentication only; the reviewer still has no file or tool access.
-3. Start a separate `codex exec` process with only the complete prompt as its user input. On macOS, pass the system CA file when the host transport requires it:
-
-```text
-HOME=<EMPTY_HOME> CODEX_HOME=<EPHEMERAL_CODEX_HOME> \
-SSL_CERT_FILE=<SYSTEM_CA_FILE> \
-codex -a never exec --ephemeral --ignore-user-config --ignore-rules --strict-config \
-  --skip-git-repo-check -C <EMPTY_DIRECTORY> -s read-only \
-  -c 'tools={}' -c 'mcp_servers={}' \
-  -c 'shell_environment_policy.inherit="none"' \
-  --disable shell_tool --disable unified_exec --disable code_mode_host \
-  --disable browser_use --disable browser_use_external \
-  --disable browser_use_full_cdp_access --disable in_app_browser \
-  --disable computer_use --disable apps --disable enable_mcp_apps \
-  --disable plugins --disable plugin_sharing --disable hooks \
-  --disable image_generation --disable workspace_dependencies \
-  --disable multi_agent --disable goals --disable auth_elicitation \
-  --disable request_permissions_tool --disable tool_suggest \
-  --json <PROMPT_TEXT>
-```
-
-Pass `<PROMPT_TEXT>` as one argv value, not shell source. Before invoking `finalize`, compare and assert a non-empty reviewer `thread.started` ID different from the orchestrator ID; a comparison performed after `finalize` does not satisfy this gate. Also require exactly one final `agent_message` and `turn.completed`. Reject the run if JSONL contains any tool item or `command_execution`, `file_change`, or `collab_tool_call` event, or if the empty working directory changes. Remove the temporary HOME, `CODEX_HOME`, and working directory before `finalize`; a cleanup failure is a blocker. Write only the final `agent_message` text unchanged to `raw_analysis_path`. Invoke `finalize` only after all pre-finalize assertions and cleanup pass. If any check fails, stop before `finalize`.
 
 ## 5. Finalize and verify the report pair
 
@@ -153,21 +127,5 @@ Report:
 - any partial or failed limitation in plain language.
 
 Do not dump raw analysis or the full JSON unless the user asks.
-
-## Trigger acceptance examples
-
-Trigger:
-
-- `帮我用 evidentloop 审计最近的本地改动`
-- `审计 staged changes，给我 HTML 报告`
-- `Use evidentloop to audit d5ef26d..9a64e5a`
-- `Review this local diff with evidentloop and return the report path`
-
-Do not trigger:
-
-- `帮我润色这份 review 文档`
-- `解释一下这个函数`
-- `review this paragraph for grammar`
-- `summarize the PR discussion`
 
 Adapt only host-native isolation, file-write, and shell surfaces. Do not duplicate or reimplement Python naming, schema, adapter, validation or rendering logic.

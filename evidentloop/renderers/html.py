@@ -270,7 +270,7 @@ def _build_context(audit: Mapping[str, Any]) -> dict[str, Any]:
             if edge["type"] == "supported_by_evidence" and edge["to"] == node["id"]
         ]
         item["_source_label"] = {
-            "host_llm": "隔离宿主审查",
+            "host_llm": "宿主语义审查",
             "test": "测试",
             "lint": "静态检查",
             "typecheck": "类型检查",

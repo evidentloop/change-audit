@@ -1,22 +1,22 @@
-# EvidentLoop 外部 Alpha 最小复跑清单
+# EvidentLoop Codex Alpha 最小复跑清单
 
 本轮在 macOS arm64、Python 3.11、Codex CLI `0.144.3` 上只复跑首次安装与一句话审计的产物 provenance 和耗时。`0.144.3` 的隔离链路已经验证并纳入支持范围；Codex CLI 版本只记录实测环境，不作为精确门禁，真正门禁是可观察的隔离信号和失败即停止的断言。
 
-这是 Codex 专项 Alpha 验收清单，不是 EvidentLoop 的模型依赖契约。产品通用契约只要求 AI host 创建使用自身模型能力的隔离 reviewer 上下文；其他宿主应使用满足同一可观察门禁的原生隔离能力，不应启动 `codex exec`。Python 包不连接模型，也不包含模型 SDK 或 API key。
+这是 Codex 验证 profile，不是 EvidentLoop 的通用宿主契约。其他宿主按 [AI host 集成](./ai-host-integration.md)中的能力契约使用自身原生隔离能力，不执行这里的 `codex exec` 命令，也不模拟 Codex 事件名。Python 包不连接模型，也不包含模型 SDK 或 API key。
 
-当前固定候选为：
+当前没有可执行候选。`2cb03afe5d8269b16a2a61541470fe5755974347` 固定候选已完成 Qoder 受限试跑；本轮纠偏会修改 source 与 wheel，旧产物不得继续作为当前候选。新 commit、archive 和 wheel 完成后再填入以下值：
 
-- source commit：`2cb03afe5d8269b16a2a61541470fe5755974347`
-- source archive：`source-2cb03af.tar`
-- source archive SHA-256：`eef49d851b981a249978787d2a70f9a19cd49841f3d92e76f430b27a5342b461`
+- source commit：`<NEW_SOURCE_COMMIT>`
+- source archive：`source-<NEW_SOURCE_SHORT_SHA>.tar`
+- source archive SHA-256：`<NEW_SOURCE_ARCHIVE_SHA256>`
 - wheel：`evidentloop-0.1.0a0-py3-none-any.whl`
-- wheel SHA-256：`6dc755a75a055dd90c93d4e60498742a3537cc98d2cdbad84dcdd70089650b3d`
+- wheel SHA-256：`<NEW_WHEEL_SHA256>`
 
 source archive 由上述 commit 直接执行 `git archive` 生成，wheel 从该 archive 的原样解包目录构建。不创建 tag，不使用 PyPI、移动分支或远程 Skill 安装。试用者必须安装维护者提供的固定 wheel 原件；即使现场重建 wheel 的内部文件内容相同，只要 SHA-256 不同，也不能替代上述固定产物。
 
-候选 Skill 中的 Codex 隔离步骤标题保留首次实测版本 `0.144.1`，正文门禁并未比较 CLI 版本；本轮在 `0.144.3` 上执行相同能力探针。标题收口属于 4.4，不改变本次候选产物。
+Skill 中的 Codex 隔离段是宿主专属证据映射，正文门禁不精确比较 CLI 版本。本轮继续在 `0.144.3` 上执行相同能力探针。
 
-截至 2026-07-13，用户已认可无维护历史的 AI 执行者可作为本轮外部试用者，但不把它记录成外部真人可用性研究。上一候选的 attempt 1 在生成报告后才发现 post-doctor 解释器和 pre-finalize thread gate 未执行；attempt 2 因错误收窄 hidden-sibling 断言而在 prepare 后 fail closed。两次均为 strict failure。当前候选只明确这三个已有 Skill gate，等待新的 4.3 复跑。
+截至 2026-07-14，外部 AI 执行者的多次试跑已经验证安装和机械链路，也暴露了 post-doctor 解释器、hidden-sibling 语义、pre-finalize thread 比较和跨宿主隔离边界问题；尚无一次满足全部门禁的外部 E2E。详细记录保存在当前方案证据中。新候选冻结前，本清单不可执行。
 
 ## 试用者执行
 
@@ -39,13 +39,16 @@ npx skills@1.5.16 --version
 ```bash
 set -euo pipefail
 
-SOURCE_COMMIT="2cb03afe5d8269b16a2a61541470fe5755974347"
-SOURCE_TAR="/path/to/source-2cb03af.tar"
-SOURCE_TAR_SHA256="eef49d851b981a249978787d2a70f9a19cd49841f3d92e76f430b27a5342b461"
+SOURCE_COMMIT="<NEW_SOURCE_COMMIT>"
+SOURCE_TAR="/path/to/source-<NEW_SOURCE_SHORT_SHA>.tar"
+SOURCE_TAR_SHA256="<NEW_SOURCE_ARCHIVE_SHA256>"
 WHEEL_PATH="/path/to/evidentloop-0.1.0a0-py3-none-any.whl"
-WHEEL_SHA256="6dc755a75a055dd90c93d4e60498742a3537cc98d2cdbad84dcdd70089650b3d"
+WHEEL_SHA256="<NEW_WHEEL_SHA256>"
 PYTHON_PATH="$(command -v python3.11)"
 
+test "$SOURCE_COMMIT" != "<NEW_SOURCE_COMMIT>"
+test "$SOURCE_TAR_SHA256" != "<NEW_SOURCE_ARCHIVE_SHA256>"
+test "$WHEEL_SHA256" != "<NEW_WHEEL_SHA256>"
 test -n "$PYTHON_PATH"
 test "$(git get-tar-commit-id < "$SOURCE_TAR")" = "$SOURCE_COMMIT"
 test "$(shasum -a 256 "$SOURCE_TAR" | awk '{print $1}')" = "$SOURCE_TAR_SHA256"
