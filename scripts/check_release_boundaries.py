@@ -105,6 +105,15 @@ def _check_archive(path: Path, names: list[str]) -> list[str]:
     return violations
 
 
+def _check_archive_content(path: Path, name: str, content: bytes) -> list[str]:
+    text = content.decode("utf-8", errors="ignore")
+    return [
+        f"{label} in {path.name}: {name}"
+        for label, pattern in SENSITIVE_TEXT_PATTERNS.items()
+        if pattern.search(text)
+    ]
+
+
 def _check_distributions(dist_dir: Path) -> list[str]:
     wheels = sorted(dist_dir.glob("*.whl"))
     sdists = sorted(dist_dir.glob("*.tar.gz"))
@@ -116,7 +125,10 @@ def _check_distributions(dist_dir: Path) -> list[str]:
     wheel = wheels[0]
     with zipfile.ZipFile(wheel) as archive:
         wheel_names = archive.namelist()
-    violations = _check_archive(wheel, wheel_names)
+        violations = _check_archive(wheel, wheel_names)
+        for name in wheel_names:
+            if not name.endswith("/"):
+                violations.extend(_check_archive_content(wheel, name, archive.read(name)))
     wheel_roots = {PurePosixPath(name).parts[0] for name in wheel_names if name}
     if "evidentloop" not in wheel_roots or not any(
         root.startswith("evidentloop-") and root.endswith(".dist-info")
@@ -129,7 +141,14 @@ def _check_distributions(dist_dir: Path) -> list[str]:
     sdist = sdists[0]
     with tarfile.open(sdist, mode="r:gz") as archive:
         sdist_names = archive.getnames()
-    violations.extend(_check_archive(sdist, sdist_names))
+        violations.extend(_check_archive(sdist, sdist_names))
+        for member in archive.getmembers():
+            if member.isfile():
+                stream = archive.extractfile(member)
+                if stream is not None:
+                    violations.extend(
+                        _check_archive_content(sdist, member.name, stream.read())
+                    )
     sdist_roots = {PurePosixPath(name).parts[0] for name in sdist_names if name}
     if len(sdist_roots) != 1 or not next(iter(sdist_roots), "").startswith(
         "evidentloop-"
