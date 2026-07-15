@@ -1,15 +1,15 @@
 {
   "schema_version": "0.3",
-  "graph_id": "audit:run-32b83c1fc4144559a1cef0c3019b4ebf",
+  "graph_id": "audit:run-2c32b3d84bfc442484e9885238bd1103",
   "source": {
     "type": "git_diff",
     "ref": "d6776ca5cb48deaa59426625f3265644dac93f95..81e7b1fbb194e242dc762196d4946e8d6ddef491",
-    "description": "Change Audit 本地 Git diff 审计"
+    "description": "EvidentLoop 本地 Git diff 审计"
   },
   "runs": [
     {
-      "id": "run-32b83c1fc4144559a1cef0c3019b4ebf",
-      "label": "Change Audit 代码变更审计",
+      "id": "run-2c32b3d84bfc442484e9885238bd1103",
+      "label": "EvidentLoop 代码变更审计",
       "status": "inconclusive",
       "summary": "未发现可验证问题。分发边界、Pages 与 release evidence 的职责划分清楚，归档内容扫描及其回归测试补齐了首轮 dogfood 发现的门禁缺口。"
     }
@@ -18,7 +18,7 @@
     {
       "id": "change-001",
       "type": "change",
-      "title": "Change Audit 变更",
+      "title": "EvidentLoop 变更",
       "summary": "共 23 个文件发生变更（+801/-250）。"
     },
     {
@@ -210,7 +210,7 @@
     {
       "id": "edge-001",
       "type": "contains_change",
-      "from": "run-32b83c1fc4144559a1cef0c3019b4ebf",
+      "from": "run-2c32b3d84bfc442484e9885238bd1103",
       "to": "change-001"
     },
     {
@@ -381,12 +381,12 @@
   "extensions": {
     "evidentloop": {
       "profile": "code_diff",
-      "run_id": "run-32b83c1fc4144559a1cef0c3019b4ebf",
+      "run_id": "run-2c32b3d84bfc442484e9885238bd1103",
       "adapter": "gitdiff/v0",
       "reviewer_prompt": {
         "source": "product",
         "version": "v0.5",
-        "sha256": "sha256:bf82b5baa0ad39a6ace064ec41b0e8c4f1e7831956de588b2ee173a0a69cc4ab"
+        "sha256": "sha256:712796147e31bac7abd4288aced6fee97637708a946356eccdad13b6a6e9d788"
       }
     }
   }
