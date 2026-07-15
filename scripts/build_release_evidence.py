@@ -31,6 +31,12 @@ EXPECTED_FILES = {
     "manifest.json",
     "test-summary.json",
 }
+CHECKSUMMED_FILES = (
+    "audit.html",
+    "audit.json",
+    "manifest.json",
+    "test-summary.json",
+)
 SENSITIVE_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(r"/Users/[^/\s]+/"),
@@ -98,6 +104,13 @@ def _resolve_commit(repository: Path, source_commit: str) -> str:
     ).stdout.strip()
     if head != source_commit:
         raise ValueError("source commit must equal the repository HEAD")
+    for command in (
+        ["git", "diff", "--quiet"],
+        ["git", "diff", "--cached", "--quiet"],
+    ):
+        result = subprocess.run(command, cwd=repository, check=False)
+        if result.returncode != 0:
+            raise ValueError("tracked working tree must be clean")
     return resolved
 
 
@@ -179,9 +192,19 @@ def _write_manifest(
 
 
 def _write_checksums(root: Path) -> None:
-    names = ("audit.html", "audit.json", "manifest.json", "test-summary.json")
-    content = "".join(f"{_sha256(root / name)}  {name}\n" for name in names)
+    content = "".join(
+        f"{_sha256(root / name)}  {name}\n" for name in CHECKSUMMED_FILES
+    )
     (root / "checksums.sha256").write_text(content, encoding="utf-8")
+
+
+def _normalize_tar_info(info: tarfile.TarInfo) -> tarfile.TarInfo:
+    info.uid = 0
+    info.gid = 0
+    info.uname = ""
+    info.gname = ""
+    info.mtime = 0
+    return info
 
 
 def _verify_archive(path: Path, root_name: str) -> None:
@@ -198,6 +221,8 @@ def _verify_archive(path: Path, root_name: str) -> None:
             line.split("  ", 1)[1]: line.split("  ", 1)[0]
             for line in checksum_text.splitlines()
         }
+        if set(expected) != set(CHECKSUMMED_FILES):
+            raise ValueError("checksum manifest mismatch")
         for name, digest in expected.items():
             content = archive.extractfile(files[name]).read()  # type: ignore[union-attr]
             if hashlib.sha256(content).hexdigest() != digest:
@@ -256,7 +281,7 @@ def main() -> int:
         )
         _write_checksums(root)
         with tarfile.open(output, mode="w:gz") as archive:
-            archive.add(root, arcname=root_name)
+            archive.add(root, arcname=root_name, filter=_normalize_tar_info)
     _verify_archive(output, root_name)
     print(output)
     return 0

@@ -22,7 +22,7 @@
   </defs>
 
   <rect width="1280" height="700" fill="#ffffff"/>
-  <text id="title" x="40" y="40" class="title">From local change to auditable report</text>
+  <text x="40" y="40" class="title">From local change to auditable report</text>
   <text x="40" y="64" class="subtitle">Optional previews are separate from the installed audit path</text>
 
   <rect x="40" y="90" width="1200" height="180" rx="12" fill="#eff6ff" fill-opacity="0.62" stroke="#bfdbfe" stroke-width="1.5"/>
