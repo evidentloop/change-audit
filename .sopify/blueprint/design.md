@@ -60,7 +60,7 @@ uvx evidentloop demo
 
 ```bash
 uv tool install evidentloop
-npx skills add evidentloop/evidentloop --skill evidentloop -g
+npx skills@latest add evidentloop/evidentloop --skill evidentloop -g
 ```
 
 pipx 是 Python CLI 的 fallback。`demo` 使用 wheel 内独立合成 fixture，在临时 Git 仓库中复用现有主链并生成明确标记的完整演示报告；package 获取完成后，demo 本身不访问网络、不依赖当前目录，也不复用 dogfood 证据。`doctor` 检查 CLI/runtime/resources/Git，把 `npx` 缺失作为非阻断提示，并输出标准 Skill 安装命令、完整目录手工安装 fallback 和下一句可复制指令；它不扫描所有宿主目录，也不替安装器宣称 Skill 已被发现。

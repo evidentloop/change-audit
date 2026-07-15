@@ -10,7 +10,7 @@ EvidentLoop v0 code-diff 一期已经完成并归档。产品身份、本地 cle
 
 ## 当前焦点
 
-当前焦点是[产品身份与分发方案](../plan/20260711_identity_and_distribution/background.md)。Wave 5 已完成：`.sopify` 保留在 main，安装产物边界、Pages dogfood 与 GitHub Release evidence 草案均已验证。下一步是 Wave 6 发布候选与用户 checkpoint；未经确认不创建 tag、Release，不发布 PyPI 或启用 Pages。
+当前焦点是[产品身份与分发方案](../plan/20260711_identity_and_distribution/background.md)。本地发布候选、安装产物边界、Pages 样例与 GitHub Release evidence 草案已验证，最终 diff 与外部发布动作也已获用户确认。下一步按准确 release commit、审计、evidence、tag、PyPI、Release 与 Pages 的顺序完成公开 Alpha。
 
 ## 维护方式
 

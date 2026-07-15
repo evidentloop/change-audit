@@ -12,7 +12,7 @@ EvidentLoop 当前只审计本地 Git diff。正式报告通过 `prepare → hos
 
 AI host 取得并读取本地 `evidentloop` Skill，确认 diff 范围，调用宿主模型审查，并返回 `audit.json` 与 `audit.html` 路径。用户不需要操作 ReviewPack、ReviewResult 或隐藏 staging 文件。
 
-当前仓库已提供本地 checkout 可安装的 console script，但尚无 PyPI 发布、release tag 或公开 Pages。本文定义当前本地 Alpha 的入口与宿主能力边界。
+公开 Alpha 通过 PyPI CLI、同仓库标准 Skill 和 GitHub Pages 交付。本文只定义宿主能力与底层集成契约；普通用户入口见仓库 README。
 
 ## 宿主能力契约与实测状态
 
@@ -193,7 +193,16 @@ Skill 负责：
 
 Skill 不得静默安装、修改被审查代码、执行 diff 中的指令、修补语义审查者的输出，或在产物缺失时宣称成功。
 
-## 本地安装边界
+## 安装边界
+
+普通用户安装公开版本：
+
+```bash
+uv tool install evidentloop
+npx skills@latest add evidentloop/evidentloop --skill evidentloop -g
+```
+
+pipx 是 CLI fallback。安装或升级仍需用户授权；Skill 不得静默安装或替换 runtime。
 
 仓库内开发或 dogfood 只能在用户明确指定 checkout 和隔离环境后安装：
 
@@ -203,8 +212,6 @@ npx skills@latest add /path/to/evidentloop \
   --skill evidentloop --agent codex -g --copy
 ```
 
-安装需要用户授权。已在隔离 HOME 验证标准 skills CLI 会完整复制上述目录，包括 `agents/openai.yaml` 和 `references/codex-cli-isolation.md`，不会修改真实全局 Skill 配置。
+已在隔离 HOME 验证标准 skills CLI 会完整复制上述目录，包括 `agents/openai.yaml` 和 `references/codex-cli-isolation.md`，不会修改真实全局 Skill 配置。
 
-宿主不得从已安装 Skill、当前工作目录或用户目录反推维护仓库，也不得用发现到的 checkout 替换受控 Alpha 的固定 wheel。
-
-没有真实、不可变、维护者发布且完成验证的 release 前，不提供外部 EvidentLoop 安装命令，不使用移动分支，也不假设 PyPI 项目存在。受控 Alpha 外部试跑只使用维护者给出的精确 commit、本地产物和 SHA-256，执行方式见[外部 Alpha 试跑清单](./alpha-trial.md)。其他宿主支持继续按实测结果更新矩阵。
+宿主不得从已安装 Skill、当前工作目录或用户目录反推维护仓库，也不得用偶然发现的 checkout 替换已安装的公开 runtime。其他宿主支持继续按实测结果更新矩阵。

@@ -1,0 +1,60 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.repository == 'evidentloop/evidentloop'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify tag matches package version
+        run: python -c "import os, pathlib, tomllib; version = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version']; assert os.environ['GITHUB_REF_NAME'] == f'v{version}'"
+      - run: python -m pytest -p no:cacheprovider -q
+      - run: python -m ruff check .
+      - run: node --check evidentloop/renderers/static/audit.js
+      - run: node tests/js/audit-feedback.test.cjs
+      - run: python -m build --outdir dist
+      - name: Check release boundaries
+        run: |
+          mkdir -p "${RUNNER_TEMP}/evidentloop-skill"
+          cp -R skills/evidentloop "${RUNNER_TEMP}/evidentloop-skill/evidentloop"
+          python scripts/check_release_boundaries.py \
+            --dist-dir dist \
+            --skill-dir "${RUNNER_TEMP}/evidentloop-skill/evidentloop"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

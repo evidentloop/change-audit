@@ -29,7 +29,7 @@
 方案包含两个必须停车的 checkpoint：
 
 1. Wave 0 身份 checkpoint：提交官方商标初筛、注册风险、相邻品牌、目标身份矩阵和迁移契约；确认前不改源码身份。
-2. Wave 6 发布 checkpoint：提交准确 commit、版本、构建物、测试、真实宿主 smoke、证据与外部操作清单；确认前不注册域名或 PyPI，不创建 tag、Release、发布或启用 Pages。分支实现的 commit/push 由用户单独授权，不等同于发布授权。
+2. Wave 6 发布 checkpoint：提交本地 release diff、版本、构建物、测试、真实宿主 smoke、证据与外部操作清单；确认前不创建 release commit、tag 或 Release，不发布 PyPI，也不启用 Pages。实现 commit/push 与公开发布分别受用户授权约束。
 
 ## 用户成功标准
 

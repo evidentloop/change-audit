@@ -95,15 +95,13 @@ evidentloop-evidence-<version>/
 
 bundle 从准确 release tag 生成并作为 GitHub Release 资产发布。manifest 记录 repository、产品身份、`source_commit`、release tag、package/schema/prompt version、audit status、自动脱敏检查结果和文件 hashes。旧证据保留原始 `change-audit` 身份；新 bundle 只使用已经通过验证的 EvidentLoop 身份。
 
-## 用户链路
+## 生成原理
 
-![EvidentLoop 用户路径与反馈边界](../../../docs/assets/evidentloop-user-flow.svg)
+![EvidentLoop 从宿主审查到校验产物对的生成架构](../../../docs/assets/evidentloop-architecture.svg)
 
-该图是中英文 README 共用的唯一源文件，不维护语言或格式变体。
+该 SVG 是生成架构图的唯一源文件；README 展示对应 PNG，不再维护第二套用户流程图。
 
-Pages 样例报告与 `uvx evidentloop demo` 是可跳过的体验入口。实际主链为 `Install CLI + Skill -> Ask host -> Open audit.html -> Review findings and export feedback`；`audit.json` 同步生成，供追溯和集成使用。
-
-图中实线只表示当前可用链路，并在导出 `audit-feedback.jsonl` 后结束。未来反馈闭环以虚线标记 `planned`：消费反馈后重新裁决，生成新的 `audit.json` 并据此重建 `audit.html`；不得直接修改 HTML。
+主链为 `Developer -> Skill -> prepare -> Host review -> finalize -> artifact-pair gate -> directory commit`。`audit.json` 与 `audit.html` 通过全部门禁后同时出现；浏览器决策独立保存，按需导出 `audit-feedback.jsonl`，当前不会回写报告。
 
 Release evidence 不属于普通用户步骤，继续由本设计的独立发布章节说明。
 
