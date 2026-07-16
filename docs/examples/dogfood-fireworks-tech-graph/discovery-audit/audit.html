@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="zh-CN" data-renderer-version="0.2">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Fireworks Tech Graph 代码变更审计 · EvidentLoop</title>
+  <style>:root {
+  color-scheme: light;
+  --bg: #f3f5f8;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #667085;
+  --line: #d7dee8;
+  --line-strong: #b7c2d1;
+  --green: #17753b;
+  --green-soft: #e7f6ec;
+  --red: #bd2f35;
+  --red-soft: #fff0f1;
+  --amber: #a66c12;
+  --amber-soft: #fff6df;
+  --blue: #245f91;
+  --blue-soft: #edf6ff;
+  --code-bg: #fbfcfe;
+  --code-add-bg: #e6ffed;
+  --code-del-bg: #ffebe9;
+  --code-add-text: #116329;
+  --code-del-text: #82071e;
+  --focus: #0e7490;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #e7ebf1 0, var(--bg) 230px);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+
+a { color: var(--blue); }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 6px; font-size: clamp(1.65rem, 4vw, 2rem); line-height: 1.2; }
+h2 { margin-bottom: 0; font-size: 1.18rem; }
+h3 { margin-bottom: 8px; font-size: 1rem; }
+code { padding: 1px 5px; border-radius: 5px; background: #eef2f7; }
+
+.report-shell {
+  display: grid;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 28px 20px 52px;
+  gap: 16px;
+}
+
+.panel,
+.hero {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 1px 2px rgba(23, 32, 51, .04);
+}
+
+.hero {
+  padding: 22px;
+  border-left: 6px solid var(--blue);
+  box-shadow: 0 10px 28px rgba(23, 32, 51, .08);
+}
+
+.hero.concerns { border-left-color: var(--red); }
+.hero.pass_candidate { border-left-color: var(--green); }
+.hero.needs_human_triage { border-left-color: var(--amber); }
+.hero.inconclusive { border-left-color: var(--blue); }
+
+.hero-top,
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hero-copy { min-width: 0; overflow-wrap: anywhere; }
+
+.kicker {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.muted,
+.ref { color: var(--muted); }
+.ref { font-size: .8rem; overflow-wrap: anywhere; }
+
+.verdict-box {
+  flex: 0 0 240px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--blue-soft);
+  text-align: right;
+}
+
+.verdict-box strong { display: block; font-size: 1.08rem; overflow-wrap: anywhere; }
+.hero.concerns .verdict-box { border-color: #f0b5b7; background: var(--red-soft); }
+.hero.pass_candidate .verdict-box { border-color: #acd8bb; background: var(--green-soft); }
+.hero.needs_human_triage .verdict-box { border-color: #ead09f; background: var(--amber-soft); }
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.metric {
+  min-width: 0;
+  min-height: 88px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.metric > span:first-child { display: block; color: var(--muted); font-size: .75rem; font-weight: 750; }
+.metric strong { display: block; margin: 4px 0 6px; font-size: 1.45rem; line-height: 1.15; overflow-wrap: anywhere; }
+
+.panel { padding: 20px; }
+.section-title { align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.badge.ok { background: var(--green); }
+.badge.risk { background: var(--red); }
+.badge.warn { background: var(--amber); }
+.badge.info { background: var(--blue); }
+.badge.soft { color: var(--text); background: #eef2f7; }
+
+.status-callout,
+.claim,
+.finding-note,
+.fix-inline,
+.feedback-placeholder {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.status-callout { margin-top: 14px; }
+.status-callout.clean { border-color: #acd8bb; background: var(--green-soft); }
+.status-callout.warning { border-color: #ead09f; background: var(--amber-soft); }
+.status-callout.failure { border-color: #f0b5b7; background: var(--red-soft); }
+
+.overall-summary { margin-bottom: 16px; font-size: .96rem; }
+.audit-companion { margin: 16px 0 18px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #f8fafc; }
+.audit-companion img { display: block; width: 100%; height: auto; border-radius: 7px; background: #fff; }
+.audit-companion figcaption { margin-top: 10px; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.summary-grid { display: grid; grid-template-columns: 1.2fr .8fr; align-items: start; gap: 16px; }
+.summary-grid p,
+.summary-grid strong { overflow-wrap: anywhere; }
+.change-files { margin-top: 12px; }
+.change-files > summary { cursor: pointer; color: var(--blue); font-size: .84rem; font-weight: 800; }
+.change-files[open] > summary { margin-bottom: 10px; }
+.change-list { display: grid; gap: 10px; margin-top: 12px; }
+.file-change { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
+.file-path { color: var(--blue); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82rem; overflow-wrap: anywhere; }
+.diff-stat { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; white-space: nowrap; }
+.add { color: var(--green); }
+.del { color: var(--red); }
+.claim-list { display: grid; align-self: start; align-content: start; gap: 10px; }
+.claim-empty { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 11px; }
+.claim-empty .muted { font-size: .78rem; }
+.claim[data-status="challenged"] { border-left: 5px solid var(--red); background: var(--red-soft); }
+.claim[data-status="supported"] { border-left: 5px solid var(--green); background: var(--green-soft); }
+.claim[data-status="partial"] { border-left: 5px solid var(--amber); background: var(--amber-soft); }
+
+.finding-stack { display: grid; gap: 14px; }
+.finding-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.finding-card.high { border-left: 6px solid var(--red); }
+.finding-card.medium { border-left: 6px solid var(--amber); }
+.finding-card.low,
+.finding-card.note { border-left: 6px solid var(--blue); }
+
+.finding-header { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: start; gap: 9px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+.finding-title { display: block; font-weight: 800; overflow-wrap: anywhere; }
+.location { display: block; margin-top: 3px; color: var(--blue); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .78rem; overflow-wrap: anywhere; }
+.finding-body { padding: 16px; }
+.finding-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; }
+.finding-note { margin-bottom: 12px; }
+.unanchored { border-color: #ead09f; background: var(--amber-soft); }
+
+.hunk { min-width: 0; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--code-bg); }
+.hunk-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: #eef2f7; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .72rem; }
+.hunk-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.hunk-table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; }
+.hunk-table th { padding: 5px 8px; background: #f6f8fb; color: var(--muted); font-size: .68rem; text-align: right; }
+.hunk-table th:first-child { width: 5px; padding: 0; }
+.hunk-table th:nth-child(2),
+.hunk-table th:nth-child(3) { width: 54px; }
+.hunk-table th:last-child { text-align: left; }
+.hunk-table td { border: 0; padding: 0; vertical-align: top; }
+.hunk-stripe { width: 5px; background: transparent; }
+.hunk-line-active .hunk-stripe { background: #f59e0b; }
+.hunk-line-active .hunk-num { color: #7a4b00; background: #fff3cd; font-weight: 800; }
+.hunk-line-active .hunk-code { box-shadow: inset 4px 0 0 #f59e0b; font-weight: 700; }
+.hunk-num { width: 54px; padding: 2px 8px !important; border-right: 1px solid var(--line) !important; color: #7a8699; background: #f7f9fc; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .75rem; text-align: right; user-select: none; }
+.hunk-code { padding: 2px 10px !important; color: #1f2937; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .78rem; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.hunk-add .hunk-code { color: var(--code-add-text); background: var(--code-add-bg); }
+.hunk-delete .hunk-code { color: var(--code-del-text); background: var(--code-del-bg); }
+.hunk-meta .hunk-code { color: var(--muted); background: #f7f9fc; font-style: italic; }
+.hunk-omitted-cell { padding: 5px 10px !important; color: var(--muted); background: #eef2f7; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .72rem; text-align: center; }
+.hunk-hit-key { color: #7a4b00; font-weight: 800; }
+.hunk-hit-key::before { content: "● "; color: #f59e0b; }
+
+.chain { display: grid; align-content: start; gap: 8px; }
+.chain-row { padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; overflow-wrap: anywhere; }
+.chain-label { display: block; margin-bottom: 3px; color: var(--muted); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.fix-inline { margin-top: 12px; border-color: #b8d5ef; background: var(--blue-soft); }
+.feedback-placeholder { display: block; margin-top: 12px; }
+.feedback-heading,
+.feedback-toolbar,
+.feedback-comment-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.feedback-toolbar { align-items: flex-start; }
+.feedback-toolbar p:last-child { margin-bottom: 0; }
+.feedback-export-actions { display: grid; justify-items: end; gap: 6px; flex: 0 0 auto; }
+.feedback-controls { display: grid; gap: 10px; margin-top: 10px; }
+.feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.feedback-more,
+.evidence-details { margin-top: 10px; }
+.feedback-more > summary,
+.evidence-details > summary { cursor: pointer; color: var(--blue); font-size: .82rem; font-weight: 800; }
+.feedback-controls label { display: grid; gap: 5px; color: var(--muted); font-size: .78rem; font-weight: 750; }
+.feedback-controls select,
+.feedback-controls textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 7px; background: #fff; color: var(--text); font: inherit; }
+.feedback-controls select { min-height: 36px; padding: 6px 9px; }
+.feedback-controls textarea { min-height: 78px; padding: 9px; resize: vertical; }
+.button { min-height: 34px; padding: 6px 11px; border: 1px solid var(--line-strong); border-radius: 7px; background: #fff; color: var(--text); font: inherit; font-size: .82rem; font-weight: 750; cursor: pointer; }
+.button:hover { border-color: var(--blue); background: var(--blue-soft); }
+.button:focus-visible,
+.feedback-controls select:focus-visible,
+.feedback-controls textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 35%, transparent); outline-offset: 2px; }
+.button[aria-pressed="true"] { border-color: var(--blue); background: var(--blue); color: #fff; }
+.button.primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+.button.primary:hover { background: #194d77; }
+
+.data-table-wrap { max-width: 100%; overflow-x: auto; }
+.data-table { width: 100%; min-width: 620px; border-collapse: collapse; }
+.data-table th,
+.data-table td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.data-table th { color: var(--muted); font-size: .74rem; text-transform: uppercase; }
+
+@media (max-width: 780px) {
+  .report-shell { padding: 16px 12px 36px; }
+  .hero-top,
+  .section-title,
+  .feedback-toolbar,
+  .feedback-heading,
+  .feedback-comment-actions { flex-direction: column; align-items: flex-start; }
+  .section-title { align-items: flex-start; }
+  .feedback-export-actions { width: 100%; justify-items: start; }
+  .verdict-box { width: 100%; flex-basis: auto; text-align: left; }
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary-grid,
+  .finding-layout { grid-template-columns: minmax(0, 1fr); }
+  .finding-header { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .finding-header .category-badge { display: none; }
+  .file-change { grid-template-columns: minmax(0, 1fr); }
+  .diff-stat { white-space: normal; }
+}
+
+@media (max-width: 330px) {
+  .metric-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 420px) {
+  .panel,
+  .hero { padding: 15px; }
+  .finding-body { padding: 12px; }
+  .claim-empty { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+  <main class="report-shell" data-graph-id="audit:run-7ed819e4a44141a4b13ac250f2697bb9" data-run-id="run-7ed819e4a44141a4b13ac250f2697bb9">
+    <header class="hero concerns" data-node-id="run-7ed819e4a44141a4b13ac250f2697bb9" data-node-type="run">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="kicker">EvidentLoop · 代码变更</div>
+          <h1>Fireworks Tech Graph 代码变更审计</h1>
+          <div class="muted">
+运行：run-7ed819e4a44141a4b13ac250f2697bb9 ·             来源：3bfaf93c862d381183c8c6d20e59f41fb3f2acdf^..3bfaf93c862d381183c8c6d20e... · schema：0.3 · 审查状态：输出完整
+          </div>
+        </div>
+        <div class="verdict-box">
+          <span class="muted">当前结论</span>
+          <strong>存在待处理问题</strong>
+          <div class="ref">机器结论：存在待处理问题</div>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <span>已计分风险分</span>
+          <strong>60</strong>
+          <span class="badge risk">高</span>
+        </div>
+        <div class="metric">
+          <span>待处理问题</span>
+          <strong>3</strong>
+          <span class="badge risk">待处理</span>
+        </div>
+        <div class="metric">
+          <span>未计分问题</span>
+          <strong>0</strong>
+          <span class="badge soft">无</span>
+        </div>
+        <div class="metric">
+          <span>影响文件</span>
+          <strong>21</strong>
+          <span class="badge soft">已采集</span>
+        </div>
+      </div>
+
+      <div class="status-callout warning">
+        <strong>审查输出已完整接收</strong>
+        <div>这只表示审查者输出满足结构契约，不代表上下文覆盖充分；请结合结论、问题与未计分项人工判断。</div>
+      </div>
+    </header>
+
+    <section class="panel" data-node-id="change-001" data-node-type="change">
+      <div class="section-title">
+        <h2>1. 变更摘要与审计结论</h2>
+        <span class="badge soft">变更目标：未审计</span>
+      </div>
+<p class="overall-summary">该变更显著改善了 XML 与 marker 校验，并补充了基础回归测试，但碰撞检测中的图例推断、弧线近似和 transform 处理仍存在可确定的校验绕过或误报路径。建议修正这些几何问题并加入对应测试后再依赖该验证器作为交付门禁。</p>
+      <figure class="audit-companion" aria-labelledby="audit-companion-caption">
+        <img src="./audit-summary.svg" alt="Fireworks SVG 校验链路、三项审计发现及其在最新 main 的状态" width="1200" height="760">
+        <figcaption id="audit-companion-caption"><strong>非评分说明：</strong>本图仅把审计范围、校验链路和最新 main 的复核状态放在一起；不新增或修改 finding、风险评分与审计结论。</figcaption>
+      </figure>
+      <div class="summary-grid summary-grid-empty-claim">
+        <div>
+            <article data-node-id="change-001" data-node-type="change" data-edge-id="edge-001">
+              <h3>Fireworks Tech Graph 变更</h3>
+              <p>共 21 个文件发生变更（+842/-281，其中 5 个二进制文件）。</p>
+            </article>
+          <details class="change-files">
+            <summary>影响文件（21）· 查看全部</summary>
+          <div class="change-list">
+            <div class="file-change" data-node-id="file-001" data-node-type="file" data-edge-id="edge-002">
+              <span class="file-path">.npmignore</span>
+              <span class="diff-stat">
+                <span class="add">+2</span>
+                <span class="del">-0</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-002" data-node-type="file" data-edge-id="edge-003">
+              <span class="file-path">README.md</span>
+              <span class="diff-stat">
+                <span class="add">+19</span>
+                <span class="del">-8</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-003" data-node-type="file" data-edge-id="edge-004">
+              <span class="file-path">README.zh.md</span>
+              <span class="diff-stat">
+                <span class="add">+20</span>
+                <span class="del">-9</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-004" data-node-type="file" data-edge-id="edge-005">
+              <span class="file-path">SKILL.md</span>
+              <span class="diff-stat">
+                <span class="add">+19</span>
+                <span class="del">-4</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-005" data-node-type="file" data-edge-id="edge-006">
+              <span class="file-path">assets/samples/sample-style1-flat.png</span>
+              <span class="diff-stat">
+                <span class="add">+0</span>
+                <span class="del">-0</span>
+                · 二进制              </span>
+            </div>
+            <div class="file-change" data-node-id="file-006" data-node-type="file" data-edge-id="edge-007">
+              <span class="file-path">assets/samples/sample-style2-dark.png</span>
+              <span class="diff-stat">
+                <span class="add">+0</span>
+                <span class="del">-0</span>
+                · 二进制              </span>
+            </div>
+            <div class="file-change" data-node-id="file-007" data-node-type="file" data-edge-id="edge-008">
+              <span class="file-path">assets/samples/sample-style3-blueprint.png</span>
+              <span class="diff-stat">
+                <span class="add">+0</span>
+                <span class="del">-0</span>
+                · 二进制              </span>
+            </div>
+            <div class="file-change" data-node-id="file-008" data-node-type="file" data-edge-id="edge-009">
+              <span class="file-path">assets/samples/sample-style6-claude.png</span>
+              <span class="diff-stat">
+                <span class="add">+0</span>
+                <span class="del">-0</span>
+                · 二进制              </span>
+            </div>
+            <div class="file-change" data-node-id="file-009" data-node-type="file" data-edge-id="edge-010">
+              <span class="file-path">assets/samples/sample-style8-dark-luxury.png</span>
+              <span class="diff-stat">
+                <span class="add">+0</span>
+                <span class="del">-0</span>
+                · 二进制              </span>
+            </div>
+            <div class="file-change" data-node-id="file-010" data-node-type="file" data-edge-id="edge-011">
+              <span class="file-path">fixtures/dark-luxury-style8.svg</span>
+              <span class="diff-stat">
+                <span class="add">+76</span>
+                <span class="del">-0</span>
+                · 新增              </span>
+            </div>
+            <div class="file-change" data-node-id="file-011" data-node-type="file" data-edge-id="edge-012">
+              <span class="file-path">fixtures/system-architecture-style6.json</span>
+              <span class="diff-stat">
+                <span class="add">+1</span>
+                <span class="del">-1</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-012" data-node-type="file" data-edge-id="edge-013">
+              <span class="file-path">package.json</span>
+              <span class="diff-stat">
+                <span class="add">+5</span>
+                <span class="del">-2</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-013" data-node-type="file" data-edge-id="edge-014">
+              <span class="file-path">references/style-6-claude-official.md</span>
+              <span class="diff-stat">
+                <span class="add">+9</span>
+                <span class="del">-8</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-014" data-node-type="file" data-edge-id="edge-015">
+              <span class="file-path">references/style-7-openai.md</span>
+              <span class="diff-stat">
+                <span class="add">+2</span>
+                <span class="del">-2</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-015" data-node-type="file" data-edge-id="edge-016">
+              <span class="file-path">references/svg-layout-best-practices.md</span>
+              <span class="diff-stat">
+                <span class="add">+5</span>
+                <span class="del">-4</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-016" data-node-type="file" data-edge-id="edge-017">
+              <span class="file-path">scripts/README.md</span>
+              <span class="diff-stat">
+                <span class="add">+16</span>
+                <span class="del">-8</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-017" data-node-type="file" data-edge-id="edge-018">
+              <span class="file-path">scripts/generate-diagram.sh</span>
+              <span class="diff-stat">
+                <span class="add">+2</span>
+                <span class="del">-2</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-018" data-node-type="file" data-edge-id="edge-019">
+              <span class="file-path">scripts/test-all-styles.sh</span>
+              <span class="diff-stat">
+                <span class="add">+42</span>
+                <span class="del">-4</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-019" data-node-type="file" data-edge-id="edge-020">
+              <span class="file-path">scripts/validate-svg.sh</span>
+              <span class="diff-stat">
+                <span class="add">+21</span>
+                <span class="del">-229</span>
+                · 修改              </span>
+            </div>
+            <div class="file-change" data-node-id="file-020" data-node-type="file" data-edge-id="edge-021">
+              <span class="file-path">scripts/validate_svg.py</span>
+              <span class="diff-stat">
+                <span class="add">+484</span>
+                <span class="del">-0</span>
+                · 新增              </span>
+            </div>
+            <div class="file-change" data-node-id="file-021" data-node-type="file" data-edge-id="edge-022">
+              <span class="file-path">tests/test_validate_svg.py</span>
+              <span class="diff-stat">
+                <span class="add">+119</span>
+                <span class="del">-0</span>
+                · 新增              </span>
+            </div>
+          </div>
+</details>        </div>
+        <div class="claim-list claim-list-empty">
+          <div class="claim claim-empty" data-status="unknown">
+            <strong>暂无摘要声明审计</strong>
+            <span class="muted">未生成结构化 claim</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel findings-section" data-category="bug">
+      <div class="section-title">
+        <h2>2. 缺陷</h2>
+        <span class="badge soft">2 条</span>
+      </div>
+      <div class="finding-stack">
+        <article class="finding-card medium" data-node-id="finding-001" data-node-type="finding" data-category="bug" data-severity="medium" data-fingerprint="sha256:b847292ad64eb0994ea2eb51d96f12806f739f9116ce15876a0a3855cc4ecedd" data-edge-id="edge-023">
+          <div class="finding-header">
+            <span class="badge warn">中</span>
+            <span class="badge soft category-badge">缺陷</span>
+            <div>
+              <span class="finding-title">任意包含至少两条完整箭头路径的组件都会被误判为图例并从障碍物检测中移除。</span>
+              <span class="location">
+scripts/validate_svg.py:421              </span>
+            </div>
+            <span class="badge warn">待处理</span>
+          </div>
+          <div class="finding-body">
+            <div class="finding-layout">
+              <div>
+                <div class="finding-note">
+<strong>为什么是问题：</strong>                  `legend_bounds` 仅根据矩形是否完整包含两条边来推断图例，没有验证 `data-graph-role=&#34;legend&#34;`、元素名称或图例文本；因此若普通节点内部存在两条箭头，整个节点会被排除，其他穿过该节点的箭头也无法被报告。
+                </div>
+
+                <div class="hunk" data-hunk-id="hunk:2bddf7282f8e58a1:1:1">
+                  <div class="hunk-caption">
+                    <span>@@ -0,0 +1,484 @@</span>
+                    <span>可信节选 · 展示 17/484 行 · <span class="hunk-hit-key">橙色标记</span>：新文件第 421 行</span>
+                  </div>
+                  <div class="hunk-scroll">
+                    <table class="hunk-table" aria-label="可信 unified diff 证据">
+                      <thead><tr><th></th><th>旧行</th><th>新行</th><th>代码</th></tr></thead>
+                      <tbody>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 412 行可信 diff 内容 …</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">413</td>
+                          <td class="hunk-code">+        if len(points) &lt; 2:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">414</td>
+                          <td class="hunk-code">+            continue</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">415</td>
+                          <td class="hunk-code">+        if any(points_within_bounds(points, bounds) for bounds in legend_bounds):</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">416</td>
+                          <td class="hunk-code">+            continue</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">417</td>
+                          <td class="hunk-code">+        edge = edge_context.element</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">418</td>
+                          <td class="hunk-code">+        for obstacle_context, bounds in obstacles:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">419</td>
+                          <td class="hunk-code">+            obstacle = obstacle_context.element</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">420</td>
+                          <td class="hunk-code">+            if any(segment_hits_bounds(first, second, bounds) for first, second in zip(points, points[1:])):</td>
+                        </tr>
+                        <tr class="hunk-add hunk-line-active" data-highlighted="true">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">421</td>
+                          <td class="hunk-code">+                collisions.append(</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">422</td>
+                          <td class="hunk-code">+                    Collision(</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">423</td>
+                          <td class="hunk-code">+                        describe_element(edge),</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">424</td>
+                          <td class="hunk-code">+                        describe_element(obstacle),</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">425</td>
+                          <td class="hunk-code">+                    )</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">426</td>
+                          <td class="hunk-code">+                )</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">427</td>
+                          <td class="hunk-code">+                break</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">428</td>
+                          <td class="hunk-code">+    return collisions</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">429</td>
+                          <td class="hunk-code">+</td>
+                        </tr>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 55 行可信 diff 内容 …</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="chain">
+                <div class="chain-row">
+                  <span class="chain-label">审查依据</span>
+                  <span data-node-id="evidence-001" data-node-type="evidence" data-edge-id="edge-024">宿主语义审查结论：任意包含至少两条完整箭头路径的组件都会被误判为图例并从障碍物检测中移除。</span>
+                </div>
+              </aside>
+            </div>
+
+
+            <div class="feedback-placeholder" data-feedback-for="finding-001" data-fingerprint="sha256:b847292ad64eb0994ea2eb51d96f12806f739f9116ce15876a0a3855cc4ecedd">
+              <div class="feedback-heading">
+                <div><strong>人工决策</strong><div class="ref">接受问题、标记误报、补充评论或调整严重度。</div></div>
+                <span class="badge soft" data-feedback-state>待决策</span>
+              </div>
+              <div class="feedback-actions" role="group" aria-label="问题决策">
+                <button type="button" class="button" data-feedback-action="accept" aria-pressed="false">接受</button>
+                <button type="button" class="button" data-feedback-action="false_positive" aria-pressed="false">标记误报</button>
+              </div>
+              <details class="feedback-more">
+                <summary>评论与严重度调整</summary>
+                <div class="feedback-controls">
+                <label>
+                  严重度调整
+                  <select data-feedback-severity>
+                    <option value="">保持原值</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                    <option value="note">提示</option>
+                  </select>
+                </label>
+                <label>
+                  评论
+                  <textarea rows="3" maxlength="2000" placeholder="可选；清空后保存会移除已有评论" data-feedback-comment></textarea>
+                </label>
+                <div class="feedback-comment-actions">
+                  <button type="button" class="button" data-feedback-action="comment">保存评论</button>
+                  <span class="ref" role="status" aria-live="polite" data-feedback-message>尚未记录决策</span>
+                </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </article>
+        <article class="finding-card medium" data-node-id="finding-002" data-node-type="finding" data-category="bug" data-severity="medium" data-fingerprint="sha256:b279117368b281badbb154a08d4fc28f75687d82db07deeda1fac45e08fc8571" data-edge-id="edge-025">
+          <div class="finding-header">
+            <span class="badge warn">中</span>
+            <span class="badge soft category-badge">缺陷</span>
+            <div>
+              <span class="finding-title">椭圆弧 `A/a` 被替换为起终点之间的直线弦，可能同时产生碰撞误报和漏报。</span>
+              <span class="location">
+scripts/validate_svg.py:327              </span>
+            </div>
+            <span class="badge warn">待处理</span>
+          </div>
+          <div class="finding-body">
+            <div class="finding-layout">
+              <div>
+                <div class="finding-note">
+<strong>为什么是问题：</strong>                  实际弧线可能绕过组件而弦穿过组件，也可能是弧线穿过组件而弦绕过组件；注释所称的 “conservative collision check” 因而不成立，合法 SVG 箭头可能被拒绝，真实碰撞也可能通过校验。
+                </div>
+
+                <div class="hunk" data-hunk-id="hunk:2bddf7282f8e58a1:1:1">
+                  <div class="hunk-caption">
+                    <span>@@ -0,0 +1,484 @@</span>
+                    <span>可信节选 · 展示 17/484 行 · <span class="hunk-hit-key">橙色标记</span>：新文件第 327 行</span>
+                  </div>
+                  <div class="hunk-scroll">
+                    <table class="hunk-table" aria-label="可信 unified diff 证据">
+                      <thead><tr><th></th><th>旧行</th><th>新行</th><th>代码</th></tr></thead>
+                      <tbody>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 318 行可信 diff 内容 …</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">319</td>
+                          <td class="hunk-code">+            second = absolute(values[0], values[1], relative)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">320</td>
+                          <td class="hunk-code">+            end = absolute(values[2], values[3], relative)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">321</td>
+                          <td class="hunk-code">+            points.extend(sample_cubic(current, first, second, end))</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">322</td>
+                          <td class="hunk-code">+            current, previous_cubic = end, second</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">323</td>
+                          <td class="hunk-code">+            previous_quadratic = None</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">324</td>
+                          <td class="hunk-code">+        elif op == &#34;Q&#34;:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">325</td>
+                          <td class="hunk-code">+            control = absolute(values[0], values[1], relative)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">326</td>
+                          <td class="hunk-code">+            end = absolute(values[2], values[3], relative)</td>
+                        </tr>
+                        <tr class="hunk-add hunk-line-active" data-highlighted="true">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">327</td>
+                          <td class="hunk-code">+            points.extend(sample_quadratic(current, control, end))</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">328</td>
+                          <td class="hunk-code">+            current, previous_quadratic = end, control</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">329</td>
+                          <td class="hunk-code">+            previous_cubic = None</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">330</td>
+                          <td class="hunk-code">+        elif op == &#34;T&#34;:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">331</td>
+                          <td class="hunk-code">+            control = (2 * current[0] - previous_quadratic[0], 2 * current[1] - previous_quadratic[1]) if previous_quadratic else current</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">332</td>
+                          <td class="hunk-code">+            end = absolute(values[0], values[1], relative)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">333</td>
+                          <td class="hunk-code">+            points.extend(sample_quadratic(current, control, end))</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">334</td>
+                          <td class="hunk-code">+            current, previous_quadratic = end, control</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">335</td>
+                          <td class="hunk-code">+            previous_cubic = None</td>
+                        </tr>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 149 行可信 diff 内容 …</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="chain">
+                <div class="chain-row">
+                  <span class="chain-label">审查依据</span>
+                  <span data-node-id="evidence-002" data-node-type="evidence" data-edge-id="edge-026">宿主语义审查结论：椭圆弧 `A/a` 被替换为起终点之间的直线弦，可能同时产生碰撞误报和漏报。</span>
+                </div>
+              </aside>
+            </div>
+
+
+            <div class="feedback-placeholder" data-feedback-for="finding-002" data-fingerprint="sha256:b279117368b281badbb154a08d4fc28f75687d82db07deeda1fac45e08fc8571">
+              <div class="feedback-heading">
+                <div><strong>人工决策</strong><div class="ref">接受问题、标记误报、补充评论或调整严重度。</div></div>
+                <span class="badge soft" data-feedback-state>待决策</span>
+              </div>
+              <div class="feedback-actions" role="group" aria-label="问题决策">
+                <button type="button" class="button" data-feedback-action="accept" aria-pressed="false">接受</button>
+                <button type="button" class="button" data-feedback-action="false_positive" aria-pressed="false">标记误报</button>
+              </div>
+              <details class="feedback-more">
+                <summary>评论与严重度调整</summary>
+                <div class="feedback-controls">
+                <label>
+                  严重度调整
+                  <select data-feedback-severity>
+                    <option value="">保持原值</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                    <option value="note">提示</option>
+                  </select>
+                </label>
+                <label>
+                  评论
+                  <textarea rows="3" maxlength="2000" placeholder="可选；清空后保存会移除已有评论" data-feedback-comment></textarea>
+                </label>
+                <div class="feedback-comment-actions">
+                  <button type="button" class="button" data-feedback-action="comment">保存评论</button>
+                  <span class="ref" role="status" aria-live="polite" data-feedback-message>尚未记录决策</span>
+                </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <section class="panel findings-section" data-category="risk">
+      <div class="section-title">
+        <h2>3. 风险</h2>
+        <span class="badge soft">1 条</span>
+      </div>
+      <div class="finding-stack">
+        <article class="finding-card medium" data-node-id="finding-003" data-node-type="finding" data-category="risk" data-severity="medium" data-fingerprint="sha256:c9b51cc670b39f6c9bbded7173e0a8de91856c83305ee5f663251956623552ca" data-edge-id="edge-027">
+          <div class="finding-header">
+            <span class="badge warn">中</span>
+            <span class="badge soft category-badge">风险</span>
+            <div>
+              <span class="finding-title">`skewX`、`skewY` 等合法 SVG transform 会被静默当作单位变换处理。</span>
+              <span class="location">
+scripts/validate_svg.py:103              </span>
+            </div>
+            <span class="badge warn">待处理</span>
+          </div>
+          <div class="finding-body">
+            <div class="finding-layout">
+              <div>
+                <div class="finding-note">
+<strong>为什么是问题：</strong>                  `parse_transform` 能解析任意变换名称，但仅实现 `matrix`、`translate`、`scale` 和 `rotate`；未识别的合法变换保持 `current = IDENTITY`，导致路径和障碍物使用错误坐标执行碰撞检测，且不会报告不支持的变换。
+                </div>
+
+                <div class="hunk" data-hunk-id="hunk:2bddf7282f8e58a1:1:1">
+                  <div class="hunk-caption">
+                    <span>@@ -0,0 +1,484 @@</span>
+                    <span>可信节选 · 展示 17/484 行 · <span class="hunk-hit-key">橙色标记</span>：新文件第 103 行</span>
+                  </div>
+                  <div class="hunk-scroll">
+                    <table class="hunk-table" aria-label="可信 unified diff 证据">
+                      <thead><tr><th></th><th>旧行</th><th>新行</th><th>代码</th></tr></thead>
+                      <tbody>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 94 行可信 diff 内容 …</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">95</td>
+                          <td class="hunk-code">+        elif name == &#34;translate&#34; and values:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">96</td>
+                          <td class="hunk-code">+            current = (1, 0, 0, 1, values[0], values[1] if len(values) &gt; 1 else 0)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">97</td>
+                          <td class="hunk-code">+        elif name == &#34;scale&#34; and values:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">98</td>
+                          <td class="hunk-code">+            current = (values[0], 0, 0, values[1] if len(values) &gt; 1 else values[0], 0, 0)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">99</td>
+                          <td class="hunk-code">+        elif name == &#34;rotate&#34; and values:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">100</td>
+                          <td class="hunk-code">+            angle = math.radians(values[0])</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">101</td>
+                          <td class="hunk-code">+            rotation = (math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle), 0, 0)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">102</td>
+                          <td class="hunk-code">+            if len(values) &gt;= 3:</td>
+                        </tr>
+                        <tr class="hunk-add hunk-line-active" data-highlighted="true">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">103</td>
+                          <td class="hunk-code">+                cx, cy = values[1], values[2]</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">104</td>
+                          <td class="hunk-code">+                current = multiply(</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">105</td>
+                          <td class="hunk-code">+                    multiply((1, 0, 0, 1, cx, cy), rotation),</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">106</td>
+                          <td class="hunk-code">+                    (1, 0, 0, 1, -cx, -cy),</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">107</td>
+                          <td class="hunk-code">+                )</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">108</td>
+                          <td class="hunk-code">+            else:</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">109</td>
+                          <td class="hunk-code">+                current = rotation</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">110</td>
+                          <td class="hunk-code">+        result = multiply(result, current)</td>
+                        </tr>
+                        <tr class="hunk-add">
+                          <td class="hunk-stripe"></td>
+                          <td class="hunk-num"></td>
+                          <td class="hunk-num">111</td>
+                          <td class="hunk-code">+    return result</td>
+                        </tr>
+                        <tr class="hunk-omitted">
+                          <td class="hunk-omitted-cell" colspan="4">… 省略 373 行可信 diff 内容 …</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="chain">
+                <div class="chain-row">
+                  <span class="chain-label">审查依据</span>
+                  <span data-node-id="evidence-003" data-node-type="evidence" data-edge-id="edge-028">宿主语义审查结论：`skewX`、`skewY` 等合法 SVG transform 会被静默当作单位变换处理。</span>
+                </div>
+              </aside>
+            </div>
+
+
+            <div class="feedback-placeholder" data-feedback-for="finding-003" data-fingerprint="sha256:c9b51cc670b39f6c9bbded7173e0a8de91856c83305ee5f663251956623552ca">
+              <div class="feedback-heading">
+                <div><strong>人工决策</strong><div class="ref">接受问题、标记误报、补充评论或调整严重度。</div></div>
+                <span class="badge soft" data-feedback-state>待决策</span>
+              </div>
+              <div class="feedback-actions" role="group" aria-label="问题决策">
+                <button type="button" class="button" data-feedback-action="accept" aria-pressed="false">接受</button>
+                <button type="button" class="button" data-feedback-action="false_positive" aria-pressed="false">标记误报</button>
+              </div>
+              <details class="feedback-more">
+                <summary>评论与严重度调整</summary>
+                <div class="feedback-controls">
+                <label>
+                  严重度调整
+                  <select data-feedback-severity>
+                    <option value="">保持原值</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                    <option value="note">提示</option>
+                  </select>
+                </label>
+                <label>
+                  评论
+                  <textarea rows="3" maxlength="2000" placeholder="可选；清空后保存会移除已有评论" data-feedback-comment></textarea>
+                </label>
+                <div class="feedback-comment-actions">
+                  <button type="button" class="button" data-feedback-action="comment">保存评论</button>
+                  <span class="ref" role="status" aria-live="polite" data-feedback-message>尚未记录决策</span>
+                </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel feedback-toolbar" aria-labelledby="feedback-export-title">
+      <div>
+        <h2 id="feedback-export-title">人工决策</h2>
+        <p class="muted">决策仅保存在当前浏览器，并按 graph、run 与 finding fingerprint 隔离；不会写回 <code>audit.json</code>。</p>
+        <p class="ref">导出会下载 <code>audit-feedback.jsonl</code>；浏览器下载位置不保证等于本审计目录。</p>
+      </div>
+      <div class="feedback-export-actions">
+        <button type="button" class="button primary" data-feedback-export>导出 audit-feedback.jsonl</button>
+        <span class="ref" role="status" aria-live="polite" data-feedback-export-status>尚未导出</span>
+      </div>
+    </section>
+
+
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>4. 审查依据详情</h2>
+        <span class="badge soft">3 条</span>
+      </div>
+      <details class="evidence-details">
+        <summary>查看全部 3 条审查依据</summary>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>证据</th><th>来源</th><th>状态</th><th>关联</th></tr></thead>
+          <tbody>
+            <tr data-node-id="evidence-001" data-node-type="evidence" data-status="fail">
+              <td>宿主语义审查结论：任意包含至少两条完整箭头路径的组件都会被误判为图例并从障碍物检测中移除。<div class="ref">`legend_bounds` 仅根据矩形是否完整包含两条边来推断图例，没有验证 `data-graph-role=&#34;legend&#34;`、元素名称或图例文本；因此若普通节点内部存在两条箭头，整个节点会被排除，其他穿过该节点的箭头也无法被报告。</div></td>
+              <td>宿主语义审查</td>
+              <td><span class="badge risk">发现问题</span></td>
+              <td class="ref">finding-001</td>
+            </tr>
+            <tr data-node-id="evidence-002" data-node-type="evidence" data-status="fail">
+              <td>宿主语义审查结论：椭圆弧 `A/a` 被替换为起终点之间的直线弦，可能同时产生碰撞误报和漏报。<div class="ref">实际弧线可能绕过组件而弦穿过组件，也可能是弧线穿过组件而弦绕过组件；注释所称的 “conservative collision check” 因而不成立，合法 SVG 箭头可能被拒绝，真实碰撞也可能通过校验。</div></td>
+              <td>宿主语义审查</td>
+              <td><span class="badge risk">发现问题</span></td>
+              <td class="ref">finding-002</td>
+            </tr>
+            <tr data-node-id="evidence-003" data-node-type="evidence" data-status="fail">
+              <td>宿主语义审查结论：`skewX`、`skewY` 等合法 SVG transform 会被静默当作单位变换处理。<div class="ref">`parse_transform` 能解析任意变换名称，但仅实现 `matrix`、`translate`、`scale` 和 `rotate`；未识别的合法变换保持 `current = IDENTITY`，导致路径和障碍物使用错误坐标执行碰撞检测，且不会报告不支持的变换。</div></td>
+              <td>宿主语义审查</td>
+              <td><span class="badge risk">发现问题</span></td>
+              <td class="ref">finding-003</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </details>
+    </section>
+  </main>
+  <script>(function attachEvidentLoopFeedback(root, factory) {
+  "use strict";
+  const api = factory();
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+  if (root) {
+    root.EvidentLoopFeedback = api;
+    if (root.document) {
+      api.init(root.document, root);
+    }
+  }
+})(typeof window !== "undefined" ? window : null, function createEvidentLoopFeedback() {
+  "use strict";
+
+  const PREFIX = "evidentloop.feedback.v1";
+  const SEVERITIES = new Set(["high", "medium", "low", "note"]);
+
+  function storageKey(identity) {
+    return [PREFIX, identity.graph_id, identity.run_id, identity.fingerprint]
+      .map((value) => encodeURIComponent(String(value)))
+      .join(":");
+  }
+
+  function defaultState(identity) {
+    return {
+      graph_id: identity.graph_id,
+      run_id: identity.run_id,
+      target_type: "finding",
+      target_id: identity.target_id,
+      fingerprint: identity.fingerprint,
+      disposition: null,
+      comment: "",
+      severity_override: null,
+      timestamps: {},
+      updated_at: null,
+    };
+  }
+
+  function matchesIdentity(state, identity) {
+    return state
+      && state.graph_id === identity.graph_id
+      && state.run_id === identity.run_id
+      && state.target_id === identity.target_id
+      && state.fingerprint === identity.fingerprint;
+  }
+
+  function validState(state, identity) {
+    if (!matchesIdentity(state, identity) || state.target_type !== "finding") return false;
+    if (![null, "accept", "false_positive"].includes(state.disposition)) return false;
+    if (typeof state.comment !== "string") return false;
+    if (state.severity_override !== null && !SEVERITIES.has(state.severity_override)) return false;
+    if (!state.timestamps || typeof state.timestamps !== "object") return false;
+    if (state.disposition && typeof state.timestamps.disposition !== "string") return false;
+    if (state.comment && typeof state.timestamps.comment !== "string") return false;
+    if (state.severity_override && typeof state.timestamps.severity_override !== "string") return false;
+    return true;
+  }
+
+  function loadState(storage, identity) {
+    try {
+      const raw = storage.getItem(storageKey(identity));
+      if (!raw) return defaultState(identity);
+      const state = JSON.parse(raw);
+      return validState(state, identity) ? state : defaultState(identity);
+    } catch (_error) {
+      return defaultState(identity);
+    }
+  }
+
+  function saveState(storage, state) {
+    storage.setItem(storageKey(state), JSON.stringify(state));
+    return state;
+  }
+
+  function applyAction(state, action, value, now) {
+    const next = JSON.parse(JSON.stringify(state));
+    const timestamp = now || new Date().toISOString();
+    if (action === "accept" || action === "false_positive") {
+      next.disposition = action;
+      next.timestamps.disposition = timestamp;
+    } else if (action === "comment") {
+      next.comment = String(value || "").trim();
+      if (next.comment) next.timestamps.comment = timestamp;
+      else delete next.timestamps.comment;
+    } else if (action === "severity_override") {
+      const severity = String(value || "");
+      if (severity && !SEVERITIES.has(severity)) {
+        throw new Error("invalid severity override");
+      }
+      next.severity_override = severity || null;
+      if (next.severity_override) next.timestamps.severity_override = timestamp;
+      else delete next.timestamps.severity_override;
+    } else {
+      throw new Error("unknown feedback action");
+    }
+    next.updated_at = timestamp;
+    return next;
+  }
+
+  function baseEvent(state, action, createdAt) {
+    return {
+      target_type: "finding",
+      target_id: state.target_id,
+      action,
+      fingerprint: state.fingerprint,
+      graph_id: state.graph_id,
+      run_id: state.run_id,
+      created_at: createdAt,
+    };
+  }
+
+  function stateToEvents(state) {
+    const events = [];
+    if (state.disposition) {
+      events.push(baseEvent(state, state.disposition, state.timestamps.disposition));
+    }
+    if (state.comment) {
+      events.push({
+        ...baseEvent(state, "comment", state.timestamps.comment),
+        comment: state.comment,
+      });
+    }
+    if (state.severity_override) {
+      events.push({
+        ...baseEvent(state, "severity_override", state.timestamps.severity_override),
+        severity: state.severity_override,
+      });
+    }
+    return events;
+  }
+
+  function exportJsonl(states) {
+    const lines = states.flatMap(stateToEvents).map((event) => JSON.stringify(event));
+    return lines.length ? `${lines.join("\n")}\n` : "";
+  }
+
+  function memoryStorage() {
+    const values = new Map();
+    return {
+      getItem(key) { return values.has(key) ? values.get(key) : null; },
+      setItem(key, value) { values.set(key, String(value)); },
+    };
+  }
+
+  function renderState(panel, state, syncInputs) {
+    panel.querySelectorAll("[data-feedback-action='accept'], [data-feedback-action='false_positive']")
+      .forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.feedbackAction === state.disposition));
+      });
+    const badge = panel.querySelector("[data-feedback-state]");
+    const displayState = state.disposition
+      || (state.comment || state.severity_override ? "edited" : "pending");
+    badge.textContent = {
+      accept: "已接受",
+      false_positive: "已标记误报",
+      edited: "已编辑",
+      pending: "待决策",
+    }[displayState];
+    if (syncInputs) {
+      panel.querySelector("[data-feedback-comment]").value = state.comment || "";
+      panel.querySelector("[data-feedback-severity]").value = state.severity_override || "";
+    }
+  }
+
+  function init(documentObject, rootObject) {
+    const shell = documentObject.querySelector("[data-graph-id][data-run-id]");
+    if (!shell) return;
+    let storage;
+    try {
+      storage = rootObject.localStorage;
+      const probe = `${PREFIX}:probe`;
+      storage.setItem(probe, "1");
+      storage.removeItem(probe);
+    } catch (_error) {
+      storage = memoryStorage();
+    }
+
+    const panels = Array.from(documentObject.querySelectorAll("[data-feedback-for][data-fingerprint]"));
+    const entries = panels.map((panel) => {
+      const identity = {
+        graph_id: shell.dataset.graphId,
+        run_id: shell.dataset.runId,
+        target_id: panel.dataset.feedbackFor,
+        fingerprint: panel.dataset.fingerprint,
+      };
+      let state = loadState(storage, identity);
+      renderState(panel, state, true);
+      const message = panel.querySelector("[data-feedback-message]");
+
+      panel.querySelectorAll("[data-feedback-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.feedbackAction;
+          const value = action === "comment"
+            ? panel.querySelector("[data-feedback-comment]").value
+            : null;
+          state = applyAction(state, action, value);
+          try { saveState(storage, state); } catch (_error) { /* in-memory state remains usable */ }
+          renderState(panel, state, false);
+          message.textContent = action === "comment" && !state.comment ? "评论已移除" : "决策已保存在当前浏览器";
+        });
+      });
+      panel.querySelector("[data-feedback-severity]").addEventListener("change", (event) => {
+        state = applyAction(state, "severity_override", event.target.value);
+        try { saveState(storage, state); } catch (_error) { /* in-memory state remains usable */ }
+        renderState(panel, state, false);
+        message.textContent = state.severity_override ? "严重度调整已保存" : "已恢复原严重度";
+      });
+      return { getState: () => state };
+    });
+
+    const exportButton = documentObject.querySelector("[data-feedback-export]");
+    const exportStatus = documentObject.querySelector("[data-feedback-export-status]");
+    if (exportButton && exportStatus) {
+      exportButton.addEventListener("click", () => {
+        const jsonl = exportJsonl(entries.map((entry) => entry.getState()));
+        if (!jsonl) {
+          exportStatus.textContent = "暂无可导出的决策";
+          return;
+        }
+        const blob = new rootObject.Blob([jsonl], { type: "application/x-ndjson;charset=utf-8" });
+        const url = rootObject.URL.createObjectURL(blob);
+        const link = documentObject.createElement("a");
+        link.href = url;
+        link.download = "audit-feedback.jsonl";
+        documentObject.body.appendChild(link);
+        link.click();
+        link.remove();
+        rootObject.URL.revokeObjectURL(url);
+        exportStatus.textContent = `已导出 ${jsonl.trimEnd().split("\n").length} 条决策`;
+      });
+    }
+    documentObject.documentElement.dataset.evidentloopReady = "true";
+  }
+
+  return {
+    PREFIX,
+    applyAction,
+    defaultState,
+    exportJsonl,
+    init,
+    loadState,
+    memoryStorage,
+    saveState,
+    stateToEvents,
+    storageKey,
+    validState,
+  };
+});
+</script>
+</body>
+</html>

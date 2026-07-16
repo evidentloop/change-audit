@@ -1,0 +1,503 @@
+{
+  "schema_version": "0.3",
+  "graph_id": "audit:run-7ed819e4a44141a4b13ac250f2697bb9",
+  "source": {
+    "type": "git_diff",
+    "ref": "3bfaf93c862d381183c8c6d20e59f41fb3f2acdf^..3bfaf93c862d381183c8c6d20e59f41fb3f2acdf",
+    "description": "Fireworks Tech Graph 本地 Git diff 审计"
+  },
+  "runs": [
+    {
+      "id": "run-7ed819e4a44141a4b13ac250f2697bb9",
+      "label": "Fireworks Tech Graph 代码变更审计",
+      "status": "concerns",
+      "summary": "该变更显著改善了 XML 与 marker 校验，并补充了基础回归测试，但碰撞检测中的图例推断、弧线近似和 transform 处理仍存在可确定的校验绕过或误报路径。建议修正这些几何问题并加入对应测试后再依赖该验证器作为交付门禁。"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "change-001",
+      "type": "change",
+      "title": "Fireworks Tech Graph 变更",
+      "summary": "共 21 个文件发生变更（+842/-281，其中 5 个二进制文件）。"
+    },
+    {
+      "id": "file-001",
+      "type": "file",
+      "path": ".npmignore",
+      "change_type": "modified",
+      "additions": 2,
+      "deletions": 0
+    },
+    {
+      "id": "file-002",
+      "type": "file",
+      "path": "README.md",
+      "change_type": "modified",
+      "additions": 19,
+      "deletions": 8
+    },
+    {
+      "id": "file-003",
+      "type": "file",
+      "path": "README.zh.md",
+      "change_type": "modified",
+      "additions": 20,
+      "deletions": 9
+    },
+    {
+      "id": "file-004",
+      "type": "file",
+      "path": "SKILL.md",
+      "change_type": "modified",
+      "additions": 19,
+      "deletions": 4
+    },
+    {
+      "id": "file-005",
+      "type": "file",
+      "path": "assets/samples/sample-style1-flat.png",
+      "change_type": "binary",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "file-006",
+      "type": "file",
+      "path": "assets/samples/sample-style2-dark.png",
+      "change_type": "binary",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "file-007",
+      "type": "file",
+      "path": "assets/samples/sample-style3-blueprint.png",
+      "change_type": "binary",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "file-008",
+      "type": "file",
+      "path": "assets/samples/sample-style6-claude.png",
+      "change_type": "binary",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "file-009",
+      "type": "file",
+      "path": "assets/samples/sample-style8-dark-luxury.png",
+      "change_type": "binary",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "file-010",
+      "type": "file",
+      "path": "fixtures/dark-luxury-style8.svg",
+      "change_type": "added",
+      "additions": 76,
+      "deletions": 0
+    },
+    {
+      "id": "file-011",
+      "type": "file",
+      "path": "fixtures/system-architecture-style6.json",
+      "change_type": "modified",
+      "additions": 1,
+      "deletions": 1
+    },
+    {
+      "id": "file-012",
+      "type": "file",
+      "path": "package.json",
+      "change_type": "modified",
+      "additions": 5,
+      "deletions": 2
+    },
+    {
+      "id": "file-013",
+      "type": "file",
+      "path": "references/style-6-claude-official.md",
+      "change_type": "modified",
+      "additions": 9,
+      "deletions": 8
+    },
+    {
+      "id": "file-014",
+      "type": "file",
+      "path": "references/style-7-openai.md",
+      "change_type": "modified",
+      "additions": 2,
+      "deletions": 2
+    },
+    {
+      "id": "file-015",
+      "type": "file",
+      "path": "references/svg-layout-best-practices.md",
+      "change_type": "modified",
+      "additions": 5,
+      "deletions": 4
+    },
+    {
+      "id": "file-016",
+      "type": "file",
+      "path": "scripts/README.md",
+      "change_type": "modified",
+      "additions": 16,
+      "deletions": 8
+    },
+    {
+      "id": "file-017",
+      "type": "file",
+      "path": "scripts/generate-diagram.sh",
+      "change_type": "modified",
+      "additions": 2,
+      "deletions": 2
+    },
+    {
+      "id": "file-018",
+      "type": "file",
+      "path": "scripts/test-all-styles.sh",
+      "change_type": "modified",
+      "additions": 42,
+      "deletions": 4
+    },
+    {
+      "id": "file-019",
+      "type": "file",
+      "path": "scripts/validate-svg.sh",
+      "change_type": "modified",
+      "additions": 21,
+      "deletions": 229
+    },
+    {
+      "id": "file-020",
+      "type": "file",
+      "path": "scripts/validate_svg.py",
+      "change_type": "added",
+      "additions": 484,
+      "deletions": 0
+    },
+    {
+      "id": "file-021",
+      "type": "file",
+      "path": "tests/test_validate_svg.py",
+      "change_type": "added",
+      "additions": 119,
+      "deletions": 0
+    },
+    {
+      "id": "finding-001",
+      "type": "finding",
+      "category": "bug",
+      "severity": "medium",
+      "status": "open",
+      "title": "任意包含至少两条完整箭头路径的组件都会被误判为图例并从障碍物检测中移除。",
+      "detail": "`legend_bounds` 仅根据矩形是否完整包含两条边来推断图例，没有验证 `data-graph-role=\"legend\"`、元素名称或图例文本；因此若普通节点内部存在两条箭头，整个节点会被排除，其他穿过该节点的箭头也无法被报告。",
+      "fingerprint": "sha256:b847292ad64eb0994ea2eb51d96f12806f739f9116ce15876a0a3855cc4ecedd",
+      "extensions": {
+        "evidentloop": {
+          "review_finding_id": "f-001",
+          "original_category": "logic_error",
+          "confidence": "plausible"
+        }
+      },
+      "file_path": "scripts/validate_svg.py",
+      "hunk_id": "hunk:2bddf7282f8e58a1:1:1",
+      "start_line": 421,
+      "end_line": 421,
+      "line_side": "new",
+      "highlight_lines": [
+        421
+      ],
+      "hunk": "@@ -0,0 +1,484 @@\n+#!/usr/bin/env python3\n+\"\"\"Structured SVG checks used by validate-svg.sh.\n+\n+The validator intentionally uses only the Python standard library so it works\n+inside a freshly installed skill without adding another runtime dependency.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import argparse\n+import math\n+import re\n+import sys\n+import xml.etree.ElementTree as ET\n+from dataclasses import dataclass\n+from pathlib import Path\n+from typing import Iterator, Optional, Sequence\n+\n+\n+NUMBER_RE = re.compile(r\"[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+PATH_TOKEN_RE = re.compile(r\"[AaCcHhLlMmQqSsTtVvZz]|[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+URL_REF_RE = re.compile(r\"url\\(\\s*#([^\\s)]+)\\s*\\)\")\n+MARKER_ATTRIBUTES = (\"marker-start\", \"marker-mid\", \"marker-end\")\n+EXCLUDED_ROLES = {\"background\", \"container\", \"decoration\", \"label\", \"legend\"}\n+IDENTITY = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)\n+\n+Point = tuple[float, float]\n+Matrix = tuple[float, float, float, float, float, float]\n+\n+\n+@dataclass(frozen=True)\n+class Bounds:\n+    left: float\n+    top: float\n+    right: float\n+    bottom: float\n+\n+\n+@dataclass(frozen=True)\n+class Collision:\n+    edge: str\n+    obstacle: str\n+\n+\n+@dataclass(frozen=True)\n+class ElementContext:\n+    element: ET.Element\n+    matrix: Matrix\n+    role: Optional[str]\n+    in_defs: bool\n+\n+\n+def local_name(tag: str) -> str:\n+    return tag.split(\"}\", 1)[-1]\n+\n+\n+def parse_number(value: Optional[str], default: Optional[float] = 0.0) -> Optional[float]:\n+    if value is None:\n+        return default\n+    match = NUMBER_RE.match(value.strip())\n+    if not match:\n+        return default\n+    return float(match.group(0))\n+\n+\n+def multiply(left: Matrix, right: Matrix) -> Matrix:\n+    a1, b1, c1, d1, e1, f1 = left\n+    a2, b2, c2, d2, e2, f2 = right\n+    return (\n+        a1 * a2 + c1 * b2,\n+        b1 * a2 + d1 * b2,\n+        a1 * c2 + c1 * d2,\n+        b1 * c2 + d1 * d2,\n+        a1 * e2 + c1 * f2 + e1,\n+        b1 * e2 + d1 * f2 + f1,\n+    )\n+\n+\n+def transform_point(matrix: Matrix, point: Point) -> Point:\n+    a, b, c, d, e, f = matrix\n+    x, y = point\n+    return (a * x + c * y + e, b * x + d * y + f)\n+\n+\n+def parse_transform(value: Optional[str]) -> Matrix:\n+    result = IDENTITY\n+    if not value:\n+        return result\n+    for name, raw_values in re.findall(r\"([A-Za-z]+)\\s*\\(([^)]*)\\)\", value):\n+        values = [float(item) for item in NUMBER_RE.findall(raw_values)]\n+        name = name.lower()\n+        current = IDENTITY\n+        if name == \"matrix\" and len(values) == 6:\n+            current = tuple(values)  # type: ignore[assignment]\n+        elif name == \"translate\" and values:\n+            current = (1, 0, 0, 1, values[0], values[1] if len(values) > 1 else 0)\n+        elif name == \"scale\" and values:\n+            current = (values[0], 0, 0, values[1] if len(values) > 1 else values[0], 0, 0)\n+        elif name == \"rotate\" and values:\n+            angle = math.radians(values[0])\n+            rotation = (math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle), 0, 0)\n+            if len(values) >= 3:\n+                cx, cy = values[1], values[2]\n+                current = multiply(\n+                    multiply((1, 0, 0, 1, cx, cy), rotation),\n+                    (1, 0, 0, 1, -cx, -cy),\n+                )\n+            else:\n+                current = rotation\n+        result = multiply(result, current)\n+    return result\n+\n+\n+def infer_role(element: ET.Element, inherited: Optional[str]) -> Optional[str]:\n+    explicit = element.get(\"data-graph-role\")\n+    if explicit:\n+        return explicit.strip().lower()\n+    identity = \" \".join(filter(None, (element.get(\"id\"), element.get(\"class\")))).lower()\n+    if any(token in identity for token in (\"legend\", \"key-box\", \"key_box\")):\n+        return \"legend\"\n+    if local_name(element.tag) == \"g\":\n+        text = \" \".join(\"\".join(child.itertext()) for child in element if local_name(child.tag) == \"text\").lower()\n+        if \"legend\" in text:\n+            return \"legend\"\n+    return inherited\n+\n+\n+def walk(element: ET.Element, matrix: Matrix = IDENTITY, role: Optional[str] = None, in_defs: bool = False) -> Iterator[ElementContext]:\n+    current_matrix = multiply(matrix, parse_transform(element.get(\"transform\")))\n+    current_role = infer_role(element, role)\n+    current_in_defs = in_defs or local_name(element.tag) == \"defs\"\n+    yield ElementContext(element, current_matrix, current_role, current_in_defs)\n+    child_role = current_role if current_role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} else None\n+    for child in element:\n+        yield from walk(child, current_matrix, child_role, current_in_defs)\n+\n+\n+def canvas_size(root: ET.Element) -> Point:\n+    values = [float(item) for item in NUMBER_RE.findall(root.get(\"viewBox\", \"\"))]\n+    if len(values) == 4:\n+        return values[2], values[3]\n+    return (\n+        float(parse_number(root.get(\"width\"), 0.0) or 0.0),\n+        float(parse_number(root.get(\"height\"), 0.0) or 0.0),\n+    )\n+\n+\n+def bounds_from_points(points: Sequence[Point]) -> Optional[Bounds]:\n+    if not points:\n+        return None\n+    xs = [point[0] for point in points]\n+    ys = [point[1] for point in points]\n+    return Bounds(min(xs), min(ys), max(xs), max(ys))\n+\n+\n+def transformed_bounds(matrix: Matrix, points: Sequence[Point]) -> Optional[Bounds]:\n+    return bounds_from_points([transform_point(matrix, point) for point in points])\n+\n+\n+def shape_bounds(context: ElementContext, canvas: Point) -> Optional[Bounds]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    role = context.role\n+    if context.in_defs or role in EXCLUDED_ROLES:\n+        return None\n+\n+    if tag == \"rect\":\n+        x = float(parse_number(element.get(\"x\"), 0.0) or 0.0)\n+        y = float(parse_number(element.get(\"y\"), 0.0) or 0.0)\n+        width = parse_number(element.get(\"width\"), None)\n+        height = parse_number(element.get(\"height\"), None)\n+        if width is None or height is None or width <= 0 or height <= 0:\n+            return None\n+        canvas_width, canvas_height = canvas\n+        if role != \"node\":\n+            if element.get(\"x\") is None and element.get(\"y\") is None:\n+                return None\n+            if height <= 28 or width <= 8:\n+                return None\n+            nearly_canvas = canvas_width > 0 and canvas_height > 0 and width >= canvas_width * 0.9 and height >= canvas_height * 0.9\n+            if nearly_canvas:\n+                return None\n+            container_like = bool(element.get(\"stroke-dasharray\")) or element.get(\"fill\", \"\").strip().lower() == \"none\"\n+            if container_like and (\n+                (canvas_width > 0 and width >= canvas_width * 0.45)\n+                or (canvas_height > 0 and height >= canvas_height * 0.45)\n+            ):\n+                return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((x, y), (x + width, y), (x + width, y + height), (x, y + height)),\n+        )\n+\n+    if tag in {\"circle\", \"ellipse\"}:\n+        cx = float(parse_number(element.get(\"cx\"), 0.0) or 0.0)\n+        cy = float(parse_number(element.get(\"cy\"), 0.0) or 0.0)\n+        rx = float(parse_number(element.get(\"r\") or element.get(\"rx\"), 0.0) or 0.0)\n+        ry = float(parse_number(element.get(\"r\") or element.get(\"ry\"), 0.0) or 0.0)\n+        if rx < 12 or ry < 12:\n+            return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((cx - rx, cy - ry), (cx + rx, cy - ry), (cx + rx, cy + ry), (cx - rx, cy + ry)),\n+        )\n+\n+    if tag in {\"polygon\", \"polyline\"} and not has_marker(element):\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+        if len(points) < 3:\n+            return None\n+        return transformed_bounds(context.matrix, points)\n+    return None\n+\n+\n+def has_marker(element: ET.Element) -> bool:\n+    return any(element.get(attribute) for attribute in MARKER_ATTRIBUTES)\n+\n+\n+def marker_references(root: ET.Element) -> tuple[set[str], set[str]]:\n+    definitions = {\n+        element.get(\"id\", \"\")\n+        for element in root.iter()\n+        if local_name(element.tag) == \"marker\" and element.get(\"id\")\n+    }\n+    references: set[str] = set()\n+    for element in root.iter():\n+        for attribute in MARKER_ATTRIBUTES:\n+            value = element.get(attribute, \"\")\n+            references.update(URL_REF_RE.findall(value))\n+    return definitions, references\n+\n+\n+def sample_quadratic(start: Point, control: Point, end: Point, steps: int = 12) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t**2 * end[0],\n+            (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t**2 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def sample_cubic(start: Point, first: Point, second: Point, end: Point, steps: int = 16) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 3 * start[0] + 3 * (1 - t) ** 2 * t * first[0] + 3 * (1 - t) * t**2 * second[0] + t**3 * end[0],\n+            (1 - t) ** 3 * start[1] + 3 * (1 - t) ** 2 * t * first[1] + 3 * (1 - t) * t**2 * second[1] + t**3 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def path_points(path_data: str) -> list[Point]:\n+    tokens = PATH_TOKEN_RE.findall(path_data or \"\")\n+    points: list[Point] = []\n+    index = 0\n+    command = \"\"\n+    current = (0.0, 0.0)\n+    start = current\n+    previous_cubic: Optional[Point] = None\n+    previous_quadratic: Optional[Point] = None\n+\n+    def read(count: int) -> Optional[list[float]]:\n+        nonlocal index\n+        if index + count > len(tokens) or any(re.fullmatch(r\"[A-Za-z]\", token) for token in tokens[index : index + count]):\n+            return None\n+        values = [float(token) for token in tokens[index : index + count]]\n+        index += count\n+        return values\n+\n+    def absolute(x: float, y: float, relative: bool) -> Point:\n+        return (current[0] + x, current[1] + y) if relative else (x, y)\n+\n+    while index < len(tokens):\n+        if re.fullmatch(r\"[A-Za-z]\", tokens[index]):\n+            command = tokens[index]\n+            index += 1\n+        if not command:\n+            return []\n+        relative = command.islower()\n+        op = command.upper()\n+        if op == \"Z\":\n+            if current != start:\n+                points.append(start)\n+            current = start\n+            previous_cubic = previous_quadratic = None\n+            command = \"\"\n+            continue\n+        count = {\"M\": 2, \"L\": 2, \"H\": 1, \"V\": 1, \"C\": 6, \"S\": 4, \"Q\": 4, \"T\": 2, \"A\": 7}.get(op)\n+        if count is None:\n+            return []\n+        values = read(count)\n+        if values is None:\n+            return []\n+\n+        if op == \"M\":\n+            current = absolute(values[0], values[1], relative)\n+            start = current\n+            points.append(current)\n+            command = \"l\" if relative else \"L\"\n+        elif op == \"L\":\n+            current = absolute(values[0], values[1], relative)\n+            points.append(current)\n+        elif op == \"H\":\n+            current = (current[0] + values[0], current[1]) if relative else (values[0], current[1])\n+            points.append(current)\n+        elif op == \"V\":\n+            current = (current[0], current[1] + values[0]) if relative else (current[0], values[0])\n+            points.append(current)\n+        elif op == \"C\":\n+            first = absolute(values[0], values[1], relative)\n+            second = absolute(values[2], values[3], relative)\n+            end = absolute(values[4], values[5], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"S\":\n+            first = (2 * current[0] - previous_cubic[0], 2 * current[1] - previous_cubic[1]) if previous_cubic else current\n+            second = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"Q\":\n+            control = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"T\":\n+            control = (2 * current[0] - previous_quadratic[0], 2 * current[1] - previous_quadratic[1]) if previous_quadratic else current\n+            end = absolute(values[0], values[1], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"A\":\n+            # Arc endpoints are exact; a chord is a conservative collision check.\n+            current = absolute(values[5], values[6], relative)\n+            points.append(current)\n+            previous_cubic = previous_quadratic = None\n+        if op not in {\"C\", \"S\", \"Q\", \"T\"}:\n+            previous_cubic = previous_quadratic = None\n+    return points\n+\n+\n+def edge_points(context: ElementContext) -> list[Point]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    if context.in_defs or context.role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} or not has_marker(element):\n+        return []\n+    if tag == \"line\":\n+        points = [\n+            (float(parse_number(element.get(\"x1\"), 0.0) or 0.0), float(parse_number(element.get(\"y1\"), 0.0) or 0.0)),\n+            (float(parse_number(element.get(\"x2\"), 0.0) or 0.0), float(parse_number(element.get(\"y2\"), 0.0) or 0.0)),\n+        ]\n+    elif tag == \"polyline\":\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+    elif tag == \"path\":\n+        points = path_points(element.get(\"d\", \"\"))\n+    else:\n+        return []\n+    return [transform_point(context.matrix, point) for point in points]\n+\n+\n+def segment_hits_bounds(start: Point, end: Point, bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    left, right = bounds.left + epsilon, bounds.right - epsilon\n+    top, bottom = bounds.top + epsilon, bounds.bottom - epsilon\n+    if left >= right or top >= bottom:\n+        return False\n+    x1, y1 = start\n+    dx, dy = end[0] - x1, end[1] - y1\n+    low, high = 0.0, 1.0\n+    for p, q in ((-dx, x1 - left), (dx, right - x1), (-dy, y1 - top), (dy, bottom - y1)):\n+        if abs(p) < epsilon:\n+            if q < 0:\n+                return False\n+            continue\n+        ratio = q / p\n+        if p < 0:\n+            low = max(low, ratio)\n+        else:\n+            high = min(high, ratio)\n+        if low > high:\n+            return False\n+    return high - low > epsilon and high > epsilon and low < 1 - epsilon\n+\n+\n+def points_within_bounds(points: Sequence[Point], bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    return bool(points) and all(\n+        bounds.left - epsilon <= x <= bounds.right + epsilon\n+        and bounds.top - epsilon <= y <= bounds.bottom + epsilon\n+        for x, y in points\n+    )\n+\n+\n+def find_collisions(root: ET.Element) -> list[Collision]:\n+    contexts = list(walk(root))\n+    obstacles = [\n+        (context, bounds)\n+        for context in contexts\n+        if (bounds := shape_bounds(context, canvas_size(root))) is not None\n+    ]\n+    edges = [(context, edge_points(context)) for context in contexts]\n+    legend_bounds = {\n+        bounds\n+        for _, bounds in obstacles\n+        if sum(points_within_bounds(points, bounds) for _, points in edges if len(points) >= 2) >= 2\n+    }\n+    obstacles = [(context, bounds) for context, bounds in obstacles if bounds not in legend_bounds]\n+    collisions: list[Collision] = []\n+    for edge_context, points in edges:\n+        if len(points) < 2:\n+            continue\n+        if any(points_within_bounds(points, bounds) for bounds in legend_bounds):\n+            continue\n+        edge = edge_context.element\n+        for obstacle_context, bounds in obstacles:\n+            obstacle = obstacle_context.element\n+            if any(segment_hits_bounds(first, second, bounds) for first, second in zip(points, points[1:])):\n+                collisions.append(\n+                    Collision(\n+                        describe_element(edge),\n+                        describe_element(obstacle),\n+                    )\n+                )\n+                break\n+    return collisions\n+\n+\n+def describe_element(element: ET.Element) -> str:\n+    tag = local_name(element.tag)\n+    if element.get(\"id\"):\n+        return f\"{tag}#{element.get('id')}\"\n+    if tag == \"path\":\n+        path_data = re.sub(r\"\\s+\", \" \", element.get(\"d\", \"\")).strip()\n+        return f\"path[d={path_data[:72]}]\"\n+    attributes = []\n+    for name in (\"x\", \"y\", \"width\", \"height\", \"cx\", \"cy\", \"r\", \"rx\", \"ry\"):\n+        if element.get(name) is not None:\n+            attributes.append(f\"{name}={element.get(name)}\")\n+    return f\"{tag}[{' '.join(attributes)}]\" if attributes else tag\n+\n+\n+def parse_svg(path: Path) -> ET.Element:\n+    return ET.parse(path).getroot()\n+\n+\n+def run_check(path: Path, check: str) -> tuple[bool, list[str]]:\n+    try:\n+        root = parse_svg(path)\n+    except (ET.ParseError, OSError) as error:\n+        return False, [str(error)]\n+    if check == \"xml\":\n+        return True, []\n+    if check == \"markers\":\n+        definitions, references = marker_references(root)\n+        missing = sorted(references - definitions)\n+        return not missing, [f\"missing marker: {marker}\" for marker in missing]\n+    collisions = find_collisions(root)\n+    details = [\n+        f\"{item.edge} intersects {item.obstacle}\"\n+        for item in collisions\n+    ]\n+    return not collisions, details\n+\n+\n+def parse_args() -> argparse.Namespace:\n+    parser = argparse.ArgumentParser(description=__doc__)\n+    parser.add_argument(\"svg_file\", type=Path)\n+    parser.add_argument(\"--check\", choices=(\"xml\", \"markers\", \"collisions\"), required=True)\n+    return parser.parse_args()\n+\n+\n+def main() -> int:\n+    args = parse_args()\n+    ok, details = run_check(args.svg_file, args.check)\n+    for detail in details:\n+        print(detail)\n+    return 0 if ok else 1\n+\n+\n+if __name__ == \"__main__\":\n+    raise SystemExit(main())"
+    },
+    {
+      "id": "evidence-001",
+      "type": "evidence",
+      "source": "host_llm",
+      "status": "fail",
+      "summary": "宿主语义审查结论：任意包含至少两条完整箭头路径的组件都会被误判为图例并从障碍物检测中移除。",
+      "detail": "`legend_bounds` 仅根据矩形是否完整包含两条边来推断图例，没有验证 `data-graph-role=\"legend\"`、元素名称或图例文本；因此若普通节点内部存在两条箭头，整个节点会被排除，其他穿过该节点的箭头也无法被报告。"
+    },
+    {
+      "id": "finding-002",
+      "type": "finding",
+      "category": "bug",
+      "severity": "medium",
+      "status": "open",
+      "title": "椭圆弧 `A/a` 被替换为起终点之间的直线弦，可能同时产生碰撞误报和漏报。",
+      "detail": "实际弧线可能绕过组件而弦穿过组件，也可能是弧线穿过组件而弦绕过组件；注释所称的 “conservative collision check” 因而不成立，合法 SVG 箭头可能被拒绝，真实碰撞也可能通过校验。",
+      "fingerprint": "sha256:b279117368b281badbb154a08d4fc28f75687d82db07deeda1fac45e08fc8571",
+      "extensions": {
+        "evidentloop": {
+          "review_finding_id": "f-002",
+          "original_category": "logic_error",
+          "confidence": "speculative"
+        }
+      },
+      "file_path": "scripts/validate_svg.py",
+      "hunk_id": "hunk:2bddf7282f8e58a1:1:1",
+      "start_line": 327,
+      "end_line": 327,
+      "line_side": "new",
+      "highlight_lines": [
+        327
+      ],
+      "hunk": "@@ -0,0 +1,484 @@\n+#!/usr/bin/env python3\n+\"\"\"Structured SVG checks used by validate-svg.sh.\n+\n+The validator intentionally uses only the Python standard library so it works\n+inside a freshly installed skill without adding another runtime dependency.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import argparse\n+import math\n+import re\n+import sys\n+import xml.etree.ElementTree as ET\n+from dataclasses import dataclass\n+from pathlib import Path\n+from typing import Iterator, Optional, Sequence\n+\n+\n+NUMBER_RE = re.compile(r\"[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+PATH_TOKEN_RE = re.compile(r\"[AaCcHhLlMmQqSsTtVvZz]|[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+URL_REF_RE = re.compile(r\"url\\(\\s*#([^\\s)]+)\\s*\\)\")\n+MARKER_ATTRIBUTES = (\"marker-start\", \"marker-mid\", \"marker-end\")\n+EXCLUDED_ROLES = {\"background\", \"container\", \"decoration\", \"label\", \"legend\"}\n+IDENTITY = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)\n+\n+Point = tuple[float, float]\n+Matrix = tuple[float, float, float, float, float, float]\n+\n+\n+@dataclass(frozen=True)\n+class Bounds:\n+    left: float\n+    top: float\n+    right: float\n+    bottom: float\n+\n+\n+@dataclass(frozen=True)\n+class Collision:\n+    edge: str\n+    obstacle: str\n+\n+\n+@dataclass(frozen=True)\n+class ElementContext:\n+    element: ET.Element\n+    matrix: Matrix\n+    role: Optional[str]\n+    in_defs: bool\n+\n+\n+def local_name(tag: str) -> str:\n+    return tag.split(\"}\", 1)[-1]\n+\n+\n+def parse_number(value: Optional[str], default: Optional[float] = 0.0) -> Optional[float]:\n+    if value is None:\n+        return default\n+    match = NUMBER_RE.match(value.strip())\n+    if not match:\n+        return default\n+    return float(match.group(0))\n+\n+\n+def multiply(left: Matrix, right: Matrix) -> Matrix:\n+    a1, b1, c1, d1, e1, f1 = left\n+    a2, b2, c2, d2, e2, f2 = right\n+    return (\n+        a1 * a2 + c1 * b2,\n+        b1 * a2 + d1 * b2,\n+        a1 * c2 + c1 * d2,\n+        b1 * c2 + d1 * d2,\n+        a1 * e2 + c1 * f2 + e1,\n+        b1 * e2 + d1 * f2 + f1,\n+    )\n+\n+\n+def transform_point(matrix: Matrix, point: Point) -> Point:\n+    a, b, c, d, e, f = matrix\n+    x, y = point\n+    return (a * x + c * y + e, b * x + d * y + f)\n+\n+\n+def parse_transform(value: Optional[str]) -> Matrix:\n+    result = IDENTITY\n+    if not value:\n+        return result\n+    for name, raw_values in re.findall(r\"([A-Za-z]+)\\s*\\(([^)]*)\\)\", value):\n+        values = [float(item) for item in NUMBER_RE.findall(raw_values)]\n+        name = name.lower()\n+        current = IDENTITY\n+        if name == \"matrix\" and len(values) == 6:\n+            current = tuple(values)  # type: ignore[assignment]\n+        elif name == \"translate\" and values:\n+            current = (1, 0, 0, 1, values[0], values[1] if len(values) > 1 else 0)\n+        elif name == \"scale\" and values:\n+            current = (values[0], 0, 0, values[1] if len(values) > 1 else values[0], 0, 0)\n+        elif name == \"rotate\" and values:\n+            angle = math.radians(values[0])\n+            rotation = (math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle), 0, 0)\n+            if len(values) >= 3:\n+                cx, cy = values[1], values[2]\n+                current = multiply(\n+                    multiply((1, 0, 0, 1, cx, cy), rotation),\n+                    (1, 0, 0, 1, -cx, -cy),\n+                )\n+            else:\n+                current = rotation\n+        result = multiply(result, current)\n+    return result\n+\n+\n+def infer_role(element: ET.Element, inherited: Optional[str]) -> Optional[str]:\n+    explicit = element.get(\"data-graph-role\")\n+    if explicit:\n+        return explicit.strip().lower()\n+    identity = \" \".join(filter(None, (element.get(\"id\"), element.get(\"class\")))).lower()\n+    if any(token in identity for token in (\"legend\", \"key-box\", \"key_box\")):\n+        return \"legend\"\n+    if local_name(element.tag) == \"g\":\n+        text = \" \".join(\"\".join(child.itertext()) for child in element if local_name(child.tag) == \"text\").lower()\n+        if \"legend\" in text:\n+            return \"legend\"\n+    return inherited\n+\n+\n+def walk(element: ET.Element, matrix: Matrix = IDENTITY, role: Optional[str] = None, in_defs: bool = False) -> Iterator[ElementContext]:\n+    current_matrix = multiply(matrix, parse_transform(element.get(\"transform\")))\n+    current_role = infer_role(element, role)\n+    current_in_defs = in_defs or local_name(element.tag) == \"defs\"\n+    yield ElementContext(element, current_matrix, current_role, current_in_defs)\n+    child_role = current_role if current_role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} else None\n+    for child in element:\n+        yield from walk(child, current_matrix, child_role, current_in_defs)\n+\n+\n+def canvas_size(root: ET.Element) -> Point:\n+    values = [float(item) for item in NUMBER_RE.findall(root.get(\"viewBox\", \"\"))]\n+    if len(values) == 4:\n+        return values[2], values[3]\n+    return (\n+        float(parse_number(root.get(\"width\"), 0.0) or 0.0),\n+        float(parse_number(root.get(\"height\"), 0.0) or 0.0),\n+    )\n+\n+\n+def bounds_from_points(points: Sequence[Point]) -> Optional[Bounds]:\n+    if not points:\n+        return None\n+    xs = [point[0] for point in points]\n+    ys = [point[1] for point in points]\n+    return Bounds(min(xs), min(ys), max(xs), max(ys))\n+\n+\n+def transformed_bounds(matrix: Matrix, points: Sequence[Point]) -> Optional[Bounds]:\n+    return bounds_from_points([transform_point(matrix, point) for point in points])\n+\n+\n+def shape_bounds(context: ElementContext, canvas: Point) -> Optional[Bounds]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    role = context.role\n+    if context.in_defs or role in EXCLUDED_ROLES:\n+        return None\n+\n+    if tag == \"rect\":\n+        x = float(parse_number(element.get(\"x\"), 0.0) or 0.0)\n+        y = float(parse_number(element.get(\"y\"), 0.0) or 0.0)\n+        width = parse_number(element.get(\"width\"), None)\n+        height = parse_number(element.get(\"height\"), None)\n+        if width is None or height is None or width <= 0 or height <= 0:\n+            return None\n+        canvas_width, canvas_height = canvas\n+        if role != \"node\":\n+            if element.get(\"x\") is None and element.get(\"y\") is None:\n+                return None\n+            if height <= 28 or width <= 8:\n+                return None\n+            nearly_canvas = canvas_width > 0 and canvas_height > 0 and width >= canvas_width * 0.9 and height >= canvas_height * 0.9\n+            if nearly_canvas:\n+                return None\n+            container_like = bool(element.get(\"stroke-dasharray\")) or element.get(\"fill\", \"\").strip().lower() == \"none\"\n+            if container_like and (\n+                (canvas_width > 0 and width >= canvas_width * 0.45)\n+                or (canvas_height > 0 and height >= canvas_height * 0.45)\n+            ):\n+                return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((x, y), (x + width, y), (x + width, y + height), (x, y + height)),\n+        )\n+\n+    if tag in {\"circle\", \"ellipse\"}:\n+        cx = float(parse_number(element.get(\"cx\"), 0.0) or 0.0)\n+        cy = float(parse_number(element.get(\"cy\"), 0.0) or 0.0)\n+        rx = float(parse_number(element.get(\"r\") or element.get(\"rx\"), 0.0) or 0.0)\n+        ry = float(parse_number(element.get(\"r\") or element.get(\"ry\"), 0.0) or 0.0)\n+        if rx < 12 or ry < 12:\n+            return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((cx - rx, cy - ry), (cx + rx, cy - ry), (cx + rx, cy + ry), (cx - rx, cy + ry)),\n+        )\n+\n+    if tag in {\"polygon\", \"polyline\"} and not has_marker(element):\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+        if len(points) < 3:\n+            return None\n+        return transformed_bounds(context.matrix, points)\n+    return None\n+\n+\n+def has_marker(element: ET.Element) -> bool:\n+    return any(element.get(attribute) for attribute in MARKER_ATTRIBUTES)\n+\n+\n+def marker_references(root: ET.Element) -> tuple[set[str], set[str]]:\n+    definitions = {\n+        element.get(\"id\", \"\")\n+        for element in root.iter()\n+        if local_name(element.tag) == \"marker\" and element.get(\"id\")\n+    }\n+    references: set[str] = set()\n+    for element in root.iter():\n+        for attribute in MARKER_ATTRIBUTES:\n+            value = element.get(attribute, \"\")\n+            references.update(URL_REF_RE.findall(value))\n+    return definitions, references\n+\n+\n+def sample_quadratic(start: Point, control: Point, end: Point, steps: int = 12) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t**2 * end[0],\n+            (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t**2 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def sample_cubic(start: Point, first: Point, second: Point, end: Point, steps: int = 16) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 3 * start[0] + 3 * (1 - t) ** 2 * t * first[0] + 3 * (1 - t) * t**2 * second[0] + t**3 * end[0],\n+            (1 - t) ** 3 * start[1] + 3 * (1 - t) ** 2 * t * first[1] + 3 * (1 - t) * t**2 * second[1] + t**3 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def path_points(path_data: str) -> list[Point]:\n+    tokens = PATH_TOKEN_RE.findall(path_data or \"\")\n+    points: list[Point] = []\n+    index = 0\n+    command = \"\"\n+    current = (0.0, 0.0)\n+    start = current\n+    previous_cubic: Optional[Point] = None\n+    previous_quadratic: Optional[Point] = None\n+\n+    def read(count: int) -> Optional[list[float]]:\n+        nonlocal index\n+        if index + count > len(tokens) or any(re.fullmatch(r\"[A-Za-z]\", token) for token in tokens[index : index + count]):\n+            return None\n+        values = [float(token) for token in tokens[index : index + count]]\n+        index += count\n+        return values\n+\n+    def absolute(x: float, y: float, relative: bool) -> Point:\n+        return (current[0] + x, current[1] + y) if relative else (x, y)\n+\n+    while index < len(tokens):\n+        if re.fullmatch(r\"[A-Za-z]\", tokens[index]):\n+            command = tokens[index]\n+            index += 1\n+        if not command:\n+            return []\n+        relative = command.islower()\n+        op = command.upper()\n+        if op == \"Z\":\n+            if current != start:\n+                points.append(start)\n+            current = start\n+            previous_cubic = previous_quadratic = None\n+            command = \"\"\n+            continue\n+        count = {\"M\": 2, \"L\": 2, \"H\": 1, \"V\": 1, \"C\": 6, \"S\": 4, \"Q\": 4, \"T\": 2, \"A\": 7}.get(op)\n+        if count is None:\n+            return []\n+        values = read(count)\n+        if values is None:\n+            return []\n+\n+        if op == \"M\":\n+            current = absolute(values[0], values[1], relative)\n+            start = current\n+            points.append(current)\n+            command = \"l\" if relative else \"L\"\n+        elif op == \"L\":\n+            current = absolute(values[0], values[1], relative)\n+            points.append(current)\n+        elif op == \"H\":\n+            current = (current[0] + values[0], current[1]) if relative else (values[0], current[1])\n+            points.append(current)\n+        elif op == \"V\":\n+            current = (current[0], current[1] + values[0]) if relative else (current[0], values[0])\n+            points.append(current)\n+        elif op == \"C\":\n+            first = absolute(values[0], values[1], relative)\n+            second = absolute(values[2], values[3], relative)\n+            end = absolute(values[4], values[5], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"S\":\n+            first = (2 * current[0] - previous_cubic[0], 2 * current[1] - previous_cubic[1]) if previous_cubic else current\n+            second = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"Q\":\n+            control = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"T\":\n+            control = (2 * current[0] - previous_quadratic[0], 2 * current[1] - previous_quadratic[1]) if previous_quadratic else current\n+            end = absolute(values[0], values[1], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"A\":\n+            # Arc endpoints are exact; a chord is a conservative collision check.\n+            current = absolute(values[5], values[6], relative)\n+            points.append(current)\n+            previous_cubic = previous_quadratic = None\n+        if op not in {\"C\", \"S\", \"Q\", \"T\"}:\n+            previous_cubic = previous_quadratic = None\n+    return points\n+\n+\n+def edge_points(context: ElementContext) -> list[Point]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    if context.in_defs or context.role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} or not has_marker(element):\n+        return []\n+    if tag == \"line\":\n+        points = [\n+            (float(parse_number(element.get(\"x1\"), 0.0) or 0.0), float(parse_number(element.get(\"y1\"), 0.0) or 0.0)),\n+            (float(parse_number(element.get(\"x2\"), 0.0) or 0.0), float(parse_number(element.get(\"y2\"), 0.0) or 0.0)),\n+        ]\n+    elif tag == \"polyline\":\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+    elif tag == \"path\":\n+        points = path_points(element.get(\"d\", \"\"))\n+    else:\n+        return []\n+    return [transform_point(context.matrix, point) for point in points]\n+\n+\n+def segment_hits_bounds(start: Point, end: Point, bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    left, right = bounds.left + epsilon, bounds.right - epsilon\n+    top, bottom = bounds.top + epsilon, bounds.bottom - epsilon\n+    if left >= right or top >= bottom:\n+        return False\n+    x1, y1 = start\n+    dx, dy = end[0] - x1, end[1] - y1\n+    low, high = 0.0, 1.0\n+    for p, q in ((-dx, x1 - left), (dx, right - x1), (-dy, y1 - top), (dy, bottom - y1)):\n+        if abs(p) < epsilon:\n+            if q < 0:\n+                return False\n+            continue\n+        ratio = q / p\n+        if p < 0:\n+            low = max(low, ratio)\n+        else:\n+            high = min(high, ratio)\n+        if low > high:\n+            return False\n+    return high - low > epsilon and high > epsilon and low < 1 - epsilon\n+\n+\n+def points_within_bounds(points: Sequence[Point], bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    return bool(points) and all(\n+        bounds.left - epsilon <= x <= bounds.right + epsilon\n+        and bounds.top - epsilon <= y <= bounds.bottom + epsilon\n+        for x, y in points\n+    )\n+\n+\n+def find_collisions(root: ET.Element) -> list[Collision]:\n+    contexts = list(walk(root))\n+    obstacles = [\n+        (context, bounds)\n+        for context in contexts\n+        if (bounds := shape_bounds(context, canvas_size(root))) is not None\n+    ]\n+    edges = [(context, edge_points(context)) for context in contexts]\n+    legend_bounds = {\n+        bounds\n+        for _, bounds in obstacles\n+        if sum(points_within_bounds(points, bounds) for _, points in edges if len(points) >= 2) >= 2\n+    }\n+    obstacles = [(context, bounds) for context, bounds in obstacles if bounds not in legend_bounds]\n+    collisions: list[Collision] = []\n+    for edge_context, points in edges:\n+        if len(points) < 2:\n+            continue\n+        if any(points_within_bounds(points, bounds) for bounds in legend_bounds):\n+            continue\n+        edge = edge_context.element\n+        for obstacle_context, bounds in obstacles:\n+            obstacle = obstacle_context.element\n+            if any(segment_hits_bounds(first, second, bounds) for first, second in zip(points, points[1:])):\n+                collisions.append(\n+                    Collision(\n+                        describe_element(edge),\n+                        describe_element(obstacle),\n+                    )\n+                )\n+                break\n+    return collisions\n+\n+\n+def describe_element(element: ET.Element) -> str:\n+    tag = local_name(element.tag)\n+    if element.get(\"id\"):\n+        return f\"{tag}#{element.get('id')}\"\n+    if tag == \"path\":\n+        path_data = re.sub(r\"\\s+\", \" \", element.get(\"d\", \"\")).strip()\n+        return f\"path[d={path_data[:72]}]\"\n+    attributes = []\n+    for name in (\"x\", \"y\", \"width\", \"height\", \"cx\", \"cy\", \"r\", \"rx\", \"ry\"):\n+        if element.get(name) is not None:\n+            attributes.append(f\"{name}={element.get(name)}\")\n+    return f\"{tag}[{' '.join(attributes)}]\" if attributes else tag\n+\n+\n+def parse_svg(path: Path) -> ET.Element:\n+    return ET.parse(path).getroot()\n+\n+\n+def run_check(path: Path, check: str) -> tuple[bool, list[str]]:\n+    try:\n+        root = parse_svg(path)\n+    except (ET.ParseError, OSError) as error:\n+        return False, [str(error)]\n+    if check == \"xml\":\n+        return True, []\n+    if check == \"markers\":\n+        definitions, references = marker_references(root)\n+        missing = sorted(references - definitions)\n+        return not missing, [f\"missing marker: {marker}\" for marker in missing]\n+    collisions = find_collisions(root)\n+    details = [\n+        f\"{item.edge} intersects {item.obstacle}\"\n+        for item in collisions\n+    ]\n+    return not collisions, details\n+\n+\n+def parse_args() -> argparse.Namespace:\n+    parser = argparse.ArgumentParser(description=__doc__)\n+    parser.add_argument(\"svg_file\", type=Path)\n+    parser.add_argument(\"--check\", choices=(\"xml\", \"markers\", \"collisions\"), required=True)\n+    return parser.parse_args()\n+\n+\n+def main() -> int:\n+    args = parse_args()\n+    ok, details = run_check(args.svg_file, args.check)\n+    for detail in details:\n+        print(detail)\n+    return 0 if ok else 1\n+\n+\n+if __name__ == \"__main__\":\n+    raise SystemExit(main())"
+    },
+    {
+      "id": "evidence-002",
+      "type": "evidence",
+      "source": "host_llm",
+      "status": "fail",
+      "summary": "宿主语义审查结论：椭圆弧 `A/a` 被替换为起终点之间的直线弦，可能同时产生碰撞误报和漏报。",
+      "detail": "实际弧线可能绕过组件而弦穿过组件，也可能是弧线穿过组件而弦绕过组件；注释所称的 “conservative collision check” 因而不成立，合法 SVG 箭头可能被拒绝，真实碰撞也可能通过校验。"
+    },
+    {
+      "id": "finding-003",
+      "type": "finding",
+      "category": "risk",
+      "severity": "medium",
+      "status": "open",
+      "title": "`skewX`、`skewY` 等合法 SVG transform 会被静默当作单位变换处理。",
+      "detail": "`parse_transform` 能解析任意变换名称，但仅实现 `matrix`、`translate`、`scale` 和 `rotate`；未识别的合法变换保持 `current = IDENTITY`，导致路径和障碍物使用错误坐标执行碰撞检测，且不会报告不支持的变换。",
+      "fingerprint": "sha256:c9b51cc670b39f6c9bbded7173e0a8de91856c83305ee5f663251956623552ca",
+      "extensions": {
+        "evidentloop": {
+          "review_finding_id": "f-003",
+          "original_category": "missing_validation",
+          "confidence": "plausible"
+        }
+      },
+      "file_path": "scripts/validate_svg.py",
+      "hunk_id": "hunk:2bddf7282f8e58a1:1:1",
+      "start_line": 103,
+      "end_line": 103,
+      "line_side": "new",
+      "highlight_lines": [
+        103
+      ],
+      "hunk": "@@ -0,0 +1,484 @@\n+#!/usr/bin/env python3\n+\"\"\"Structured SVG checks used by validate-svg.sh.\n+\n+The validator intentionally uses only the Python standard library so it works\n+inside a freshly installed skill without adding another runtime dependency.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import argparse\n+import math\n+import re\n+import sys\n+import xml.etree.ElementTree as ET\n+from dataclasses import dataclass\n+from pathlib import Path\n+from typing import Iterator, Optional, Sequence\n+\n+\n+NUMBER_RE = re.compile(r\"[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+PATH_TOKEN_RE = re.compile(r\"[AaCcHhLlMmQqSsTtVvZz]|[-+]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE][-+]?\\d+)?\")\n+URL_REF_RE = re.compile(r\"url\\(\\s*#([^\\s)]+)\\s*\\)\")\n+MARKER_ATTRIBUTES = (\"marker-start\", \"marker-mid\", \"marker-end\")\n+EXCLUDED_ROLES = {\"background\", \"container\", \"decoration\", \"label\", \"legend\"}\n+IDENTITY = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)\n+\n+Point = tuple[float, float]\n+Matrix = tuple[float, float, float, float, float, float]\n+\n+\n+@dataclass(frozen=True)\n+class Bounds:\n+    left: float\n+    top: float\n+    right: float\n+    bottom: float\n+\n+\n+@dataclass(frozen=True)\n+class Collision:\n+    edge: str\n+    obstacle: str\n+\n+\n+@dataclass(frozen=True)\n+class ElementContext:\n+    element: ET.Element\n+    matrix: Matrix\n+    role: Optional[str]\n+    in_defs: bool\n+\n+\n+def local_name(tag: str) -> str:\n+    return tag.split(\"}\", 1)[-1]\n+\n+\n+def parse_number(value: Optional[str], default: Optional[float] = 0.0) -> Optional[float]:\n+    if value is None:\n+        return default\n+    match = NUMBER_RE.match(value.strip())\n+    if not match:\n+        return default\n+    return float(match.group(0))\n+\n+\n+def multiply(left: Matrix, right: Matrix) -> Matrix:\n+    a1, b1, c1, d1, e1, f1 = left\n+    a2, b2, c2, d2, e2, f2 = right\n+    return (\n+        a1 * a2 + c1 * b2,\n+        b1 * a2 + d1 * b2,\n+        a1 * c2 + c1 * d2,\n+        b1 * c2 + d1 * d2,\n+        a1 * e2 + c1 * f2 + e1,\n+        b1 * e2 + d1 * f2 + f1,\n+    )\n+\n+\n+def transform_point(matrix: Matrix, point: Point) -> Point:\n+    a, b, c, d, e, f = matrix\n+    x, y = point\n+    return (a * x + c * y + e, b * x + d * y + f)\n+\n+\n+def parse_transform(value: Optional[str]) -> Matrix:\n+    result = IDENTITY\n+    if not value:\n+        return result\n+    for name, raw_values in re.findall(r\"([A-Za-z]+)\\s*\\(([^)]*)\\)\", value):\n+        values = [float(item) for item in NUMBER_RE.findall(raw_values)]\n+        name = name.lower()\n+        current = IDENTITY\n+        if name == \"matrix\" and len(values) == 6:\n+            current = tuple(values)  # type: ignore[assignment]\n+        elif name == \"translate\" and values:\n+            current = (1, 0, 0, 1, values[0], values[1] if len(values) > 1 else 0)\n+        elif name == \"scale\" and values:\n+            current = (values[0], 0, 0, values[1] if len(values) > 1 else values[0], 0, 0)\n+        elif name == \"rotate\" and values:\n+            angle = math.radians(values[0])\n+            rotation = (math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle), 0, 0)\n+            if len(values) >= 3:\n+                cx, cy = values[1], values[2]\n+                current = multiply(\n+                    multiply((1, 0, 0, 1, cx, cy), rotation),\n+                    (1, 0, 0, 1, -cx, -cy),\n+                )\n+            else:\n+                current = rotation\n+        result = multiply(result, current)\n+    return result\n+\n+\n+def infer_role(element: ET.Element, inherited: Optional[str]) -> Optional[str]:\n+    explicit = element.get(\"data-graph-role\")\n+    if explicit:\n+        return explicit.strip().lower()\n+    identity = \" \".join(filter(None, (element.get(\"id\"), element.get(\"class\")))).lower()\n+    if any(token in identity for token in (\"legend\", \"key-box\", \"key_box\")):\n+        return \"legend\"\n+    if local_name(element.tag) == \"g\":\n+        text = \" \".join(\"\".join(child.itertext()) for child in element if local_name(child.tag) == \"text\").lower()\n+        if \"legend\" in text:\n+            return \"legend\"\n+    return inherited\n+\n+\n+def walk(element: ET.Element, matrix: Matrix = IDENTITY, role: Optional[str] = None, in_defs: bool = False) -> Iterator[ElementContext]:\n+    current_matrix = multiply(matrix, parse_transform(element.get(\"transform\")))\n+    current_role = infer_role(element, role)\n+    current_in_defs = in_defs or local_name(element.tag) == \"defs\"\n+    yield ElementContext(element, current_matrix, current_role, current_in_defs)\n+    child_role = current_role if current_role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} else None\n+    for child in element:\n+        yield from walk(child, current_matrix, child_role, current_in_defs)\n+\n+\n+def canvas_size(root: ET.Element) -> Point:\n+    values = [float(item) for item in NUMBER_RE.findall(root.get(\"viewBox\", \"\"))]\n+    if len(values) == 4:\n+        return values[2], values[3]\n+    return (\n+        float(parse_number(root.get(\"width\"), 0.0) or 0.0),\n+        float(parse_number(root.get(\"height\"), 0.0) or 0.0),\n+    )\n+\n+\n+def bounds_from_points(points: Sequence[Point]) -> Optional[Bounds]:\n+    if not points:\n+        return None\n+    xs = [point[0] for point in points]\n+    ys = [point[1] for point in points]\n+    return Bounds(min(xs), min(ys), max(xs), max(ys))\n+\n+\n+def transformed_bounds(matrix: Matrix, points: Sequence[Point]) -> Optional[Bounds]:\n+    return bounds_from_points([transform_point(matrix, point) for point in points])\n+\n+\n+def shape_bounds(context: ElementContext, canvas: Point) -> Optional[Bounds]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    role = context.role\n+    if context.in_defs or role in EXCLUDED_ROLES:\n+        return None\n+\n+    if tag == \"rect\":\n+        x = float(parse_number(element.get(\"x\"), 0.0) or 0.0)\n+        y = float(parse_number(element.get(\"y\"), 0.0) or 0.0)\n+        width = parse_number(element.get(\"width\"), None)\n+        height = parse_number(element.get(\"height\"), None)\n+        if width is None or height is None or width <= 0 or height <= 0:\n+            return None\n+        canvas_width, canvas_height = canvas\n+        if role != \"node\":\n+            if element.get(\"x\") is None and element.get(\"y\") is None:\n+                return None\n+            if height <= 28 or width <= 8:\n+                return None\n+            nearly_canvas = canvas_width > 0 and canvas_height > 0 and width >= canvas_width * 0.9 and height >= canvas_height * 0.9\n+            if nearly_canvas:\n+                return None\n+            container_like = bool(element.get(\"stroke-dasharray\")) or element.get(\"fill\", \"\").strip().lower() == \"none\"\n+            if container_like and (\n+                (canvas_width > 0 and width >= canvas_width * 0.45)\n+                or (canvas_height > 0 and height >= canvas_height * 0.45)\n+            ):\n+                return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((x, y), (x + width, y), (x + width, y + height), (x, y + height)),\n+        )\n+\n+    if tag in {\"circle\", \"ellipse\"}:\n+        cx = float(parse_number(element.get(\"cx\"), 0.0) or 0.0)\n+        cy = float(parse_number(element.get(\"cy\"), 0.0) or 0.0)\n+        rx = float(parse_number(element.get(\"r\") or element.get(\"rx\"), 0.0) or 0.0)\n+        ry = float(parse_number(element.get(\"r\") or element.get(\"ry\"), 0.0) or 0.0)\n+        if rx < 12 or ry < 12:\n+            return None\n+        return transformed_bounds(\n+            context.matrix,\n+            ((cx - rx, cy - ry), (cx + rx, cy - ry), (cx + rx, cy + ry), (cx - rx, cy + ry)),\n+        )\n+\n+    if tag in {\"polygon\", \"polyline\"} and not has_marker(element):\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+        if len(points) < 3:\n+            return None\n+        return transformed_bounds(context.matrix, points)\n+    return None\n+\n+\n+def has_marker(element: ET.Element) -> bool:\n+    return any(element.get(attribute) for attribute in MARKER_ATTRIBUTES)\n+\n+\n+def marker_references(root: ET.Element) -> tuple[set[str], set[str]]:\n+    definitions = {\n+        element.get(\"id\", \"\")\n+        for element in root.iter()\n+        if local_name(element.tag) == \"marker\" and element.get(\"id\")\n+    }\n+    references: set[str] = set()\n+    for element in root.iter():\n+        for attribute in MARKER_ATTRIBUTES:\n+            value = element.get(attribute, \"\")\n+            references.update(URL_REF_RE.findall(value))\n+    return definitions, references\n+\n+\n+def sample_quadratic(start: Point, control: Point, end: Point, steps: int = 12) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t**2 * end[0],\n+            (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t**2 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def sample_cubic(start: Point, first: Point, second: Point, end: Point, steps: int = 16) -> list[Point]:\n+    return [\n+        (\n+            (1 - t) ** 3 * start[0] + 3 * (1 - t) ** 2 * t * first[0] + 3 * (1 - t) * t**2 * second[0] + t**3 * end[0],\n+            (1 - t) ** 3 * start[1] + 3 * (1 - t) ** 2 * t * first[1] + 3 * (1 - t) * t**2 * second[1] + t**3 * end[1],\n+        )\n+        for t in (index / steps for index in range(1, steps + 1))\n+    ]\n+\n+\n+def path_points(path_data: str) -> list[Point]:\n+    tokens = PATH_TOKEN_RE.findall(path_data or \"\")\n+    points: list[Point] = []\n+    index = 0\n+    command = \"\"\n+    current = (0.0, 0.0)\n+    start = current\n+    previous_cubic: Optional[Point] = None\n+    previous_quadratic: Optional[Point] = None\n+\n+    def read(count: int) -> Optional[list[float]]:\n+        nonlocal index\n+        if index + count > len(tokens) or any(re.fullmatch(r\"[A-Za-z]\", token) for token in tokens[index : index + count]):\n+            return None\n+        values = [float(token) for token in tokens[index : index + count]]\n+        index += count\n+        return values\n+\n+    def absolute(x: float, y: float, relative: bool) -> Point:\n+        return (current[0] + x, current[1] + y) if relative else (x, y)\n+\n+    while index < len(tokens):\n+        if re.fullmatch(r\"[A-Za-z]\", tokens[index]):\n+            command = tokens[index]\n+            index += 1\n+        if not command:\n+            return []\n+        relative = command.islower()\n+        op = command.upper()\n+        if op == \"Z\":\n+            if current != start:\n+                points.append(start)\n+            current = start\n+            previous_cubic = previous_quadratic = None\n+            command = \"\"\n+            continue\n+        count = {\"M\": 2, \"L\": 2, \"H\": 1, \"V\": 1, \"C\": 6, \"S\": 4, \"Q\": 4, \"T\": 2, \"A\": 7}.get(op)\n+        if count is None:\n+            return []\n+        values = read(count)\n+        if values is None:\n+            return []\n+\n+        if op == \"M\":\n+            current = absolute(values[0], values[1], relative)\n+            start = current\n+            points.append(current)\n+            command = \"l\" if relative else \"L\"\n+        elif op == \"L\":\n+            current = absolute(values[0], values[1], relative)\n+            points.append(current)\n+        elif op == \"H\":\n+            current = (current[0] + values[0], current[1]) if relative else (values[0], current[1])\n+            points.append(current)\n+        elif op == \"V\":\n+            current = (current[0], current[1] + values[0]) if relative else (current[0], values[0])\n+            points.append(current)\n+        elif op == \"C\":\n+            first = absolute(values[0], values[1], relative)\n+            second = absolute(values[2], values[3], relative)\n+            end = absolute(values[4], values[5], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"S\":\n+            first = (2 * current[0] - previous_cubic[0], 2 * current[1] - previous_cubic[1]) if previous_cubic else current\n+            second = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_cubic(current, first, second, end))\n+            current, previous_cubic = end, second\n+            previous_quadratic = None\n+        elif op == \"Q\":\n+            control = absolute(values[0], values[1], relative)\n+            end = absolute(values[2], values[3], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"T\":\n+            control = (2 * current[0] - previous_quadratic[0], 2 * current[1] - previous_quadratic[1]) if previous_quadratic else current\n+            end = absolute(values[0], values[1], relative)\n+            points.extend(sample_quadratic(current, control, end))\n+            current, previous_quadratic = end, control\n+            previous_cubic = None\n+        elif op == \"A\":\n+            # Arc endpoints are exact; a chord is a conservative collision check.\n+            current = absolute(values[5], values[6], relative)\n+            points.append(current)\n+            previous_cubic = previous_quadratic = None\n+        if op not in {\"C\", \"S\", \"Q\", \"T\"}:\n+            previous_cubic = previous_quadratic = None\n+    return points\n+\n+\n+def edge_points(context: ElementContext) -> list[Point]:\n+    element = context.element\n+    tag = local_name(element.tag)\n+    if context.in_defs or context.role in {\"background\", \"decoration\", \"label\", \"legend\", \"node\"} or not has_marker(element):\n+        return []\n+    if tag == \"line\":\n+        points = [\n+            (float(parse_number(element.get(\"x1\"), 0.0) or 0.0), float(parse_number(element.get(\"y1\"), 0.0) or 0.0)),\n+            (float(parse_number(element.get(\"x2\"), 0.0) or 0.0), float(parse_number(element.get(\"y2\"), 0.0) or 0.0)),\n+        ]\n+    elif tag == \"polyline\":\n+        values = [float(item) for item in NUMBER_RE.findall(element.get(\"points\", \"\"))]\n+        points = list(zip(values[::2], values[1::2]))\n+    elif tag == \"path\":\n+        points = path_points(element.get(\"d\", \"\"))\n+    else:\n+        return []\n+    return [transform_point(context.matrix, point) for point in points]\n+\n+\n+def segment_hits_bounds(start: Point, end: Point, bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    left, right = bounds.left + epsilon, bounds.right - epsilon\n+    top, bottom = bounds.top + epsilon, bounds.bottom - epsilon\n+    if left >= right or top >= bottom:\n+        return False\n+    x1, y1 = start\n+    dx, dy = end[0] - x1, end[1] - y1\n+    low, high = 0.0, 1.0\n+    for p, q in ((-dx, x1 - left), (dx, right - x1), (-dy, y1 - top), (dy, bottom - y1)):\n+        if abs(p) < epsilon:\n+            if q < 0:\n+                return False\n+            continue\n+        ratio = q / p\n+        if p < 0:\n+            low = max(low, ratio)\n+        else:\n+            high = min(high, ratio)\n+        if low > high:\n+            return False\n+    return high - low > epsilon and high > epsilon and low < 1 - epsilon\n+\n+\n+def points_within_bounds(points: Sequence[Point], bounds: Bounds, epsilon: float = 1e-5) -> bool:\n+    return bool(points) and all(\n+        bounds.left - epsilon <= x <= bounds.right + epsilon\n+        and bounds.top - epsilon <= y <= bounds.bottom + epsilon\n+        for x, y in points\n+    )\n+\n+\n+def find_collisions(root: ET.Element) -> list[Collision]:\n+    contexts = list(walk(root))\n+    obstacles = [\n+        (context, bounds)\n+        for context in contexts\n+        if (bounds := shape_bounds(context, canvas_size(root))) is not None\n+    ]\n+    edges = [(context, edge_points(context)) for context in contexts]\n+    legend_bounds = {\n+        bounds\n+        for _, bounds in obstacles\n+        if sum(points_within_bounds(points, bounds) for _, points in edges if len(points) >= 2) >= 2\n+    }\n+    obstacles = [(context, bounds) for context, bounds in obstacles if bounds not in legend_bounds]\n+    collisions: list[Collision] = []\n+    for edge_context, points in edges:\n+        if len(points) < 2:\n+            continue\n+        if any(points_within_bounds(points, bounds) for bounds in legend_bounds):\n+            continue\n+        edge = edge_context.element\n+        for obstacle_context, bounds in obstacles:\n+            obstacle = obstacle_context.element\n+            if any(segment_hits_bounds(first, second, bounds) for first, second in zip(points, points[1:])):\n+                collisions.append(\n+                    Collision(\n+                        describe_element(edge),\n+                        describe_element(obstacle),\n+                    )\n+                )\n+                break\n+    return collisions\n+\n+\n+def describe_element(element: ET.Element) -> str:\n+    tag = local_name(element.tag)\n+    if element.get(\"id\"):\n+        return f\"{tag}#{element.get('id')}\"\n+    if tag == \"path\":\n+        path_data = re.sub(r\"\\s+\", \" \", element.get(\"d\", \"\")).strip()\n+        return f\"path[d={path_data[:72]}]\"\n+    attributes = []\n+    for name in (\"x\", \"y\", \"width\", \"height\", \"cx\", \"cy\", \"r\", \"rx\", \"ry\"):\n+        if element.get(name) is not None:\n+            attributes.append(f\"{name}={element.get(name)}\")\n+    return f\"{tag}[{' '.join(attributes)}]\" if attributes else tag\n+\n+\n+def parse_svg(path: Path) -> ET.Element:\n+    return ET.parse(path).getroot()\n+\n+\n+def run_check(path: Path, check: str) -> tuple[bool, list[str]]:\n+    try:\n+        root = parse_svg(path)\n+    except (ET.ParseError, OSError) as error:\n+        return False, [str(error)]\n+    if check == \"xml\":\n+        return True, []\n+    if check == \"markers\":\n+        definitions, references = marker_references(root)\n+        missing = sorted(references - definitions)\n+        return not missing, [f\"missing marker: {marker}\" for marker in missing]\n+    collisions = find_collisions(root)\n+    details = [\n+        f\"{item.edge} intersects {item.obstacle}\"\n+        for item in collisions\n+    ]\n+    return not collisions, details\n+\n+\n+def parse_args() -> argparse.Namespace:\n+    parser = argparse.ArgumentParser(description=__doc__)\n+    parser.add_argument(\"svg_file\", type=Path)\n+    parser.add_argument(\"--check\", choices=(\"xml\", \"markers\", \"collisions\"), required=True)\n+    return parser.parse_args()\n+\n+\n+def main() -> int:\n+    args = parse_args()\n+    ok, details = run_check(args.svg_file, args.check)\n+    for detail in details:\n+        print(detail)\n+    return 0 if ok else 1\n+\n+\n+if __name__ == \"__main__\":\n+    raise SystemExit(main())"
+    },
+    {
+      "id": "evidence-003",
+      "type": "evidence",
+      "source": "host_llm",
+      "status": "fail",
+      "summary": "宿主语义审查结论：`skewX`、`skewY` 等合法 SVG transform 会被静默当作单位变换处理。",
+      "detail": "`parse_transform` 能解析任意变换名称，但仅实现 `matrix`、`translate`、`scale` 和 `rotate`；未识别的合法变换保持 `current = IDENTITY`，导致路径和障碍物使用错误坐标执行碰撞检测，且不会报告不支持的变换。"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-001",
+      "type": "contains_change",
+      "from": "run-7ed819e4a44141a4b13ac250f2697bb9",
+      "to": "change-001"
+    },
+    {
+      "id": "edge-002",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-001"
+    },
+    {
+      "id": "edge-003",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-002"
+    },
+    {
+      "id": "edge-004",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-003"
+    },
+    {
+      "id": "edge-005",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-004"
+    },
+    {
+      "id": "edge-006",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-005"
+    },
+    {
+      "id": "edge-007",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-006"
+    },
+    {
+      "id": "edge-008",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-007"
+    },
+    {
+      "id": "edge-009",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-008"
+    },
+    {
+      "id": "edge-010",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-009"
+    },
+    {
+      "id": "edge-011",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-010"
+    },
+    {
+      "id": "edge-012",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-011"
+    },
+    {
+      "id": "edge-013",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-012"
+    },
+    {
+      "id": "edge-014",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-013"
+    },
+    {
+      "id": "edge-015",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-014"
+    },
+    {
+      "id": "edge-016",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-015"
+    },
+    {
+      "id": "edge-017",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-016"
+    },
+    {
+      "id": "edge-018",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-017"
+    },
+    {
+      "id": "edge-019",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-018"
+    },
+    {
+      "id": "edge-020",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-019"
+    },
+    {
+      "id": "edge-021",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-020"
+    },
+    {
+      "id": "edge-022",
+      "type": "changes_file",
+      "from": "change-001",
+      "to": "file-021"
+    },
+    {
+      "id": "edge-023",
+      "type": "finding_in_file",
+      "from": "finding-001",
+      "to": "file-020"
+    },
+    {
+      "id": "edge-024",
+      "type": "supported_by_evidence",
+      "from": "finding-001",
+      "to": "evidence-001"
+    },
+    {
+      "id": "edge-025",
+      "type": "finding_in_file",
+      "from": "finding-002",
+      "to": "file-020"
+    },
+    {
+      "id": "edge-026",
+      "type": "supported_by_evidence",
+      "from": "finding-002",
+      "to": "evidence-002"
+    },
+    {
+      "id": "edge-027",
+      "type": "finding_in_file",
+      "from": "finding-003",
+      "to": "file-020"
+    },
+    {
+      "id": "edge-028",
+      "type": "supported_by_evidence",
+      "from": "finding-003",
+      "to": "evidence-003"
+    }
+  ],
+  "summary": {
+    "review_status": "complete",
+    "verdict": "concerns",
+    "risk_score": 60,
+    "finding_count": 3,
+    "unscored_finding_count": 0,
+    "open_finding_count": 3,
+    "fix_count": 0,
+    "fix_done_count": 0,
+    "summary_audit_status": "not_audited",
+    "extensions": {
+      "evidentloop": {
+        "review_diagnostics": {
+          "intent_coverage": "covered",
+          "files_reviewed": 21,
+          "files_total": 21,
+          "pack_completeness": 0.65,
+          "raw_findings_count": 3,
+          "emitted_findings_count": 3,
+          "reviewer_failure_reason": null,
+          "advisory_verdict": "concerns",
+          "advisory_rationale": "review found medium/high-severity issues"
+        }
+      }
+    }
+  },
+  "extensions": {
+    "evidentloop": {
+      "profile": "code_diff",
+      "run_id": "run-7ed819e4a44141a4b13ac250f2697bb9",
+      "adapter": "gitdiff/v0",
+      "reviewer_prompt": {
+        "source": "product",
+        "version": "v0.5",
+        "sha256": "sha256:33b0669d9660e698e7e225d51cd0881bcea5513ad6aec8cf3204ce6a550716cb"
+      }
+    }
+  }
+}
