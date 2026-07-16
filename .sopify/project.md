@@ -12,6 +12,13 @@
 
 中文是主要产品文档与一期正式 HTML 报告语言。英文只保留在项目名、包元数据、命令、字段名、协议标签、代码和通用技术术语中；reviewer 输出的 finding、observation 与 overall 语义正文默认使用简体中文。
 
+## 公开交付状态
+
+- 首个公开 Alpha 为 `v0.1.0a0`，source commit 为 `88134ae4bba0fa9995a6bb2d46ba17f9e0bcc6b6`。
+- PyPI 项目为 `evidentloop`；GitHub Release 为 `v0.1.0a0` pre-release；GitHub Pages 从 main 的 `/docs` 发布到 `https://evidentloop.github.io/evidentloop/`。
+- Release evidence bundle 外层 SHA-256 为 `3be3ee211f6e8247a8586331860e1892ffcc823f002db2e6d0510053126bd57d`，manifest、tag 解引用与远端 main 均绑定同一 source commit。
+- 后续发布继续遵守“准确 release commit 审计 → evidence → tag/Release → 受保护 PyPI deployment → 公开安装与 Pages smoke”的 fail-closed 顺序。
+
 ## 技术约定
 
 - Python runtime 版本：`>=3.10`；推荐由 `uv tool` 管理隔离环境，pipx 作为 fallback，不要求用户手建 venv 或把包装进项目环境。

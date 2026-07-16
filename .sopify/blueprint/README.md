@@ -2,7 +2,7 @@
 
 ## 状态
 
-EvidentLoop v0 code-diff 一期已经完成并归档。产品身份、本地 clean break、Python CLI、标准 Skill 和 Codex 端到端审计已完成；当前 schema `0.3`、prompt `v0.5`，历史报告保持原样。
+EvidentLoop v0 code-diff 一期与首个公开 Alpha 已完成并归档。`v0.1.0a0` 已通过 PyPI、同仓库标准 Skill、GitHub Release evidence 与 GitHub Pages 交付；当前 schema `0.3`、prompt `v0.5`，历史报告保持原样。
 
 ## 当前目标
 
@@ -10,7 +10,7 @@ EvidentLoop v0 code-diff 一期已经完成并归档。产品身份、本地 cle
 
 ## 当前焦点
 
-当前焦点是[产品身份与分发方案](../plan/20260711_identity_and_distribution/background.md)。本地发布候选、安装产物边界、Pages 样例与 GitHub Release evidence 草案已验证，最终 diff 与外部发布动作也已获用户确认。下一步按准确 release commit、审计、evidence、tag、PyPI、Release 与 Pages 的顺序完成公开 Alpha。
+公开 Alpha 已收口。当前焦点回到[长期任务](./tasks.md)：反馈消费与报告重生成、更多 artifact profile，以及基于真实样本持续收紧审查质量；不扩张首个 Alpha 的 code-diff 边界。
 
 ## 维护方式
 
@@ -22,6 +22,6 @@ EvidentLoop v0 code-diff 一期已经完成并归档。产品身份、本地 cle
 - [产品背景](./background.md)
 - [长期设计](./design.md)
 - [长期任务](./tasks.md)
-- [产品身份与分发方案](../plan/20260711_identity_and_distribution/background.md)
+- [已归档的产品身份与分发方案](../history/2026-07/20260711_identity_and_distribution/background.md)
 - [已归档的一期方案](../history/2026-07/20260710_audit_json_v0_schema_renderer_spike/plan.md)
 - [变更历史](../history/index.md)

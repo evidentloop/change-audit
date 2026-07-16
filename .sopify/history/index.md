@@ -5,5 +5,6 @@
 | 20260707 | `audit-graph` 初始化（现 `change-audit`） | ✓ | [查看](2026-07/20260707_audit_graph_init/) |
 | 20260710 | `change-audit` 正式改名 | ✓ | [查看](2026-07/20260710_change_audit_rename/) |
 | 20260710 | `change-audit` v0 code-diff 一期闭环 | ✓ | [查看](2026-07/20260710_audit_json_v0_schema_renderer_spike/) |
+| 20260711 | `EvidentLoop` 身份迁移、分发与公开 Alpha | ✓ | [查看](2026-07/20260711_identity_and_distribution/) |
 
 初始化方案保留更名前的原始名称和正文；其后续实现继续由 [长期任务](../blueprint/tasks.md) 跟踪，更名关系记录在方案包的 `20260710_rename_note.md`。

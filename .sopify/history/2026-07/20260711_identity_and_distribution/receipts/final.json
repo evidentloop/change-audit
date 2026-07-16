@@ -1,0 +1,36 @@
+{
+  "evidence": {
+    "commands": [
+      "pytest -p no:cacheprovider -q",
+      "ruff check .",
+      "node --check evidentloop/renderers/static/audit.js",
+      "node tests/js/audit-feedback.test.cjs",
+      "gh release view/download v0.1.0a0",
+      "gh run watch 29465092193 --exit-status",
+      "curl https://pypi.org/pypi/evidentloop/0.1.0a0/json",
+      "uv tool install evidentloop==0.1.0a0",
+      "pipx install evidentloop==0.1.0a0",
+      "npx skills@latest add evidentloop/evidentloop --skill evidentloop -g -y"
+    ],
+    "result": "passed",
+    "retry_count": 0,
+    "review_result": {
+      "audit_status": "complete",
+      "spec_compliance": "passed",
+      "verdict": "inconclusive"
+    },
+    "scope": "identity migration, distribution, release evidence, protected publication, Pages, knowledge sync, archive",
+    "verification_source": "release_commit_and_public_endpoints"
+  },
+  "provenance": {
+    "evidence_sha256": "3be3ee211f6e8247a8586331860e1892ffcc823f002db2e6d0510053126bd57d",
+    "plan_id": "20260711_identity_and_distribution",
+    "release_tag": "v0.1.0a0",
+    "receipt_id": "final",
+    "source": "user_authorized_finalize",
+    "source_commit": "88134ae4bba0fa9995a6bb2d46ba17f9e0bcc6b6",
+    "workspace": "<REPOSITORY_ROOT>"
+  },
+  "timestamp": "2026-07-16T02:12:52Z",
+  "verdict": "finalized"
+}

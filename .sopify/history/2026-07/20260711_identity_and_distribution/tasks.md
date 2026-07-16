@@ -1,6 +1,6 @@
 # 任务清单：EvidentLoop 身份迁移、零摩擦分发与发布证据收口
 
-目录：`.sopify/plan/20260711_identity_and_distribution/`
+归档目录：`.sopify/history/2026-07/20260711_identity_and_distribution/`
 
 > Wave 0 至 Wave 5 已完成；`e6f3381` 保留为 Wave 4 验证候选，Wave 5 dogfood 绑定 `81e7b1f`。repository 已改名为 `evidentloop/evidentloop`；用户已确认 Wave 6 checkpoint，Wave 7 只按准确 commit、tag、evidence 与公开验证顺序执行。
 
@@ -62,13 +62,13 @@
 ## Wave 7：经授权发布
 
 - [x] 7.1 GitHub repository 已于发布 checkpoint 前改名为 `evidentloop/evidentloop`；旧地址重定向、新仓库读取、main CI 与本地 canonical remote 已验证。该事实不授权后续 tag、PyPI、Release 或 Pages 操作。
-- [ ] 7.2 用户确认 6.3 后，将 PyPI README 图片固定到同版本 tag URL，创建 main release commit，并针对该准确 commit 重跑确定性测试与真实审计；source 有任何变化则废弃候选并重跑。
-- [ ] 7.3 生成绑定 7.2 `source_commit` 的 release evidence bundle，验证身份、manifest、audit status、脱敏与 checksums。
-- [ ] 7.4 推送并验证准确 main release commit，确认远端 SHA 与 evidence manifest 一致。
-- [ ] 7.5 建立 PyPI `evidentloop` 项目所有权并配置 Trusted Publisher；创建与 package version 相同、指向 7.2 main commit 的不可变 tag，以独立授权动作创建 GitHub Release 并上传 7.3 bundle。验证 tag、资产与 `source_commit` 一致后，再批准受保护的 workflow 发布 Alpha。
-- [ ] 7.6 从 main 的 `docs/` 启用 Pages，并从公开入口验证 PyPI README、`uvx evidentloop demo`、`uv tool install evidentloop`、pipx、远程 Skill 安装和准确 tag/evidence 链路。
+- [x] 7.2 PyPI README 图片已固定到 `v0.1.0a0` tag；main release commit 为 `88134ae`。该准确 commit 的 Python `329 passed`、Ruff、JavaScript、构建边界与真实 EvidentLoop 审计均通过，审计结果为 `complete / inconclusive`、0 findings。
+- [x] 7.3 已生成绑定 `88134ae4bba0fa9995a6bb2d46ba17f9e0bcc6b6` 的 release evidence bundle；身份、manifest、audit status、脱敏与内部 checksums 均通过，外层 SHA-256 为 `3be3ee211f6e8247a8586331860e1892ffcc823f002db2e6d0510053126bd57d`。
+- [x] 7.4 release commit 已推送并验证，远端 main、tag 解引用与 evidence manifest 的 `source_commit` 一致。
+- [x] 7.5 PyPI Trusted Publisher 与受保护的 `pypi` environment 已配置；不可变 tag `v0.1.0a0` 指向 `88134ae`。GitHub pre-release 已发布并附带已回下载校验的 evidence bundle；随后审批 deployment，Actions run `29465092193` 的 build 与 publish jobs 均成功，PyPI 已发布 `0.1.0a0`。
+- [x] 7.6 GitHub Pages 已从 main `/docs` 启用，首页与样例报告返回 HTTP 200；公开 PyPI 元数据、`uv tool install`、离线 demo、pipx 与远程 Skill copy 安装均通过，README tag 图片、Release 与 evidence 链路可访问。
 
 ## Wave 8：收口
 
-- [ ] 8.1 在 main 的 `.sopify` 同步 blueprint、project、history 与最终 receipt；长期蓝图只保留已生效的 EvidentLoop 身份和真实交付状态，不提交运行态或用户数据。
-- [ ] 8.2 显式确认后归档当前方案；除方案归档和已授权的 Wave 7 操作外，不额外创建实现或发布 commit，不创建额外 tag 或发布。
+- [x] 8.1 已在 main 的 `.sopify` 同步 blueprint、project、history 与最终 receipt；长期蓝图只保留已生效身份、真实交付状态和未完成长期项，未提交运行态或用户数据。
+- [x] 8.2 用户已明确要求整体收口并授权直接操作；当前方案归档至 history。除本次方案归档提交外，未创建额外实现 commit、tag 或 Release。
