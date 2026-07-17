@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 580" width="1280" height="580" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 680" width="1280" height="680" role="img" aria-labelledby="title desc">
   <title id="title">How EvidentLoop builds an auditable report</title>
-  <desc id="desc">A developer asks the EvidentLoop Skill to audit a local Git diff. The Skill fixes the review input for the host model, stages the result privately, validates changed-line anchors and report integrity, then commits audit.json and audit.html together. Human decisions remain browser-local until export.</desc>
+  <desc id="desc">A developer asks the EvidentLoop Skill to audit a local Git diff. The host model reviews the fixed diff once. EvidentLoop stages and validates the result, then publishes audit.json and audit.html together. The developer can export decisions, paste them back into the Skill, and revise the report without another model review. The revised files pass the same artifact-pair gate before publication.</desc>
   <style>
     text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
     .title { fill: #111827; font-size: 25px; font-weight: 700; }
@@ -24,9 +24,9 @@
     </marker>
   </defs>
 
-  <rect width="1280" height="580" fill="#ffffff"/>
+  <rect width="1280" height="680" fill="#ffffff"/>
   <text x="40" y="40" class="title">How EvidentLoop builds an auditable report</text>
-  <text x="40" y="64" class="subtitle">The host reviews a fixed Git diff; EvidentLoop stages, validates, and publishes the artifact pair.</text>
+  <text x="40" y="64" class="subtitle">The host reviews once; human decisions update and republish the report without another model review.</text>
 
   <rect x="40" y="90" width="1200" height="142" rx="13" fill="#f8fafc" stroke="#d1d5db" stroke-width="1.4"/>
   <text x="60" y="116" class="lane-title">USER AND AI HOST</text>
@@ -108,7 +108,7 @@
     <text x="967" y="400" class="small">nothing published early</text>
   </g>
 
-  <rect x="40" y="462" width="1200" height="92" rx="13" fill="#f8fafc" stroke="#d1d5db" stroke-width="1.4"/>
+  <rect x="40" y="462" width="1200" height="176" rx="13" fill="#f8fafc" stroke="#d1d5db" stroke-width="1.4"/>
   <text x="60" y="488" class="lane-title">USER-VISIBLE OUTPUT</text>
 
   <path d="M 1078 414 L 1078 476 L 418 476 L 418 500" fill="none" stroke="#16a34a" stroke-width="2.2" marker-end="url(#green-arrow)"/>
@@ -126,16 +126,27 @@
     <text x="686" y="524" class="small">self-contained report</text>
   </g>
   <path d="M 800 519 L 875 519" fill="none" stroke="#7c3aed" stroke-width="2.1" marker-end="url(#purple-arrow)"/>
-  <text x="838" y="504" text-anchor="middle" class="arrow-label" fill="#7c3aed">optional</text>
+  <text x="838" y="504" text-anchor="middle" class="arrow-label" fill="#7c3aed">export decisions</text>
   <g>
     <rect x="875" y="500" width="285" height="38" rx="8" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1.4"/>
     <text x="897" y="524" class="node-title">Feedback JSONL</text>
   </g>
 
-  <line x1="60" y1="570" x2="90" y2="570" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#blue-arrow)"/>
-  <text x="102" y="574" class="small">orchestration</text>
-  <line x1="220" y1="570" x2="250" y2="570" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple-arrow)"/>
-  <text x="262" y="574" class="small">semantic review / human action</text>
-  <line x1="470" y1="570" x2="500" y2="570" stroke="#16a34a" stroke-width="2" marker-end="url(#green-arrow)"/>
-  <text x="512" y="574" class="small">trusted data / artifact</text>
+  <path d="M 1018 538 L 1018 580" fill="none" stroke="#7c3aed" stroke-width="2.1" marker-end="url(#purple-arrow)"/>
+  <text x="1030" y="563" class="arrow-label" fill="#7c3aed">paste decisions</text>
+  <g>
+    <rect x="875" y="580" width="285" height="46" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.4"/>
+    <text x="897" y="601" class="node-title">revise</text>
+    <text x="959" y="601" class="node-sub">verify report + feedback</text>
+    <text x="897" y="617" class="small">apply decisions · keep the original review</text>
+  </g>
+  <path d="M 1160 603 L 1190 603 L 1190 414" fill="none" stroke="#16a34a" stroke-width="2.2" marker-end="url(#green-arrow)"/>
+  <text x="1182" y="492" text-anchor="middle" class="arrow-label" fill="#16a34a" transform="rotate(-90 1182 492)">verify + republish</text>
+
+  <line x1="60" y1="658" x2="90" y2="658" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#blue-arrow)"/>
+  <text x="102" y="662" class="small">orchestration</text>
+  <line x1="220" y1="658" x2="250" y2="658" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple-arrow)"/>
+  <text x="262" y="662" class="small">semantic review / human action</text>
+  <line x1="470" y1="658" x2="500" y2="658" stroke="#16a34a" stroke-width="2" marker-end="url(#green-arrow)"/>
+  <text x="512" y="662" class="small">trusted data / artifact</text>
 </svg>
