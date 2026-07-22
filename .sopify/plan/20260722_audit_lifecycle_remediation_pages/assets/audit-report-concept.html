@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="zh-CN" data-renderer-version="0.4-concept">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>修复复审报告 · EvidentLoop 成品样例</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f5f8;
+      --panel: #fff;
+      --text: #172033;
+      --muted: #5f6c80;
+      --line: #d5dce6;
+      --line-strong: #aeb9c8;
+      --green: #176b3a;
+      --green-soft: #e9f6ed;
+      --red: #b92f38;
+      --red-soft: #fff0f1;
+      --amber: #96610c;
+      --amber-soft: #fff5dc;
+      --blue: #245f91;
+      --blue-soft: #edf6ff;
+      --soft: #f8fafc;
+      --focus: #0e7490;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #e9edf3 0, var(--bg) 300px);
+      color: var(--text);
+      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 780px; margin-bottom: 10px; font-size: clamp(1.75rem, 4vw, 2.35rem); line-height: 1.16; overflow-wrap: anywhere; }
+    h2 { margin-bottom: 0; font-size: 1.18rem; }
+    h3 { margin-bottom: 8px; font-size: 1rem; }
+    button, select, textarea { font: inherit; }
+    code { padding: 2px 5px; border-radius: 5px; background: #eef2f7; overflow-wrap: anywhere; }
+    .skip-link {
+      position: fixed;
+      z-index: 20;
+      top: 10px;
+      left: 10px;
+      transform: translateY(-160%);
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--text);
+      color: #fff;
+    }
+    .skip-link:focus { transform: translateY(0); }
+    .report-shell {
+      display: grid;
+      width: min(1120px, 100%);
+      min-width: 0;
+      margin: 0 auto;
+      padding: 26px 18px 56px;
+      gap: 16px;
+    }
+    .panel, .hero {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      box-shadow: 0 1px 2px rgba(23, 32, 51, .04);
+    }
+    .panel { padding: 20px; }
+    .hero { padding: 24px; border-top: 5px solid var(--blue); box-shadow: 0 12px 34px rgba(23, 32, 51, .08); }
+    .hero.pass_candidate { border-top-color: var(--green); }
+    .hero.concerns { border-top-color: var(--red); }
+    .hero.needs_human_triage { border-top-color: var(--amber); }
+    .hero.inconclusive { border-top-color: var(--blue); }
+    .topline, .section-title, .finding-header, .feedback-toolbar, .feedback-heading, .row-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { color: var(--muted); font-size: .83rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .concept-label { padding: 4px 9px; border: 1px dashed var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .78rem; font-weight: 750; }
+    .hero-copy { margin-top: 18px; }
+    .hero-copy p, .section-title p, .feedback-toolbar p { margin-bottom: 0; color: var(--muted); }
+    .hero-copy, .notice > div, .section-title > div, .feedback-toolbar > div, .row-top > div { min-width: 0; overflow-wrap: anywhere; }
+    .truth-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.35fr .8fr .8fr;
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .truth-item { min-width: 0; padding: 14px; background: var(--soft); }
+    .truth-item + .truth-item { border-left: 1px solid var(--line); }
+    .truth-item span { display: block; margin-bottom: 4px; color: var(--muted); font-size: .78rem; font-weight: 750; }
+    .truth-item strong { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }
+    .hero.pass_candidate .truth-item.verdict { background: var(--green-soft); }
+    .hero.concerns .truth-item.verdict { background: var(--red-soft); }
+    .hero.needs_human_triage .truth-item.verdict { background: var(--amber-soft); }
+    .hero.inconclusive .truth-item.verdict { background: var(--blue-soft); }
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid #b8d5ef;
+      border-radius: 9px;
+      background: var(--blue-soft);
+    }
+    .notice-mark { display: inline-grid; flex: 0 0 24px; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 850; }
+    .notice p { margin: 2px 0 0; color: #294861; }
+    .section-title { align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .section-title p { margin-top: 4px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: .76rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .badge.ok { background: var(--green); }
+    .badge.risk { background: var(--red); }
+    .badge.warn { background: var(--amber); }
+    .badge.soft { color: var(--text); background: #e9edf3; }
+    .change-lead { margin-bottom: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+    .change-lead p { margin-bottom: 0; }
+    .change-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .change-stats span, .file-stats span { padding: 4px 8px; border-radius: 7px; background: #fff; color: #455266; font-size: .8rem; font-weight: 750; }
+    .file-list { display: grid; gap: 8px; }
+    .file-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+    .file-main { min-width: 0; }
+    .file-main strong { display: block; font: 800 .88rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .file-main p { margin: 3px 0 0; color: var(--muted); font-size: .86rem; }
+    .file-stats { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .file-stats a { min-height: 44px; padding: 10px 12px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); font-weight: 800; text-decoration: none; }
+    .file-stats a:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 38%, transparent); outline-offset: 2px; }
+    .remediation-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr); gap: 14px; }
+    .source-card, .claim-card, .judgment-box {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--soft);
+    }
+    .source-card dl, .trace-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; margin: 14px 0 0; }
+    dt { color: var(--muted); font-size: .8rem; font-weight: 750; }
+    dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+    .declaration { margin: 12px 0 0; padding: 11px 12px; border-left: 4px solid var(--blue); background: var(--blue-soft); }
+    .claim-list { display: grid; gap: 9px; margin-top: 12px; }
+    .claim-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .claim-row p { margin: 1px 0 0; }
+    .finding-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-left: 5px solid var(--amber); border-radius: 10px; background: #fff; }
+    .finding-header { align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--soft); }
+    .finding-title-wrap { display: grid; min-width: 0; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; }
+    .finding-title { display: block; font-weight: 850; overflow-wrap: anywhere; }
+    .location { display: block; margin-top: 2px; color: var(--blue); font: .82rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .finding-body { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(270px, .65fr); gap: 14px; padding: 16px; }
+    .finding-note { margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
+    .hunk { min-width: 0; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 8px; background: #fbfcfe; }
+    .hunk-file, .hunk-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    .hunk-file { align-items: center; background: #f8fafc; font-size: .82rem; }
+    .hunk-file strong { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .hunk-file span { color: var(--muted); font-weight: 750; }
+    .hunk-caption { background: #eef2f7; color: var(--muted); font: .76rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .hunk-scroll { max-width: 100%; max-height: min(18rem, 55vh); overflow: auto; overscroll-behavior-inline: contain; scrollbar-gutter: stable; }
+    .hunk-table { width: max-content; min-width: 100%; border-collapse: collapse; font: .8rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .hunk-table td { padding: 4px 9px; border: 0; vertical-align: top; }
+    .hunk-table .old-num, .hunk-table .new-num { width: 46px; color: #748196; background: #f2f5f8; text-align: right; user-select: none; }
+    .hunk-table .new-num { border-left: 1px solid var(--line); }
+    .hunk-table .code { white-space: pre; }
+    .hunk-table .context { color: #455266; background: #fff; }
+    .hunk-table .added { color: #135c2c; background: #e8f8ed; }
+    .hunk-table .deleted { color: #82071e; background: #ffebe9; }
+    .hunk-table .hit { box-shadow: inset 4px 0 0 #f59e0b; font-weight: 750; }
+    .hunk-table .omitted { padding: 7px 10px; color: var(--muted); background: #eef2f7; text-align: center; font-style: italic; }
+    .judgment-row { display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .judgment-row:last-child { border-bottom: 0; }
+    .judgment-row span { color: var(--muted); font-size: .8rem; font-weight: 750; }
+    .feedback-box { margin-top: 12px; padding: 14px; border: 1px solid #b8d5ef; border-radius: 9px; background: var(--blue-soft); }
+    .feedback-heading { align-items: center; }
+    .feedback-actions, .export-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .button, select { min-height: 44px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; color: var(--text); cursor: pointer; }
+    .button { padding: 9px 13px; font-weight: 780; }
+    .button:hover { border-color: var(--blue); background: #f3f8fd; }
+    .button[aria-pressed="true"], .button.primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+    .button.secondary { color: var(--blue); }
+    .button:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, .skip-link:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus) 38%, transparent);
+      outline-offset: 2px;
+    }
+    details > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; list-style: none; color: var(--blue); font-weight: 780; cursor: pointer; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::after {
+      width: 9px;
+      height: 9px;
+      margin-left: auto;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      content: "";
+      transform: rotate(45deg) translate(-2px, -2px);
+      transform-origin: center;
+      transition: transform .16s ease;
+    }
+    details[open] > summary::after { transform: rotate(225deg) translate(-1px, -1px); }
+    .feedback-controls { display: grid; gap: 10px; padding-top: 8px; }
+    .feedback-controls label { display: grid; gap: 5px; color: var(--muted); font-size: .88rem; font-weight: 750; }
+    .feedback-controls select, .feedback-controls textarea { width: 100%; padding: 9px 10px; background: #fff; color: var(--text); }
+    .feedback-controls textarea { min-height: 88px; border: 1px solid var(--line-strong); border-radius: 8px; resize: vertical; }
+    .trace-grid { padding: 10px 0; }
+    .trace-grid dd { font: .8rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .feedback-toolbar { align-items: center; border-color: #b8d5ef; background: #f8fbff; }
+    .export-actions { justify-content: flex-end; margin-top: 0; }
+    .export-side { display: grid; justify-items: end; gap: 8px; }
+    .export-status { display: flex; align-items: center; gap: 7px; min-height: 24px; color: var(--muted); font-size: .82rem; font-weight: 700; }
+    .export-status::before { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); content: ""; }
+    .export-status[data-tone="success"] { color: var(--green); }
+    .export-status[data-tone="success"]::before { background: var(--green); }
+    .export-status[data-tone="warning"] { color: var(--amber); }
+    .export-status[data-tone="warning"]::before { background: var(--amber); }
+    .ref { color: var(--muted); font-size: .82rem; overflow-wrap: anywhere; }
+    @media (max-width: 780px) {
+      .report-shell { padding: 14px 10px 36px; }
+      .hero, .panel { padding: 16px; }
+      .truth-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .truth-item + .truth-item { border-left: 0; }
+      .truth-item:nth-child(even) { border-left: 1px solid var(--line); }
+      .truth-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+      .remediation-grid, .finding-body { grid-template-columns: minmax(0, 1fr); }
+      .feedback-toolbar, .topline { align-items: flex-start; flex-direction: column; }
+      .export-side, .export-actions { width: 100%; justify-content: flex-start; }
+      .export-side { justify-items: stretch; }
+    }
+    @media (max-width: 520px) {
+      .truth-grid { grid-template-columns: minmax(0, 1fr); }
+      .truth-item:nth-child(even) { border-left: 0; }
+      .truth-item + .truth-item { border-top: 1px solid var(--line); }
+      .section-title, .finding-header, .row-top, .feedback-heading { align-items: flex-start; flex-direction: column; }
+      .file-row, .finding-title-wrap, .source-card dl, .trace-grid { grid-template-columns: minmax(0, 1fr); }
+      .file-stats { justify-content: flex-start; }
+      .feedback-actions, .export-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+      .button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到报告正文</a>
+  <main id="main-content" class="report-shell" data-graph-id="audit:concept-remediation" data-run-id="run-003" data-audit-sha256="sha256:343419b4e44f52ec37861b82e15f9434d33db472f4bd6887f938e1e46b118d56">
+    <header class="hero concerns">
+      <div class="topline">
+        <span class="brand">EvidentLoop · 代码变更审计</span>
+        <span class="concept-label">成品设计样例 · 非真实审计结论</span>
+      </div>
+      <div class="hero-copy">
+        <h1>修复反馈导出后的空评论语义</h1>
+        <p>本轮对新的 Git diff 做了独立模型审查，并验证它是否解决上一份报告中明确选择的 finding。</p>
+      </div>
+      <div class="truth-grid" aria-label="当前报告真相">
+        <div class="truth-item"><span>审查状态</span><strong>输出完整</strong></div>
+        <div class="truth-item verdict"><span>当前结论</span><strong>存在 1 项待处理问题</strong></div>
+        <div class="truth-item"><span>当前风险分</span><strong>20</strong></div>
+        <div class="truth-item"><span>修复验证</span><strong>支持</strong></div>
+      </div>
+      <div class="notice" role="note">
+        <span class="notice-mark" aria-hidden="true">i</span>
+        <div><strong>这是新 diff 的独立复审，不是同一报告上的人工修订。</strong><p>当前 verdict 评价完整新 diff；“支持”只评价用户声明的修复目标，两者不可互相替代。</p></div>
+      </div>
+    </header>
+
+    <section class="panel" aria-labelledby="change-title">
+      <div class="section-title">
+        <div><h2 id="change-title">变更摘要</h2><p>先说明这次代码改了什么，再进入修复来源和具体 finding。</p></div>
+        <span class="badge soft">3 个文件</span>
+      </div>
+      <div class="change-lead">
+        <h3>明确反馈删除语义，并改善反馈导出的失败回退</h3>
+        <p>本次变更让“清空评论”生成显式删除事件，同时补充复制失败后的下载路径和覆盖测试。当前仍有一处失败提示不够清楚，详见对应 finding。</p>
+        <div class="change-stats"><span>3 个文件</span><span>+48</span><span>−12</span><span>1 个文件有待处理 finding</span></div>
+      </div>
+      <div class="file-list" aria-label="文件影响列表">
+        <div class="file-row">
+          <div class="file-main"><strong>evidentloop/audit/revision.py</strong><p>反馈状态转换 · 明确 comment: null 删除语义</p></div>
+          <div class="file-stats"><span>修改</span><span>+18 −4</span></div>
+        </div>
+        <div class="file-row">
+          <div class="file-main"><strong>evidentloop/renderers/static/audit.js</strong><p>反馈导出 · 增加复制失败回退，但提示仍需完善</p></div>
+          <div class="file-stats"><span>修改</span><span>+12 −3</span><a href="#finding-004">查看 1 条 finding</a></div>
+        </div>
+        <div class="file-row">
+          <div class="file-main"><strong>tests/test_feedback_revision.py</strong><p>回归测试 · 覆盖评论删除与反馈导出</p></div>
+          <div class="file-stats"><span>修改</span><span>+18 −5</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="remediation-title">
+      <div class="section-title">
+        <div><h2 id="remediation-title">修复复审</h2><p>来源身份先验证，再把用户声明交给 reviewer 独立判断。</p></div>
+        <span class="badge ok">支持</span>
+      </div>
+      <div class="remediation-grid">
+        <article class="source-card">
+          <h3>用户选择的来源 finding</h3>
+          <div class="ref">只关联这一项，不推断整个新 diff 都是为它修改。</div>
+          <dl>
+            <dt>来源报告</dt><dd><code>report sha256:8d7b…cc21</code></dd>
+            <dt>来源 diff</dt><dd><code>diff sha256:7a11…e120</code></dd>
+            <dt>Finding</dt><dd><code>finding-002</code> · 空评论被误当作“无变更”</dd>
+          </dl>
+          <p class="declaration"><strong>用户声明：</strong>清空已存在评论时，导出 <code>comment: null</code>，让 revision 明确删除评论。</p>
+        </article>
+        <article class="claim-card">
+          <div class="row-top">
+            <div><h3>模型对修复声明的判断</h3><div class="ref">结论来自当前代码与证据，不以旧 finding 是否消失为依据。</div></div>
+            <span class="badge ok">支持</span>
+          </div>
+          <div class="claim-list">
+            <div class="claim-row">
+              <span class="badge ok">支持</span>
+              <div><strong>清空评论会生成显式删除事件</strong><p>状态转换保留 <code>comment_changed=true</code>，导出事件包含 <code>comment: null</code>。</p><div class="ref">evidence-014 · tests/test_feedback_revision.py</div></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="finding-title">
+      <div class="section-title">
+        <div><h2 id="finding-title">当前待处理 finding</h2><p>旧 finding 留在修复来源和历史中。</p></div>
+        <span class="badge warn">1 条</span>
+      </div>
+      <article id="finding-004" class="finding-card" data-node-id="finding-004" data-fingerprint="sha256:aabf0942a0c1d5d3166d9171aecdbdbd81111e8e172d7777e6ebccacfd06e999">
+        <div class="finding-header">
+          <div class="finding-title-wrap">
+            <span class="badge warn">中</span>
+            <div><span class="finding-title">复制失败提示没有说明反馈数据未丢失</span><span class="location">evidentloop/renderers/static/audit.js:341-345</span></div>
+          </div>
+          <span class="badge risk">待处理</span>
+        </div>
+        <div class="finding-body">
+          <div>
+            <div class="finding-note"><strong>为什么是问题：</strong>用户可能把剪贴板权限失败理解为反馈已经丢失，而页面实际上仍能导出同一份 JSONL。</div>
+            <div class="hunk">
+              <div class="hunk-file"><strong>evidentloop/renderers/static/audit.js</strong><span>+12 −3 · 1 条 finding</span></div>
+              <div class="hunk-caption"><span>可信节选 · 展示 12/96 行</span><span>橙色标记：finding 关键行 · 可上下/左右滚动</span></div>
+              <div class="hunk-scroll" tabindex="0" aria-label="可上下和左右滚动的单栏 unified diff 证据">
+                <table class="hunk-table"><tbody>
+                  <tr><td class="omitted" colspan="3">… 省略 42 行可信 diff 内容 …</td></tr>
+                  <tr><td class="old-num">341</td><td class="new-num">341</td><td class="code context">  await copyText(documentObject, rootObject, text);</td></tr>
+                  <tr><td class="old-num">342</td><td class="new-num">342</td><td class="code context">  exportStatus.textContent = "已复制，请粘贴给 AI 更新报告";</td></tr>
+                  <tr><td class="old-num">343</td><td class="new-num">343</td><td class="code context">} catch (_error) {</td></tr>
+                  <tr><td class="old-num">344</td><td class="new-num"></td><td class="code deleted">- exportStatus.textContent = "复制失败";</td></tr>
+                  <tr><td class="old-num"></td><td class="new-num">344</td><td class="code added hit">+ exportStatus.textContent = formatExportStatusMessage({ action: "copy_feedback", fallback: "download_jsonl", reportVersion: reportIdentity.reportVersion, message: "复制失败，请改用下载 JSONL" });</td></tr>
+                  <tr><td class="old-num">345</td><td class="new-num">345</td><td class="code context">}</td></tr>
+                  <tr><td class="old-num">346</td><td class="new-num">346</td><td class="code context">exportStatus.dataset.tone = "warning";</td></tr>
+                  <tr><td class="old-num">347</td><td class="new-num">347</td><td class="code context">exportStatus.removeAttribute("hidden");</td></tr>
+                  <tr><td class="old-num">348</td><td class="new-num">348</td><td class="code context">downloadButton.focus();</td></tr>
+                  <tr><td class="old-num">349</td><td class="new-num">349</td><td class="code context">return false;</td></tr>
+                  <tr><td class="old-num">350</td><td class="new-num">350</td><td class="code context">}</td></tr>
+                  <tr><td class="old-num">351</td><td class="new-num">351</td><td class="code context">return true;</td></tr>
+                  <tr><td class="omitted" colspan="3">… 省略 42 行可信 diff 内容 …</td></tr>
+                </tbody></table>
+              </div>
+            </div>
+          </div>
+          <aside>
+            <div class="judgment-box">
+              <div class="judgment-row"><span>模型原判断</span><strong>有效 · 中风险</strong></div>
+              <div class="judgment-row"><span>我的裁定</span><strong>尚未提交</strong></div>
+              <div class="judgment-row"><span>当前状态</span><strong>计入风险 · 待处理</strong></div>
+            </div>
+            <div class="feedback-box" data-feedback-for="finding-004" data-fingerprint="sha256:aabf0942a0c1d5d3166d9171aecdbdbd81111e8e172d7777e6ebccacfd06e999">
+              <div class="feedback-heading"><strong>更新我的裁定</strong><span class="badge soft" data-feedback-state>待决策</span></div>
+              <div class="feedback-actions" role="group" aria-label="对 finding-004 的裁定">
+                <button type="button" class="button" data-feedback-action="accept" aria-pressed="false">确认有效</button>
+                <button type="button" class="button" data-feedback-action="false_positive" aria-pressed="false">标记误报</button>
+              </div>
+              <details>
+                <summary>评论与严重度</summary>
+                <div class="feedback-controls">
+                  <label>严重度<select data-feedback-severity><option value="">恢复模型严重度</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option><option value="note">提示</option></select></label>
+                  <label>评论<textarea maxlength="4000" placeholder="清空并保存会生成 comment: null" data-feedback-comment></textarea></label>
+                  <button type="button" class="button secondary" data-feedback-save-comment>保存评论变化</button>
+                </div>
+              </details>
+              <div class="ref" role="status" aria-live="polite" data-feedback-message>尚未记录新变化</div>
+            </div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel feedback-toolbar" aria-labelledby="export-title">
+      <div><h2 id="export-title">把新裁定交给 AI 更新当前报告</h2><p>仅导出相对当前报告的新变化；不会修改代码，也不会触发模型复审。</p><div class="ref" data-feedback-summary>0 项待更新 · 不自动上传</div></div>
+      <div class="export-side">
+        <div class="export-actions"><button type="button" class="button primary" data-feedback-copy>复制给 AI</button><button type="button" class="button secondary" data-feedback-download>下载 JSONL</button></div>
+        <div class="export-status" role="status" aria-live="polite" aria-atomic="true" data-tone="neutral" data-feedback-export-status>尚未导出</div>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>报告身份与校验信息</summary>
+      <dl class="trace-grid"><dt>graph</dt><dd>audit:concept-remediation</dd><dt>current run</dt><dd>run-003</dd><dt>schema</dt><dd>0.4</dd><dt>renderer</dt><dd>0.4-concept</dd><dt>report</dt><dd>sha256:343419b4e44f52ec37861b82e15f9434d33db472f4bd6887f938e1e46b118d56</dd></dl>
+    </details>
+  </main>
+
+  <script type="application/json" id="view-model-sample">
+  {
+    "report_truth": {"review_status": "complete", "verdict": "concerns", "risk_score": 20, "open_finding_count": 1},
+    "change_summary": {"file_count": 3, "additions": 48, "deletions": 12, "finding_file_count": 1},
+    "remediation": {
+      "version": 1,
+      "source_report_version": "sha256:8d7b...cc21",
+      "source_diff_version": "sha256:7a11...e120",
+      "targets": [{"finding_id": "finding-002", "fingerprint": "sha256:71ef...f209", "declaration": "清空已有评论时导出 comment: null", "claim_id": "claim-remediation-002"}],
+      "claim_status": "supported"
+    },
+    "findings": [{"id": "finding-004", "model": {"status": "open", "severity": "medium"}, "current": {"status": "open", "severity": "medium", "counted_in_risk": true}, "feedback_events": []}],
+    "current_runs": [{"kind": "model_review", "diff_version": "diff B"}]
+  }
+  </script>
+  <script>
+    (function initConceptFeedback() {
+      "use strict";
+      var shell = document.querySelector("[data-graph-id][data-run-id]");
+      var panel = document.querySelector("[data-feedback-for][data-fingerprint]");
+      var summary = document.querySelector("[data-feedback-summary]");
+      var status = document.querySelector("[data-feedback-export-status]");
+      if (!shell || !panel) return;
+      var pending = {disposition: null, comment_changed: false, comment: null, severity_changed: false, severity: null};
+      var message = panel.querySelector("[data-feedback-message]");
+      var badge = panel.querySelector("[data-feedback-state]");
+      var comment = panel.querySelector("[data-feedback-comment]");
+      var severity = panel.querySelector("[data-feedback-severity]");
+      function setExportStatus(message, tone) {
+        status.textContent = message;
+        status.dataset.tone = tone;
+      }
+      function eventCount() {
+        return (pending.disposition ? 1 : 0) + (pending.comment_changed ? 1 : 0) + (pending.severity_changed ? 1 : 0);
+      }
+      function render() {
+        panel.querySelectorAll("[data-feedback-action]").forEach(function (button) {
+          button.setAttribute("aria-pressed", String(button.dataset.feedbackAction === pending.disposition));
+        });
+        badge.textContent = eventCount() ? "有待更新" : "待决策";
+        summary.textContent = String(eventCount()) + " 项待更新 · 不自动上传";
+      }
+      function events() {
+        var now = new Date().toISOString();
+        var base = {target_type: "finding", target_id: panel.dataset.feedbackFor, fingerprint: panel.dataset.fingerprint, graph_id: shell.dataset.graphId, run_id: shell.dataset.runId, source_audit_sha256: shell.dataset.auditSha256};
+        var result = [];
+        if (pending.disposition) result.push(Object.assign({}, base, {action: pending.disposition, created_at: now}));
+        if (pending.comment_changed) result.push(Object.assign({}, base, {action: "comment", comment: pending.comment, created_at: now}));
+        if (pending.severity_changed) result.push(Object.assign({}, base, {action: "severity_override", severity: pending.severity, created_at: now}));
+        return result;
+      }
+      function jsonl() {
+        return events().map(function (item) { return JSON.stringify(item); }).join("\n");
+      }
+      panel.querySelectorAll("[data-feedback-action]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          pending.disposition = pending.disposition === button.dataset.feedbackAction ? null : button.dataset.feedbackAction;
+          message.textContent = pending.disposition ? "裁定变化待更新" : "已取消待更新裁定";
+          render();
+        });
+      });
+      severity.addEventListener("change", function () {
+        pending.severity_changed = true;
+        pending.severity = severity.value || null;
+        message.textContent = pending.severity === null ? "待恢复模型严重度" : "严重度变化待更新";
+        render();
+      });
+      panel.querySelector("[data-feedback-save-comment]").addEventListener("click", function () {
+        pending.comment_changed = true;
+        pending.comment = comment.value.trim() || null;
+        message.textContent = pending.comment === null ? "待删除当前评论" : "评论变化待更新";
+        render();
+      });
+      document.querySelector("[data-feedback-copy]").addEventListener("click", async function () {
+        var value = jsonl();
+        if (!value) { setExportStatus("暂无待更新裁定", "neutral"); return; }
+        var text = "请使用 EvidentLoop 按以下裁定更新当前报告；不要修改业务代码，也不要重新审查代码。\n\n<<<EVIDENTLOOP_FEEDBACK_JSONL>>>\n" + value + "\n<<<END_EVIDENTLOOP_FEEDBACK_JSONL>>>";
+        try {
+          await navigator.clipboard.writeText(text);
+          setExportStatus("已复制，请粘贴给 AI", "success");
+        } catch (_error) {
+          setExportStatus("复制不可用；反馈仍在页面中，可改用下载", "warning");
+        }
+      });
+      document.querySelector("[data-feedback-download]").addEventListener("click", function () {
+        var value = jsonl();
+        if (!value) { setExportStatus("暂无待更新裁定", "neutral"); return; }
+        var url = URL.createObjectURL(new Blob([value + "\n"], {type: "application/x-ndjson;charset=utf-8"}));
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = "audit-feedback.jsonl";
+        link.click();
+        URL.revokeObjectURL(url);
+        setExportStatus("已下载 " + String(events().length) + " 条反馈", "success");
+      });
+      render();
+      document.documentElement.dataset.viewportOverflow = String(
+        document.documentElement.scrollWidth > document.documentElement.clientWidth
+      );
+      document.documentElement.dataset.evidentloopReady = "true";
+    })();
+  </script>
+</body>
+</html>
