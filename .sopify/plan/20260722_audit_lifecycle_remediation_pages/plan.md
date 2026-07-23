@@ -160,7 +160,9 @@ EvidentLoop 已能把本地 Git diff 生成可追溯的 `audit.json` / `audit.ht
 - [x] Gate A.1 已完成：当前完整实现 diff 的独立审查覆盖 41/41 个文件，正式报告为 `complete / concerns / medium`，包含 5 个 open findings；schema、report/diff identity、HTML trace 和绝对路径检查均通过。
 - [-] Gate A.2 按用户决定跳过：不生成新的修复验证报告，不把来源报告改写为已修复，也不宣称跨 diff 验证已经完成。
 - [x] Gate A.3 已完成：同一 diff 的人工认可与评论形成独立 `feedback_revision` run，保留模型原值和 `finding-004` 的 open 状态，新 report version 为 `sha256:c16b8641f24723b1fc44519ed875a3c139daf38512586d0d64d18a337f2bfb4c`。
+- [x] Wave 1–3 检查点已提交并推送至当前 feat 分支，提交为 `9d22a510bc5be2952435b50c27b5b2f3bcdf99b7`；未创建 PR、发布或部署。
+- [x] Gate A.4 已完成：首次 v0.7 dogfood 审出语义变更摘要未进入完成门，已回到 Wave 3 最小修复并提交为 `1af67963a5ff4c6ab5da10556d206901aa173601`；随后使用用户明确 focus 生成唯一权威的 `docs/examples/evidentloop-dogfood-v05/audit.json + audit.html`，结果为 `complete / pass_candidate / overall_severity=null`、43/43 个文件、0 findings，身份、trace、敏感路径与 1440/375 视觉检查通过。旧 concept HTML 已删除。
 
 ## Next
 
-当前 Wave 1–3 候选已完成最终本地收口与独立审计，停车交给用户确认；A.2 已跳过，因此不自动宣称 Gate A 完成，也不进入 Pages/README、提交、推送或发布。
+Gate A 已按已确认边界冻结；下一步进入 Wave 4，先核验真实 GitHub Pages source/config，再依据唯一权威报告局部更新 Pages、README 与必要素材。A.2 已跳过，因此不宣传真实跨 diff dogfood；后续 PR、发布与部署仍需分别授权。
