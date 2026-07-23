@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from typing import Any, Collection, Iterable, Mapping
 
 
 _SEVERITY_ORDER = {"high": 4, "medium": 3, "low": 2, "note": 1}
 
 
-def needs_human_triage(finding: Mapping[str, Any]) -> bool:
+def needs_human_triage(
+    finding: Mapping[str, Any],
+    *,
+    has_trusted_file_association: bool | None = None,
+) -> bool:
     """Open finding requires triage when downgraded from bug or lacking trusted file association."""
-    if not finding.get("file_path"):
+    if not finding.get("file_path") or has_trusted_file_association is False:
         return True
     extension = finding.get("extensions", {}).get("evidentloop", {})
     if not isinstance(extension, Mapping):
@@ -35,6 +39,7 @@ def build_summary(
     review_status: str,
     empty_verdict: str = "inconclusive",
     force_inconclusive: bool = False,
+    trusted_finding_ids: Collection[str] | None = None,
 ) -> dict[str, Any]:
     """Calculate verdict, overall severity, and counts without mutating graph entities."""
     finding_items = list(findings)
@@ -48,7 +53,18 @@ def build_summary(
         verdict = "inconclusive"
         overall_severity = compute_overall_severity(open_findings)
     elif open_findings:
-        triage = [f for f in open_findings if needs_human_triage(f)]
+        triage = [
+            finding
+            for finding in open_findings
+            if needs_human_triage(
+                finding,
+                has_trusted_file_association=(
+                    str(finding["id"]) in trusted_finding_ids
+                    if trusted_finding_ids is not None
+                    else None
+                ),
+            )
+        ]
         if len(triage) == len(open_findings):
             verdict = "needs_human_triage"
         else:

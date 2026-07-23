@@ -101,7 +101,10 @@ def render_reviewer_prompt(
     return template.format(
         intent=normalized.get("intent") or "(no intent provided)",
         task_file=normalized.get("task_file") or "(no task file provided)",
-        focus=", ".join(normalized.get("focus") or []) or "(no focus specified)",
+        focus=(
+            ", ".join(_single_line(item) for item in normalized.get("focus") or [])
+            or "(no focus specified)"
+        ),
         context_files=_render_context_files(normalized.get("context_files")),
         changed_files=_render_changed_files(normalized.get("changed_files")),
         evidence=json.dumps(

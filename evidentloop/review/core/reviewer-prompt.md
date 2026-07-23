@@ -44,6 +44,7 @@ You are reviewing a code change through EvidentLoop. Judge it from the supplied 
 10. Use the exact Markdown headings `## Section 0: Change Summary`, `## Section 1: Findings`, `## Section 2: Observations`, and `## Section 3: Overall Assessment`. Do not shorten, translate, or rename them. When Fix Verification Claims are listed above (not `(no fix verification claims)`), also use the exact heading `## Section 4: Fix Verification Results`; when there are no claims, omit Section 4 entirely.
 11. For each fix verification claim, judge it only from the current diff and evidence. A finding that no longer reproduces, path similarity, commit messages, or time order alone never prove a fix; if the diff does not show the mechanism that resolves the claim, the status is `challenged` or `unknown`, not `supported`.
 12. Review the complete diff independently of the claims: claims neither limit where you look nor count as findings. Report new issues in Section 1 as usual.
+13. The `Evidence` value you write in Section 4 is a reviewer-authored citation. EvidentLoop validates that the required result is present and preserves its `host_llm` origin; it does not turn your citation into deterministic tool evidence or independently prove its semantic truth.
 
 ## Your Output
 
@@ -84,7 +85,7 @@ Provide a short overall assessment of the diff quality. If there are no findings
 
 ## Section 4: Fix Verification Results
 
-Include this section only when Fix Verification Claims are listed above. Output exactly one entry per listed `claim_id`, in the listed order, using this exact format:
+Include this section only when Fix Verification Claims are listed above. Output exactly one entry per listed `claim_id`, using this exact format:
 
 ### claim-001
 - **Status**: supported

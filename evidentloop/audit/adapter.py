@@ -416,7 +416,19 @@ def build_audit_graph(
         verdict = "inconclusive"
     else:
         finding_nodes = [n for n in nodes if n["type"] == "finding"]
-        if all(needs_human_triage(n) for n in finding_nodes):
+        trusted_finding_ids = {
+            str(edge["from"])
+            for edge in edges
+            if edge["type"] == "finding_in_file"
+        }
+        if all(
+            needs_human_triage(
+                node,
+                has_trusted_file_association=str(node["id"])
+                in trusted_finding_ids,
+            )
+            for node in finding_nodes
+        ):
             verdict = "needs_human_triage"
         else:
             verdict = "concerns"
@@ -457,6 +469,11 @@ def build_audit_graph(
         if verdict == "pass_candidate"
         else "inconclusive",
         force_inconclusive=verdict == "inconclusive" and finding_count > 0,
+        trusted_finding_ids={
+            str(edge["from"])
+            for edge in edges
+            if edge["type"] == "finding_in_file"
+        },
     )
     summary = {
         **calculated_summary,

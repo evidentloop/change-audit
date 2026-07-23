@@ -106,15 +106,6 @@ def _claims_for(entity: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
 _SEVERITY_ORDER = {"high": 4, "medium": 3, "low": 2, "note": 1}
 
 
-def _needs_triage(node: Mapping[str, Any]) -> bool:
-    if not node.get("file_path"):
-        return True
-    extension = node.get("extensions", {}).get("evidentloop", {})
-    if not isinstance(extension, Mapping):
-        return False
-    return extension.get("downgraded_from") == "bug"
-
-
 def _overall_severity(open_findings: list[Mapping[str, Any]]) -> str | None:
     if not open_findings:
         return None
@@ -129,11 +120,18 @@ def _validate_summary(
     nodes: list[Mapping[str, Any]],
     issues: list[ValidationIssue],
 ) -> None:
+    from .audit.summary import needs_human_triage
+
     summary = data["summary"]
     findings = [node for node in nodes if node["type"] == "finding"]
     fixes = [node for node in nodes if node["type"] == "fix"]
     open_findings = [node for node in findings if node["status"] == "open"]
     done_fixes = [node for node in fixes if node["status"] == "done"]
+    trusted_finding_ids = {
+        str(edge["from"])
+        for edge in data["edges"]
+        if edge["type"] == "finding_in_file"
+    }
 
     expected_counts = {
         "finding_count": len(findings),
@@ -177,7 +175,14 @@ def _validate_summary(
                 "/summary",
                 "concerns requires open findings",
             )
-        elif all(_needs_triage(f) for f in open_findings):
+        elif all(
+            needs_human_triage(
+                finding,
+                has_trusted_file_association=str(finding["id"])
+                in trusted_finding_ids,
+            )
+            for finding in open_findings
+        ):
             _issue(
                 issues,
                 "summary.invalid_concerns",
@@ -185,7 +190,14 @@ def _validate_summary(
                 "concerns requires at least one open finding that does not need triage",
             )
     elif verdict == "needs_human_triage":
-        if not open_findings or not all(_needs_triage(f) for f in open_findings):
+        if not open_findings or not all(
+            needs_human_triage(
+                finding,
+                has_trusted_file_association=str(finding["id"])
+                in trusted_finding_ids,
+            )
+            for finding in open_findings
+        ):
             _issue(
                 issues,
                 "summary.invalid_human_triage",
@@ -325,12 +337,13 @@ def _validate_revisions(
             "/runs",
             "model review runs cannot follow feedback revision runs",
         )
-    first_snapshot = revision_runs[0][1]["revision"]["source_summary"]
-    expected_source_summary = first_snapshot
+    model_snapshot = revision_runs[0][1]["revision"]["source_summary"]
+    expected_source_summary = model_snapshot
     empty_verdict = (
         "pass_candidate"
-        if first_snapshot["review_status"] == "complete"
-        and first_snapshot["verdict"] in {"pass_candidate", "concerns"}
+        if model_snapshot["review_status"] == "complete"
+        and model_snapshot["verdict"]
+        in {"pass_candidate", "concerns", "needs_human_triage"}
         else "inconclusive"
     )
     fixes = [node for node in nodes if node["type"] == "fix"]
@@ -456,22 +469,27 @@ def _validate_revisions(
             calculated = build_summary(
                 projected,
                 fixes,
-                review_status=first_snapshot["review_status"],
+                review_status=model_snapshot["review_status"],
                 empty_verdict=empty_verdict,
+                trusted_finding_ids={
+                    str(edge["from"])
+                    for edge in edges
+                    if edge["type"] == "finding_in_file"
+                },
             )
-        calculated["summary_audit_status"] = first_snapshot.get(
+        calculated["summary_audit_status"] = model_snapshot.get(
             "summary_audit_status", "not_audited"
         )
         calculated.update(
             {
                 "basis": "human_adjudication",
-                "model_verdict": first_snapshot["verdict"],
-                "model_overall_severity": first_snapshot.get("overall_severity"),
+                "model_verdict": model_snapshot["verdict"],
+                "model_overall_severity": model_snapshot.get("overall_severity"),
                 "notice": "报告已按人工裁定更新；未重新审查代码，模型原判断仍保留。",
             }
         )
-        if "extensions" in first_snapshot:
-            calculated["extensions"] = first_snapshot["extensions"]
+        if "extensions" in model_snapshot:
+            calculated["extensions"] = model_snapshot["extensions"]
         expected_source_summary = calculated
         prior_effective = current_effective
         if run["status"] != calculated["verdict"]:

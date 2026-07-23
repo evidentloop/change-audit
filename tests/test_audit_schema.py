@@ -175,6 +175,25 @@ def test_missing_file_requires_triage_before_extension_shape() -> None:
     issues = validate_audit(audit)
     assert any(issue.code == "summary.invalid_concerns" for issue in issues)
 
+    linked = demo_audit()
+    linked_finding = next(
+        node for node in linked["nodes"] if node["id"] == "finding-001"
+    )
+    linked["edges"] = [
+        edge
+        for edge in linked["edges"]
+        if edge["type"] != "finding_in_file"
+    ]
+    calculated = build_summary(
+        [linked_finding],
+        [],
+        review_status="complete",
+        trusted_finding_ids=set(),
+    )
+    assert calculated["verdict"] == "needs_human_triage"
+    codes = {issue.code for issue in validate_audit(linked)}
+    assert {"finding.missing_file_edge", "summary.invalid_concerns"} <= codes
+
 
 def test_validation_error_preserves_structured_issues() -> None:
     audit = minimal_audit(review_status="partial", verdict="concerns")

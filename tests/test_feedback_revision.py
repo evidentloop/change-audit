@@ -26,7 +26,7 @@ from evidentloop.audit.summary import build_summary
 from evidentloop.cli import main
 from evidentloop.renderers.html import render_audit_file
 from evidentloop.validation import assert_valid_audit, validate_audit
-from tests.audit_helpers import demo_audit, minimal_audit
+from tests.audit_helpers import demo_audit, minimal_audit, unanchored_finding_audit
 
 
 DIFF_VERSION = "sha256:" + "a" * 64
@@ -183,6 +183,29 @@ def test_revision_preserves_model_judgment() -> None:
     assert finding["status"] == "dismissed"
     assert finding["model_judgment"] == {"status": "open", "severity": "high"}
     assert finding["human_adjudication"]["disposition"] == "false_positive"
+    assert validate_audit(revised) == []
+
+
+def test_closing_last_triage_finding_becomes_pass_candidate() -> None:
+    source = unanchored_finding_audit()
+    source_raw = (json.dumps(source, ensure_ascii=False, indent=2) + "\n").encode()
+    source_hash = audit_sha256(source_raw)
+    events, _ = normalize_feedback(
+        [
+            _event(
+                source,
+                "finding-unanchored",
+                "false_positive",
+                source_hash=source_hash,
+            )
+        ]
+    )
+
+    revised = build_feedback_revision(source, events, source_hash=source_hash)
+
+    assert revised["summary"]["verdict"] == "pass_candidate"
+    assert revised["summary"]["overall_severity"] is None
+    assert revised["summary"]["model_verdict"] == "needs_human_triage"
     assert validate_audit(revised) == []
 
 

@@ -144,6 +144,7 @@ def test_finalize_distinguishes_clean_partial_failed_and_unanchored(
         "- **Summary**: 应用从旧值切换到新值。\n"
         "- **Impact**: 应用运行时\n\n"
         "## Section 1: Findings\n\n未发现问题。\n\n"
+        "## Section 2: Observations\n\n"
         "## Section 3: Overall Assessment\n\nThe diff is clean.\n",
     )
     clean_result = finalize_review(clean["final_dir"])
@@ -152,6 +153,24 @@ def test_finalize_distinguishes_clean_partial_failed_and_unanchored(
     assert _audit(clean)["summary"]["overall_severity"] is None
     assert (
         "findings-section" not in (Path(clean["final_dir"]) / "audit.html").read_text()
+    )
+
+    missing_observations = _prepare(tmp_path / "missing-observations")
+    _write_raw(
+        missing_observations,
+        f"<!-- evidentloop-run-id: {missing_observations['run_id']} -->\n"
+        "## Section 0: Change Summary\n\n"
+        "- **Overview**: 本次改动调整应用值。\n"
+        "- **Review focus**: 核验新值是否符合预期。\n\n"
+        "### theme-001\n"
+        "- **Title**: 调整应用值\n"
+        "- **Summary**: 应用从旧值切换到新值。\n"
+        "- **Impact**: 应用运行时\n\n"
+        "## Section 1: Findings\n\n未发现问题。\n\n"
+        "## Section 3: Overall Assessment\n\nThe diff is clean.\n",
+    )
+    assert finalize_review(missing_observations["final_dir"])["review_status"] == (
+        "partial"
     )
 
     missing_summary = _prepare(tmp_path / "missing-summary")

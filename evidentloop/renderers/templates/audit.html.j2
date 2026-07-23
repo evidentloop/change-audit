@@ -150,12 +150,15 @@
           {% for item in fix_verification_view.status_counts %}
           <span class="status-chip status-{{ item.status }}">{{ item.label }} {{ item.count }}</span>
           {% endfor %}
+          {% if fix_verification_view.incomplete_count %}
+          <span class="status-chip neutral">未完成 {{ fix_verification_view.incomplete_count }}</span>
+          {% endif %}
         </div>
       </div>
       <p class="section-intro">这里只判断明确选择的问题，不把整个新 diff 都推断为修复。</p>
       <div class="verification-list">
         {% for target in fix_verification_view.targets %}
-        <article class="verification-card status-{{ target.claim.status }}" data-node-id="{{ fix_verification_view.owner_id }}" data-claim-id="{{ target.claim.id }}">
+        <article class="verification-card status-{{ target.status }}" data-node-id="{{ fix_verification_view.owner_id }}"{% if target.claim %} data-claim-id="{{ target.claim.id }}"{% endif %}>
           <div class="verification-source">
             <span class="claim-status">{{ target.status_label }}</span>
             <div>
@@ -170,6 +173,7 @@
           </div>
           <div class="verification-reason">
             <p class="label">本轮判断</p>
+            {% if target.claim %}
             <p>{{ target.claim.reason }}</p>
             {% if target.evidence %}
             <ul class="evidence-list">
@@ -182,6 +186,9 @@
             </ul>
             {% else %}
             <p class="evidence-none">没有足够证据支持或挑战该声明。</p>
+            {% endif %}
+            {% else %}
+            <p class="evidence-none">本轮没有生成该目标的有效验证结果；来源问题与用户声明仍保留。</p>
             {% endif %}
           </div>
         </article>

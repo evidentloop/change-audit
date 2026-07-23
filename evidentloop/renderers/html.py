@@ -84,6 +84,12 @@ def _source_ref_label(value: str) -> str:
     return value if len(value) <= 72 else f"{value[:69]}..."
 
 
+def _evidence_adds_context(node: Mapping[str, Any], finding_title: str) -> bool:
+    summary = str(node.get("summary") or "").strip()
+    repeated_title = summary.removeprefix("宿主语义审查结论：").strip()
+    return bool(summary and repeated_title != finding_title.strip())
+
+
 def _as_hunk_view(
     hunk: ParsedHunk,
     *,
@@ -297,6 +303,7 @@ def _build_context(
             {"edge_id": edge["id"], "node": node_by_id[edge["to"]]}
             for edge in related
             if edge["type"] == "supported_by_evidence"
+            and _evidence_adds_context(node_by_id[edge["to"]], finding["title"])
         ]
         fix_links = [
             {"edge_id": edge["id"], "node": node_by_id[edge["to"]]}
@@ -359,13 +366,23 @@ def _build_context(
             claim["id"]: claim
             for claim in model_run.get("summary_audit", {}).get("claims", [])
         }
-        if all(
-            target["claim_id"] in claims for target in frozen_verification["targets"]
-        ):
-            targets = []
-            status_counts = {status: 0 for status in claim_status_labels}
-            for frozen_target in frozen_verification["targets"]:
-                claim = claims[frozen_target["claim_id"]]
+        targets = []
+        status_counts = {status: 0 for status in claim_status_labels}
+        incomplete_count = 0
+        for frozen_target in frozen_verification["targets"]:
+            claim = claims.get(frozen_target["claim_id"])
+            if claim is None:
+                incomplete_count += 1
+                targets.append(
+                    {
+                        "source": frozen_target,
+                        "claim": None,
+                        "status": "incomplete",
+                        "status_label": "未完成",
+                        "evidence": [],
+                    }
+                )
+            else:
                 claim_edges = [
                     edge
                     for edge in edges
@@ -386,25 +403,27 @@ def _build_context(
                     {
                         "source": frozen_target,
                         "claim": claim,
+                        "status": claim["status"],
                         "status_label": claim_status_labels[claim["status"]],
                         "evidence": evidence,
                     }
                 )
-            fix_verification_view = {
-                "source_report_version": frozen_verification["source_report_version"],
-                "source_diff_version": frozen_verification["source_diff_version"],
-                "owner_id": model_run["id"],
-                "targets": targets,
-                "status_counts": [
-                    {
-                        "status": status,
-                        "label": label,
-                        "count": status_counts[status],
-                    }
-                    for status, label in claim_status_labels.items()
-                    if status_counts[status]
-                ],
-            }
+        fix_verification_view = {
+            "source_report_version": frozen_verification["source_report_version"],
+            "source_diff_version": frozen_verification["source_diff_version"],
+            "owner_id": model_run["id"],
+            "targets": targets,
+            "incomplete_count": incomplete_count,
+            "status_counts": [
+                {
+                    "status": status,
+                    "label": label,
+                    "count": status_counts[status],
+                }
+                for status, label in claim_status_labels.items()
+                if status_counts[status]
+            ],
+        }
 
     change_claims: list[dict[str, Any]] = []
     if fix_verification_view is None:
@@ -522,8 +541,17 @@ def _build_context(
         else "验证未完成"
         if fix_verification_view is None
         else " / ".join(
-            f"{item['label']} {item['count']}"
-            for item in fix_verification_view["status_counts"]
+            [
+                *(
+                    f"{item['label']} {item['count']}"
+                    for item in fix_verification_view["status_counts"]
+                ),
+                *(
+                    [f"未完成 {fix_verification_view['incomplete_count']}"]
+                    if fix_verification_view["incomplete_count"]
+                    else []
+                ),
+            ]
         )
     )
     status_messages = {

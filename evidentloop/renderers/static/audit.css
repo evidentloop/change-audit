@@ -366,6 +366,8 @@ small { color: var(--muted); }
 .verification-card.status-supported { border-left-color: var(--success); }
 .verification-card.status-challenged { border-left-color: var(--danger); }
 .verification-card.status-partial { border-left-color: var(--warning); }
+.verification-card.status-incomplete { border-left-color: var(--line-strong); }
+.verification-card.status-incomplete .claim-status { color: var(--muted); background: #edf1f6; }
 .verification-source,
 .verification-claim,
 .verification-reason { padding: 16px 18px; }

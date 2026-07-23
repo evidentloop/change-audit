@@ -33,13 +33,15 @@ def parse_change_summary(raw_analysis: str) -> dict[str, Any] | None:
     review_focus = _field(body, "Review focus")
     headings = _THEME_HEADING_RE.findall(body)
     entries = _THEME_RE.findall(body)
+    expected_headings = [
+        f"theme-{index:03d}" for index in range(1, len(entries) + 1)
+    ]
     if (
         overview is None
         or review_focus is None
         or not 1 <= len(entries) <= 5
         or len(headings) != len(entries)
-        or len(set(headings)) != len(headings)
-        or any(not re.fullmatch(r"theme-\d+", heading) for heading in headings)
+        or headings != expected_headings
     ):
         return None
 

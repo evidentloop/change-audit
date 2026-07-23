@@ -120,8 +120,8 @@ def validate_fix_verification_source(
             )
         if finding["fingerprint"] != target.fingerprint:
             raise AuditWorkflowError(
-                f"fingerprint of {target.finding_id} does not match the source's "
-                "latest run; re-select targets from the current report"
+                f"fingerprint of {target.finding_id} does not match the current "
+                "source report; re-select targets from that report"
             )
         if finding["status"] != "open":
             raise AuditWorkflowError(

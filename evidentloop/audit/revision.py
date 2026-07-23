@@ -443,7 +443,8 @@ def build_feedback_revision(
     empty_verdict = (
         "pass_candidate"
         if source_summary["review_status"] == "complete"
-        and model_verdict in {"pass_candidate", "concerns"}
+        and model_verdict
+        in {"pass_candidate", "concerns", "needs_human_triage"}
         else "inconclusive"
     )
     after_effective = {
@@ -470,6 +471,11 @@ def build_feedback_revision(
             (node for node in audit["nodes"] if node["type"] == "fix"),
             review_status=str(source_summary["review_status"]),
             empty_verdict=empty_verdict,
+            trusted_finding_ids={
+                str(edge["from"])
+                for edge in audit["edges"]
+                if edge["type"] == "finding_in_file"
+            },
         )
     current.update(
         {

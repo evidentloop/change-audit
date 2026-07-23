@@ -46,6 +46,8 @@ def test_parser_accepts_model_selected_theme_count(count: int) -> None:
             "- **Overview**: 第一项。\n- **Overview**: 第二项。\n",
         ),
         _section(1).replace("### theme-001", "### fixed-module"),
+        _section(1).replace("### theme-001", "### theme-002"),
+        _section(2).replace("### theme-002", "### theme-003"),
         _section(6),
     ],
 )

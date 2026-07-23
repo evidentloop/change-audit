@@ -325,6 +325,11 @@ def test_incomplete_claim_block_downgrades_to_partial_but_keeps_provenance(
     assert "summary_audit" not in audit["runs"][0]
     assert audit["summary"]["summary_audit_status"] == "not_audited"
     assert audit["extensions"]["evidentloop"]["fix_verification"]["version"] == 1
+    html = (Path(locator["final_dir"]) / "audit.html").read_text(encoding="utf-8")
+    assert "上一轮问题是否已解决" in html
+    assert "缓存路径已修复" in html
+    assert "未完成 1" in html
+    assert "本轮没有生成该目标的有效验证结果" in html
 
 
 @pytest.mark.parametrize(
@@ -369,8 +374,8 @@ def test_parser_reports_each_contract_violation() -> None:
     expected = ("claim-001", "claim-002")
     ok = (
         "## Section 4: Fix Verification Results\n\n"
-        + _claim_entry("claim-001", "supported")
         + _claim_entry("claim-002", "unknown", evidence="none")
+        + _claim_entry("claim-001", "supported")
     )
     results, problems = parse_fix_verification_results(ok, expected)
     assert problems == []

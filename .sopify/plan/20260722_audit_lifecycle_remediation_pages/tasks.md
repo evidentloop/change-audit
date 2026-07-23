@@ -22,7 +22,7 @@
 - [x] 1.4 为 `evidentloop prepare`、local-diff Python API 与官方 Skill 增加单个可选 `focus`。
   - 验收：缺省为 `None`；显式空白值在读取 Git diff、分配输出目录或 staging 前失败；不从路径、diff、历史报告或宿主状态推断。
 - [x] 1.5 定义 typed `fix_verification` 请求和严格的前置校验顺序。
-  - 验收：请求携带 expected `source_report_version`；先读取来源原始字节并核对实际版本和 schema `0.5`，再确认非空 `diff_version`、匹配最新 run 的 finding id/fingerprint 与当前 `open` 状态，最后读取并冻结当前 diff；版本变化、相同 diff、非 open、未知/过期/冲突/重复目标无副作用失败。
+  - 验收：请求携带 expected `source_report_version`；先读取来源原始字节并核对实际版本和 schema `0.5`，再确认非空 `diff_version`、匹配当前已验证来源报告的 finding id/fingerprint 与当前 `open` 状态，最后读取并冻结当前 diff；finding 表示报告当前有效状态，不另造 run 归属；版本变化、相同 diff、非 open、未知/过期/冲突/重复目标无副作用失败。
 - [x] 1.6 完成本 Wave 定向测试。
   - 验收：覆盖 schema/version、风险字段不存在、overall severity、focus 三态、来源失败顺序与无输出/staging 副作用。
 
@@ -98,16 +98,18 @@
 - 可选素材只在用户明确要求时由 Fireworks Tech Graph 生成变更架构 SVG；不默认生成、不绑定 EvidentLoop runtime，也不让图替代文字摘要。
 - Pages 负责完整价值、证据和边界说明；README 只保留定位、快速开始、权威安装入口和真实报告入口，不复制整页内容。
 
-- [ ] 4.1 核验实际 GitHub Pages source/config，再建立英文与简体中文等价静态页面。
+- [x] 4.1 核验实际 GitHub Pages source/config，再建立英文与简体中文等价静态页面。
   - 验收：不把 `/docs` 目录存在当作线上配置证据；不引入构建链、远程字体、跟踪脚本或动画库。
-- [ ] 4.2 基于 Gate A 冻结事实完成价值、边界、审计闭环、真实报告、宿主集成、安装、FAQ 和 footer。
+  - 实现记录：GitHub API 确认 Pages 状态为 `built`、来源为 `main:/docs`；本 Wave 只准备源码，未触发部署。
+- [x] 4.2 基于 Gate A 冻结事实完成价值、边界、审计闭环、真实报告、宿主集成、安装、FAQ 和 footer。
   - 验收：使用上述已确认叙事，不要求读者先理解 Sopify；不宣传未被 dogfood 证明的能力；真实报告只有一个权威入口。
-- [ ] 4.3 完成双语互链、SEO/社交元数据、复制回退、无障碍和响应式。
+- [x] 4.3 完成双语互链、SEO/社交元数据、复制回退、无障碍和响应式。
   - 验收：375/768/1024/1440 无页面横向溢出，触控区至少 44×44，链接与 no-JS 回退有效。
-- [ ] 4.4 局部更新 README 与素材。
+- [x] 4.4 局部更新 README 与素材。
   - 验收：README 不复制 Pages；只替换语义失真、重复或明显低质量的 SVG/PNG/GIF，仍有效素材继续复用；可选架构 SVG 遵守“用户明确要求才生成”的边界。
-- [ ] 4.5 让 Pages、README 和文档引用同一冻结报告与权威安装入口。
+- [x] 4.5 让 Pages、README 和文档引用同一冻结报告与权威安装入口。
   - 验收：不复制 audit runtime 资源，不保留互相冲突的截图或旧结论。
+  - 实现记录：交互 GIF 明确标注为代表性演示；43/43、0 findings 的 dogfood 报告保持唯一真实证据，未把 A.2 跳过的双 diff 验证宣传为已完成。
 
 ## Wave 5 · P1 全量回归与交付闸门
 

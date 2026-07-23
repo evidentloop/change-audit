@@ -52,12 +52,12 @@ def test_runtime_resources_are_readable_via_importlib() -> None:
     assert PRODUCT_REVIEWER_PROMPT_VERSION == "v0.7"
     assert prompt.startswith("# EvidentLoop Reviewer Prompt Template (product/v0.7)\n")
     assert hashlib.sha256(prompt.encode("utf-8")).hexdigest() == (
-        "6d22df7e7cb6f7f1a7ae093edeefb478fa56d808bd57ccf710fa153b32b3f9b2"
+        "3a00ee85abb971424f7c3f2ee443fc9a41dcd0262ea69d4016ae2e3a9e57251e"
     )
     # Freeze both resource identity and protocol wording for packaged artifacts.
     protocol_body = prompt.partition("\n")[2]
     assert hashlib.sha256(protocol_body.encode("utf-8")).hexdigest() == (
-        "6bcc42aa527018228d8ca66154544ab2edc4bd58cb3455f3c40815c9ccbdb8e9"
+        "585476153e264ff6cb7411c4cc3c495ab1152836285898102b940bb9d4475cb5"
     )
     assert "Simplified Chinese" in prompt
     assert demo_fixture["fixture_id"] == "synthetic-off-by-one-v1"

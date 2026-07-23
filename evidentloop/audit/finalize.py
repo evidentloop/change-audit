@@ -60,6 +60,10 @@ _FINDINGS_SECTION_RE = re.compile(
 _OVERALL_RE = re.compile(
     r"(?m)^#+\s*Section 3:\s*Overall Assessment\s*$", re.IGNORECASE
 )
+_OBSERVATIONS_SECTION_RE = re.compile(
+    r"(?ms)^#+\s*Section 2:\s*Observations\s*\n+(.*?)(?=^#+\s*Section\s+\d+:|\Z)",
+    re.IGNORECASE,
+)
 _OVERALL_SECTION_RE = re.compile(
     r"(?ms)^#+\s*Section 3:\s*Overall Assessment\s*\n+(.*?)(?=^#+\s*Section\s+\d+:|\Z)",
     re.IGNORECASE,
@@ -355,10 +359,12 @@ def prepare_local_diff(
 def _completion_state(raw_analysis: str, expected_claim_ids: Sequence[str] = ()) -> str:
     body = _RUN_ID_RE.sub("", raw_analysis, count=1).strip()
     findings_match = _FINDINGS_SECTION_RE.search(body)
+    observations_match = _OBSERVATIONS_SECTION_RE.search(body)
     if not body or (_REFUSAL_RE.search(body) and findings_match is None):
         return "failed"
     if (
         findings_match is None
+        or observations_match is None
         or _OVERALL_RE.search(body) is None
         or _overall_assessment(body) is None
     ):

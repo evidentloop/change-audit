@@ -68,7 +68,7 @@ EvidentLoop 已能把本地 Git diff 生成可追溯的 `audit.json` / `audit.ht
 ### 3. 修复验证使用 typed 一跳契约
 
 1. 请求必须携带用户看到的 expected `source_report_version`；实现读取来源 `audit.json` 原始字节、计算实际版本并先做相等校验，再校验 schema `0.5` 与语义。
-2. 要求来源有非空 `diff_version`；finding id 与 fingerprint 必须同时匹配来源最新正式 run，且当前有效状态必须为 `open`。已 dismissed/fixed 的目标先在来源报告完成正式修订，不能直接进入修复验证。
+2. 要求来源有非空 `diff_version`；finding id 与 fingerprint 必须同时匹配当前已验证的来源报告，且该节点的当前有效状态必须为 `open`。finding 是报告当前状态，不归属于某个 run；人工 revision 通过事件重放更新它。已 dismissed/fixed 的目标先在来源报告完成正式修订，不能直接进入修复验证。
 3. 在任何输出目录或 staging 副作用前拒绝旧 schema、来源版本变化、相同 diff、非 open、未知、过期、冲突或重复目标。
 4. 冻结当前新 diff 后，把 `claim_id`、最小来源摘要、冻结的 `source_title` 和用户声明加入 reviewer prompt。reviewer 必须输出单一 `Fix Verification Results` 块，每个输入 `claim_id` 恰好一项，包含 status、reason 和证据引用。
 5. parser 拒绝缺失、重复或未知 `claim_id`；completion gate 只有在 finding/overall assessment 与全部目标结果都完整时才为 complete，否则为 partial/failed。
@@ -103,8 +103,8 @@ EvidentLoop 已能把本地 Git diff 生成可追溯的 `audit.json` / `audit.ht
 - [x] Wave 2 · P0：typed `fix_verification`、prompt/claim、provenance、CLI/API/Skill 实际流程及测试。
 - [x] Wave 3 · P0/P1：renderer/report、反馈历史、全宽 diff、移动端、fixture 与代表性视觉冒烟。
 - [x] Integration Gate · 可运行基线：核心全量 pytest、schema/package、doctor、Skill 与 artifact trace 通过，finalize/render/revise/fix verification 可共同运行。
-- [ ] Gate A · 证据冻结：审计初次报告与同 diff 人工裁定，并按已确认边界冻结可信资产。
-- [ ] Wave 4 · P1：基于冻结资产完成 Pages、README、双语说明和必要截图。
+- [x] Gate A · 证据冻结：审计初次报告与同 diff 人工裁定，并按已确认边界冻结可信资产。
+- [x] Wave 4 · P1：基于冻结资产完成 Pages、README、双语说明和必要截图。
 - [ ] Wave 5 · P1：只做全量回归、构建、Skill、链接、视觉和站点闸门。
 - [ ] Wave 6 · P2：候选版本独立审计；提交、推送、发布和 Pages 上线仍分别授权。
 
@@ -162,7 +162,8 @@ EvidentLoop 已能把本地 Git diff 生成可追溯的 `audit.json` / `audit.ht
 - [x] Gate A.3 已完成：同一 diff 的人工认可与评论形成独立 `feedback_revision` run，保留模型原值和 `finding-004` 的 open 状态，新 report version 为 `sha256:c16b8641f24723b1fc44519ed875a3c139daf38512586d0d64d18a337f2bfb4c`。
 - [x] Wave 1–3 检查点已提交并推送至当前 feat 分支，提交为 `9d22a510bc5be2952435b50c27b5b2f3bcdf99b7`；未创建 PR、发布或部署。
 - [x] Gate A.4 已完成：首次 v0.7 dogfood 审出语义变更摘要未进入完成门，已回到 Wave 3 最小修复并提交为 `1af67963a5ff4c6ab5da10556d206901aa173601`；随后使用用户明确 focus 生成唯一权威的 `docs/examples/evidentloop-dogfood-v05/audit.json + audit.html`，结果为 `complete / pass_candidate / overall_severity=null`、43/43 个文件、0 findings，身份、trace、敏感路径与 1440/375 视觉检查通过。旧 concept HTML 已删除。
+- [x] Wave 4 已完成：已核验 GitHub Pages 由 `main:/docs` 构建；英文与简体中文静态页、精简 README、代表性交互动画、双语生命周期图和手绘封面已统一到同一冻结证据。页面不含脚本、远程字体或分析埋点，桌面与 375px 无整体横向溢出；跨 diff 能力仍明确标注为尚无真实双 diff dogfood 证据。
 
 ## Next
 
-Gate A 已按已确认边界冻结；下一步进入 Wave 4，先核验真实 GitHub Pages source/config，再依据唯一权威报告局部更新 Pages、README 与必要素材。A.2 已跳过，因此不宣传真实跨 diff dogfood；后续 PR、发布与部署仍需分别授权。
+Wave 4 已按用户确认范围收口；下一步进入 Wave 5，只运行一次全量回归、构建、Skill、链接和站点闸门。PR、发布、PyPI 与 Pages 上线仍需分别授权。

@@ -441,6 +441,26 @@ def test_user_facing_renderer_labels_are_chinese() -> None:
     assert ">Bugs<" not in html
 
 
+def test_renderer_hides_evidence_that_only_repeats_finding_title() -> None:
+    audit = demo_audit()
+    finding = next(node for node in audit["nodes"] if node["id"] == "finding-001")
+    evidence = next(node for node in audit["nodes"] if node["id"] == "evidence-002")
+    evidence["summary"] = f"宿主语义审查结论：{finding['title']}"
+
+    html = render_audit_data(audit)
+    first_card = html[
+        html.index('id="finding-001"') : html.index('id="finding-002"')
+    ]
+
+    assert evidence["summary"] not in first_card
+    evidence["summary"] = "宿主语义审查结论：缓存命中会绕过 refresh 路径"
+    html = render_audit_data(audit)
+    first_card = html[
+        html.index('id="finding-001"') : html.index('id="finding-002"')
+    ]
+    assert evidence["summary"] in first_card
+
+
 def test_feedback_revision_keeps_model_human_and_current_judgments_distinct() -> None:
     html = render_audit_data(_revised_audit())
 
