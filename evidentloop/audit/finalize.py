@@ -366,6 +366,8 @@ def _completion_state(raw_analysis: str, expected_claim_ids: Sequence[str] = ())
     findings_body = findings_match.group(1)
     if not (declared_finding_ids(body) or _EXPLICIT_ZERO_RE.search(findings_body)):
         return "partial"
+    if parse_change_summary(body) is None:
+        return "partial"
     if expected_claim_ids:
         _, problems = parse_fix_verification_results(body, expected_claim_ids)
         if problems:

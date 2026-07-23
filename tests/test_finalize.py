@@ -136,6 +136,13 @@ def test_finalize_distinguishes_clean_partial_failed_and_unanchored(
     _write_raw(
         clean,
         f"<!-- evidentloop-run-id: {clean['run_id']} -->\n"
+        "## Section 0: Change Summary\n\n"
+        "- **Overview**: 本次改动调整应用值。\n"
+        "- **Review focus**: 核验新值是否符合预期。\n\n"
+        "### theme-001\n"
+        "- **Title**: 调整应用值\n"
+        "- **Summary**: 应用从旧值切换到新值。\n"
+        "- **Impact**: 应用运行时\n\n"
         "## Section 1: Findings\n\n未发现问题。\n\n"
         "## Section 3: Overall Assessment\n\nThe diff is clean.\n",
     )
@@ -146,6 +153,17 @@ def test_finalize_distinguishes_clean_partial_failed_and_unanchored(
     assert (
         "findings-section" not in (Path(clean["final_dir"]) / "audit.html").read_text()
     )
+
+    missing_summary = _prepare(tmp_path / "missing-summary")
+    _write_raw(
+        missing_summary,
+        f"<!-- evidentloop-run-id: {missing_summary['run_id']} -->\n"
+        "## Section 1: Findings\n\n未发现问题。\n\n"
+        "## Section 3: Overall Assessment\n\nThe diff is clean.\n",
+    )
+    missing_summary_result = finalize_review(missing_summary["final_dir"])
+    assert missing_summary_result["review_status"] == "partial"
+    assert missing_summary_result["verdict"] == "inconclusive"
 
     partial = _prepare(tmp_path / "partial")
     _write_raw(partial, _analysis(partial, overall=False))

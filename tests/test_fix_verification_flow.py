@@ -78,6 +78,13 @@ def _raw(
 ) -> str:
     return (
         f"<!-- evidentloop-run-id: {locator['run_id']} -->\n"
+        "## Section 0: Change Summary\n\n"
+        "- **Overview**: 本次改动验证旧问题并独立审查当前 diff。\n"
+        "- **Review focus**: 核验修复声明与当前代码是否一致。\n\n"
+        "### theme-001\n"
+        "- **Title**: 验证旧问题修复\n"
+        "- **Summary**: 当前 diff 针对显式选择的旧问题提供新证据。\n"
+        "- **Impact**: 应用代码与修复验证链路\n\n"
         f"## Section 1: Findings\n\n{findings}\n\n"
         "## Section 2: Observations\n\nNone.\n\n"
         f"## Section 3: Overall Assessment\n\n{overall}\n"
