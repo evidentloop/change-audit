@@ -158,6 +158,13 @@ h2 {
   font-size: clamp(1.85rem, 3.3vw, 2.75rem);
 }
 
+@media (min-width: 40rem) {
+  html[lang="zh-CN"] h2 {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
+
 h3 {
   margin-bottom: 0.55rem;
   font-size: 1.15rem;
